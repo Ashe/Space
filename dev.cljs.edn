@@ -1,0 +1,5 @@
+^{:watch-dirs ["src"]
+  :css-dirs ["resources/public"]
+  :auto-testing true}
+{ :main my-project.core
+  :output-to "target/public/main.js"}
