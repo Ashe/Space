@@ -1,19 +1,49 @@
 <!DOCTYPE html>
 <html>
   <head>
+
     <meta charset="utf-8">
-    <title>Example</title>
-    <link rel="stylesheet" href="/styles.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Space</title>
+
+    <link rel="stylesheet" href="/bulma.min.css"/>
+    <script src="https://kit.fontawesome.com/c1726ec537.js"></script>
+
   </head>
   <body>
-    <div id="app">
-      <h1>Reagent example app – see README.md</h1>
+
+    <div id="app" >
+      <section class="hero is-fullheight is-primary is-bold">
+        <div class="hero-body">
+          <div class="box" style="margin:auto">
+            <div class="level is-mobile">
+              <div class="level-item">
+                <span class="icon is-large"><i class="fas fa-3x fa-rocket"></i></span>
+              </div>
+              <div class="level-right">
+                <div class="container">
+                  <h1 class="title is-1 has-text-dark">
+                    Loading Space..
+                  </h1>
+                  <h2 class="subtitle has-text-dark">
+                    Please be patient! 
+                  </h2>
+                </div>
+              </div>
+            </div>
+            <progress class="progress is-small is-primary" max="100">15%</progress>
+          </div>
+        </div>
+      </section>
     </div>
+
     <script src="js/client.js"></script>
     <script>
-        window.onload = function () {
-            client.space.core.run();
-        }
+      window.onload = function () {
+        client.space.core.run();
+      }
     </script>
+
   </body>
 </html>

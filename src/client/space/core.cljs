@@ -83,8 +83,8 @@
 
 (defn clock
   []
-  [:div.example-clock
-   {:style {:color @(rf/subscribe [:time-color])}}
+  [:h1.title.is-1.has-text-centered {
+      :style {:color @(rf/subscribe [:time-color])}}
    (-> @(rf/subscribe [:time])
        .toTimeString
        (str/split " ")
@@ -92,11 +92,15 @@
 
 (defn color-input
   []
-  [:div.color-input
-   "Time color: "
-   [:input {:type "text"
-            :value @(rf/subscribe [:time-color])
-            :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]])  ;; <---
+  [:div.field
+    [:label.label "Time color: "]
+    [:div.control.has-icons-left
+      [:input.input {
+          :type "text"
+          :value @(rf/subscribe [:time-color])
+          :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]
+      [:span.icon.is-small.is-left
+          [:i.fas.fa-palette]]]])
 
 (def times-clicked (reagent/atom 0))
 
@@ -109,26 +113,39 @@
 (defn my-component []
   (let [n-evers @times-clicked]
     [:div
-      [:h3 (get-greeting n-evers)]
-      [:input {:type "button"
-               :value (str "Clicked " n-evers " times!")
-               :on-click #(swap! times-clicked inc)}]
+      [:p.is-size-4.has-text-centered (get-greeting n-evers)]
       [:br]
-      [:input {:type "button"
-               :value "Reset"
-               :on-click #(reset! times-clicked 0)}]
-      [:br]
-      [:input {:type "button"
-               :value "Get stuff"
-               :on-click #(rf/dispatch [:handler-with-http])}]]))
+      [:div.field
+        [:div.columns
+          [:div.column
+            [:button.button.is-link.is-fullwidth {
+                :type "button"
+                :on-click #(swap! times-clicked inc)}
+              (str "Clicked " n-evers " times!")]]
+          [:div.column
+            [:button.button.is-link.is-fullwidth {
+                :type "button"
+                :on-click #(reset! times-clicked 0)}
+              "Reset"]]]]
+      [:div.columns
+        [:div.column.has-text-centered
+          [:div.field
+            [:button.button.is-link.is-large {
+                :type "button"
+                :on-click #(rf/dispatch [:handler-with-http])}
+              "Get stuff"]]]]]))
 
 (defn ui
   []
-  [:div
-   [:h1 "Hello world, it is now"]
-   [clock]
-   [color-input]
-   [my-component]])
+  [:section.hero.is-fullheight.is-primary.is-bold
+    [:div.hero-body
+      [:div.box
+          {:style {:margin :auto}}
+        [:h1.subtitle.is-3.has-text-primary.has-text-centered
+          "Hello world, it is now.."]
+        [clock]
+        [color-input]
+        [my-component]]]])
 
 ;; -- Entry Point -------------------------------------------------------------
 
