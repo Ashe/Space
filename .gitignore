@@ -1,8 +1,5 @@
-# Created by https://www.gitignore.io/api/clojure,ansible,vagrant
-# Edit at https://www.gitignore.io/?templates=clojure,ansible,vagrant
-
-### Ansible ###
-*.retry
+# Created by https://www.gitignore.io/api/clojure
+# Edit at https://www.gitignore.io/?templates=clojure
 
 ### Clojure ###
 pom.xml
@@ -20,14 +17,4 @@ pom.xml.asc
 .nrepl-port
 .cpcache/
 
-### Vagrant ###
-# General
-.vagrant/
-
-# Log files (if you are creating logs in debug mode, uncomment this)
-# *.log
-
-### Vagrant Patch ###
-*.box
-
-# End of https://www.gitignore.io/api/clojure,ansible,vagrant
+# End of https://www.gitignore.io/api/clojure
