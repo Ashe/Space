@@ -1,6 +1,7 @@
 (ns server.space.core
   (:gen-class)
   (:require [ring.adapter.jetty :as jetty]
+            [ring.middleware.cors :as cors]
             [compojure.core :refer :all]
             [compojure.handler :as handler]
             [compojure.route :as route]))
@@ -26,6 +27,12 @@
   (GET "/count-down/:from" [from] (str-from (Integer. from)))
   (route/not-found "<h1>Page not found :(</h1>"))
 
+(def handler
+  (cors/wrap-cors app  
+      :access-control-allow-origin [#"http://localhost:9500"]
+      :access-control-allow-methods [:get :put :post :delete]))
+
 (defn -main
   [& _]
-  (jetty/run-jetty app {:port 3000}))
+  (println "Starting server now..")
+  (jetty/run-jetty handler {:port 3000}))

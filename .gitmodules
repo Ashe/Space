@@ -1,9 +1,0 @@
-[submodule "infrastructure/ansible/ansible-role-clojure-uberjar-webapp-common"]
-	path = infrastructure/ansible/ansible-role-clojure-uberjar-webapp-common
-	url = https://github.com/sweet-tooth-clojure/ansible-role-clojure-uberjar-webapp-common
-[submodule "infrastructure/ansible/ansible-role-clojure-uberjar-webapp-app"]
-	path = infrastructure/ansible/ansible-role-clojure-uberjar-webapp-app
-	url = https://github.com/sweet-tooth-clojure/ansible-role-clojure-uberjar-webapp-app
-[submodule "infrastructure/ansible/ansible-role-clojure-uberjar-webapp-nginx"]
-	path = infrastructure/ansible/ansible-role-clojure-uberjar-webapp-nginx
-	url = https://github.com/sweet-tooth-clojure/ansible-role-clojure-uberjar-webapp-nginx

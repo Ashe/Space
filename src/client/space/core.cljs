@@ -1,6 +1,8 @@
 (ns ^:figwheel-hooks client.space.core
   (:require [reagent.core :as reagent]
              [re-frame.core :as rf]
+             [day8.re-frame.http-fx]
+             [ajax.core :as ajax]
              [clojure.string :as str]))
 
 ;; A detailed walk-through of this source code is provided in the docs:
@@ -38,6 +40,30 @@
   :timer                         ;; every second an event of this kind will be dispatched
   (fn [db [_ new-time]]          ;; note how the 2nd parameter is destructured to obtain the data value
     (assoc db :time new-time)))  ;; compute and return the new application state
+
+(rf/reg-event-fx                          ;; note the trailing -fx
+  :handler-with-http                      ;; usage:  (dispatch [:handler-with-http])
+  (fn [{:keys [db]} _]                    ;; the first param will be "world"
+    { :db   (assoc db :show-twirly true)  ;; causes the twirly-waiting-dialog to show??
+      :http-xhrio { :method          :get
+                    :uri             "http://localhost:8080/count-up/10"
+                    :timeout         8000                                           ;; optional see API docs
+                    :response-format (ajax/json-response-format {:keywords? true})  ;; IMPORTANT!: You must provide this.
+                    :on-success      [:success-http-result]
+                    :on-failure      [:bad-http-result]}}))
+
+(rf/reg-event-db
+  :success-http-result
+  (fn [db [_ result]]
+    (println (str "Success: " result))
+    (assoc db :success-http-result result)))
+
+(rf/reg-event-db
+  :bad-http-result
+  (fn [db [_ result]]
+    ;; result is a map containing details of the failure
+    (println (str "Failure" result))
+    (assoc db :failure-http-result result)))
 
 
 ;; -- Domino 4 - Query  -------------------------------------------------------
@@ -90,7 +116,11 @@
       [:br]
       [:input {:type "button"
                :value "Reset"
-               :on-click #(reset! times-clicked 0)}]]))
+               :on-click #(reset! times-clicked 0)}]
+      [:br]
+      [:input {:type "button"
+               :value "Get stuff"
+               :on-click #(rf/dispatch [:handler-with-http])}]]))
 
 (defn ui
   []

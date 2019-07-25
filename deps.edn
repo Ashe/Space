@@ -2,9 +2,11 @@
           org.clojure/clojurescript {:mvn/version "1.10.339"}
           ring/ring-core            {:mvn/version "1.7.1"}
           ring/ring-jetty-adapter   {:mvn/version "1.7.1"}
+          ring-cors/ring-cors       {:mvn/version "0.1.13"}
           compojure                 {:mvn/version "1.6.1"}
           reagent                   {:mvn/version "0.8.1"}
-          re-frame                  {:mvn/version "0.10.8"}}
+          re-frame                  {:mvn/version "0.10.8"}
+          day8.re-frame/http-fx     {:mvn/version "0.1.6"}}
   :paths ["src" "resources"]
   :aliases { :depstar
               { :extra-deps
