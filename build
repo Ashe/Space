@@ -1,3 +1,4 @@
 #!/bin/bash
 clojure -A:depstar -m hf.depstar.uberjar target/build/app.jar
 chmod 755 target/build/app.jar
+docker build . -t space:latest
