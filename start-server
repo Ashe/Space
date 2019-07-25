@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo docker run -p 8080:3000 space:latest
