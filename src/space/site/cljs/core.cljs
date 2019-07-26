@@ -1,9 +1,56 @@
-(ns ^:figwheel-hooks client.space.core
+(ns ^:figwheel-hooks space.site.cljs.core
   (:require [reagent.core :as reagent]
-             [re-frame.core :as rf]
-             [day8.re-frame.http-fx]
-             [ajax.core :as ajax]
-             [clojure.string :as str]))
+            [re-frame.core :as rf]
+            [day8.re-frame.http-fx]
+            [re-frame-routing.core :as rfr]
+            [ajax.core :as ajax]
+            [clojure.string :as str]))
+
+;; app.core
+
+(def routes ["/" {"" :home
+                  "home" :home}])
+
+(rfr/register-subscriptions)
+(rfr/register-events {:routes routes})
+
+;; Container views (usally in seperate views)
+
+(defn home
+  [{:keys [route-key path-params query-params]}]
+  [:div "Home"])
+
+(defn not-found
+  [{:keys [route-key path-params query-params]}]
+  [:div "Page not found"])
+
+(defn- wrap-container
+  [container-view]
+  (let [route-key (rf/subscribe [:router/route])
+        path-params (rf/subscribe [:router/route-params])
+        query-params (rf/subscribe [:router/route-query])]
+    (fn []
+      [container-view {:route-key @route-key
+                       :path-params @path-params
+                       :query-params @query-params}])))
+
+;; app.router.core
+
+(defmulti containers identity)
+
+(defmethod containers 
+  :home [] [(wrap-container home)])
+
+;; CATCH-ALL ROUTE
+(defmethod containers
+  :default [] [not-found])
+
+(defn router []
+  (let [route-key (rf/subscribe [:router/route])]
+    (fn [] 
+      (js/console.log @route-key)
+      [containers @route-key])))
+
 
 ;; A detailed walk-through of this source code is provided in the docs:
 ;; https://github.com/Day8/re-frame/blob/master/docs/CodeWalkthrough.md
@@ -23,11 +70,12 @@
 
 ;; -- Domino 2 - Event Handlers -----------------------------------------------
 
-(rf/reg-event-db              ;; sets up initial application state
-  :initialize                 ;; usage:  (dispatch [:initialize])
-  (fn [_ _]                   ;; the two parameters are not important here, so use _
-    {:time (js/Date.)         ;; What it returns becomes the new application state
-     :time-color "#f88"}))    ;; so the application state will initially be a map with two keys
+(rf/reg-event-fx            ;; sets up initial application state
+  :initialize               ;; usage:  (dispatch [:initialize])
+  (fn [{:keys [db]} _]      ;; the two parameters are not important here, so use _
+    {:db {:time (js/Date.)  ;; What it returns becomes the new application state
+     :time-color "#f88"}
+     :pushy-init true}))    ;; so the application state will initially be a map with two keys
 
 
 (rf/reg-event-db                ;; usage:  (dispatch [:time-color-change 34562])
@@ -46,7 +94,7 @@
   (fn [{:keys [db]} _]                    ;; the first param will be "world"
     { :db   (assoc db :show-twirly true)  ;; causes the twirly-waiting-dialog to show??
       :http-xhrio { :method          :get
-                    :uri             "http://localhost:8080/count-up/10"
+                    :uri             "http://localhost:3000/count-up/10"
                     :timeout         8000                                           ;; optional see API docs
                     :response-format (ajax/json-response-format {:keywords? true})  ;; IMPORTANT!: You must provide this.
                     :on-success      [:success-http-result]
@@ -145,7 +193,8 @@
           "Hello world, it is now.."]
         [clock]
         [color-input]
-        [my-component]]]])
+        [my-component]
+        [router]]]])
 
 ;; -- Entry Point -------------------------------------------------------------
 
