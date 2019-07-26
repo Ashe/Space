@@ -4,9 +4,9 @@
             [day8.re-frame.http-fx]
             [re-frame-routing.core :as rfr]
             [ajax.core :as ajax]
-            [clojure.string :as str]
 
-            [space.site.cljs.router :as router]))
+            [space.site.cljs.router :as router]
+            [space.site.cljs.design.core :as design]))
 
 ;; app.core
 (rfr/register-subscriptions)
@@ -86,80 +86,15 @@
 
 ;; -- Domino 5 - View Functions ----------------------------------------------
 
-(defn clock
-  []
-  [:h1.title.is-1.has-text-centered {
-      :style {:color @(rf/subscribe [:time-color])}}
-   (-> @(rf/subscribe [:time])
-       .toTimeString
-       (str/split " ")
-       first)])
-
-(defn color-input
-  []
-  [:div.field
-    [:label.label "Time color: "]
-    [:div.control.has-icons-left
-      [:input.input {
-          :type "text"
-          :value @(rf/subscribe [:time-color])
-          :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]
-      [:span.icon.is-small.is-left
-          [:i.fas.fa-palette]]]])
-
-(def times-clicked (reagent/atom 0))
-
-(defn get-greeting
-  "Get the greeting of the page"
-  [n]
-  (let [evers (repeat n "ever ")]
-    (str "My first " (apply str evers) " react component!")))
-
-(defn my-component []
-  (let [n-evers @times-clicked]
-    [:div
-      [:p.is-size-4.has-text-centered (get-greeting n-evers)]
-      [:br]
-      [:div.field
-        [:div.columns
-          [:div.column
-            [:button.button.is-link.is-fullwidth {
-                :type "button"
-                :on-click #(swap! times-clicked inc)}
-              (str "Clicked " n-evers " times!")]]
-          [:div.column
-            [:button.button.is-link.is-fullwidth {
-                :type "button"
-                :on-click #(reset! times-clicked 0)}
-              "Reset"]]]]
-      [:div.columns
-        [:div.column.has-text-centered
-          [:div.field
-            [:button.button.is-link.is-large {
-                :type "button"
-                :on-click #(rf/dispatch [:handler-with-http])}
-              "Get stuff"]]]]]))
-
-(defn ui
-  []
-  [:section.hero.is-fullheight.is-primary.is-bold
-    [:div.hero-body
-      [:div.box
-          {:style {:margin :auto}}
-        [:h1.subtitle.is-3.has-text-primary.has-text-centered
-          "Hello world, it is now.."]
-        [clock]
-        [color-input]
-        [my-component]
-        [router/router]]]])
 
 ;; -- Entry Point -------------------------------------------------------------
 
+;; Mount the application's ui into '<div id="app" />'
 (defn run-app
   "Use this function to (re)start the site"
   []
-  (rf/dispatch-sync [:initialize])  ;; puts a value into application state
-  (reagent/render [ui]              ;; mount the application's ui into '<div id="app" />'
+  (rf/dispatch-sync [:initialize])
+  (reagent/render [design/main-site]  
                   (js/document.getElementById "app")))
 
 ;; This is called at the start of the site
