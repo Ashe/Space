@@ -4,56 +4,13 @@
             [day8.re-frame.http-fx]
             [re-frame-routing.core :as rfr]
             [ajax.core :as ajax]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+
+            [space.site.cljs.router :as router]))
 
 ;; app.core
-
-(def routes ["/" {"" :home
-                  "home" :home}])
-
 (rfr/register-subscriptions)
-(rfr/register-events {:routes routes})
-
-;; Container views (usally in seperate views)
-
-(defn home
-  [{:keys [route-key path-params query-params]}]
-  [:div "Home"])
-
-(defn not-found
-  [{:keys [route-key path-params query-params]}]
-  [:div "Page not found"])
-
-(defn- wrap-container
-  [container-view]
-  (let [route-key (rf/subscribe [:router/route])
-        path-params (rf/subscribe [:router/route-params])
-        query-params (rf/subscribe [:router/route-query])]
-    (fn []
-      [container-view {:route-key @route-key
-                       :path-params @path-params
-                       :query-params @query-params}])))
-
-;; app.router.core
-
-(defmulti containers identity)
-
-(defmethod containers 
-  :home [] [(wrap-container home)])
-
-;; CATCH-ALL ROUTE
-(defmethod containers
-  :default [] [not-found])
-
-(defn router []
-  (let [route-key (rf/subscribe [:router/route])]
-    (fn [] 
-      (js/console.log @route-key)
-      [containers @route-key])))
-
-
-;; A detailed walk-through of this source code is provided in the docs:
-;; https://github.com/Day8/re-frame/blob/master/docs/CodeWalkthrough.md
+(rfr/register-events {:routes router/routes})
 
 ;; -- Domino 1 - Event Dispatch -----------------------------------------------
 
@@ -194,7 +151,7 @@
         [clock]
         [color-input]
         [my-component]
-        [router]]]])
+        [router/router]]]])
 
 ;; -- Entry Point -------------------------------------------------------------
 
