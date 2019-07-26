@@ -6,16 +6,6 @@
   ["/" {"" :home
         "home" :home}])
 
-(defn- prepare-view
-  "Pass parameters to given component function for display"
-  [view route-key]
-  (let [path-params (rf/subscribe [:router/route-params])
-        query-params (rf/subscribe [:router/route-query])]
-    [view {
-        :route-key route-key
-        :path-params @path-params
-        :query-params @query-params}]))
-
 ;; @TODO: Expand on this
 (defn home
   "Home screen component"
@@ -34,8 +24,13 @@
 (defmethod get-view :default [] not-found)
 
 (defn router 
-  "Delegates a route to an appropriate view"
+  "Returns the appropriate view for the current route"
   []
   (let [route-key-ref (rf/subscribe [:router/route])
+        path-params (rf/subscribe [:router/route-params])
+        query-params (rf/subscribe [:router/route-query])
         route-key @route-key-ref]
-    [prepare-view (get-view route-key) route-key]))
+    [(get-view route-key) {
+        :route-key route-key
+        :path-params @path-params
+        :query-params @query-params}]))
