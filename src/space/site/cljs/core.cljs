@@ -5,11 +5,11 @@
             [re-frame-routing.core :as rfr]
             [ajax.core :as ajax]
 
-            [space.site.cljs.router :as router]))
+            [space.site.cljs.route.core :as route]))
 
 ;; app.core
 (rfr/register-subscriptions)
-(rfr/register-events {:routes router/routes})
+(rfr/register-events {:routes route/routes})
 
 ;; -- Domino 1 - Event Dispatch -----------------------------------------------
 
@@ -93,7 +93,7 @@
   "Use this function to (re)start the site"
   []
   (rf/dispatch-sync [:initialize])
-  (reagent/render [router/routed-page]  
+  (reagent/render [route/routed-page]
                   (js/document.getElementById "app")))
 
 ;; This is called at the start of the site

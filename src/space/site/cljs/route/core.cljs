@@ -1,4 +1,4 @@
-(ns space.site.cljs.router
+(ns space.site.cljs.route.core
   (:require [re-frame.core :as rf]
             [space.site.cljs.design.core :as design]))
 
