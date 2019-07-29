@@ -5,8 +5,7 @@
             [re-frame-routing.core :as rfr]
             [ajax.core :as ajax]
 
-            [space.site.cljs.router :as router]
-            [space.site.cljs.design.core :as design]))
+            [space.site.cljs.router :as router]))
 
 ;; app.core
 (rfr/register-subscriptions)
@@ -94,7 +93,7 @@
   "Use this function to (re)start the site"
   []
   (rf/dispatch-sync [:initialize])
-  (reagent/render [design/main-site]  
+  (reagent/render [router/routed-page]  
                   (js/document.getElementById "app")))
 
 ;; This is called at the start of the site

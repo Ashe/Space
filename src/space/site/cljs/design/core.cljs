@@ -1,33 +1,15 @@
 (ns space.site.cljs.design.core
   (:require [reagent.core :as reagent]
             [re-frame.core :as rf]
-            [space.site.cljs.router :as router]
             [clojure.string :as str]))
 
-(defn clock
-  "Colourful clock component"
+(defn get-time
+  "Returns the current time as string"
   []
-  [:h1.title.is-1.has-text-centered {
-      :style {:color @(rf/subscribe [:time-color])}}
-   (-> @(rf/subscribe [:time])
-       .toTimeString
-       (str/split " ")
-       first)])
-
-(defn colour-input
-  "Colour input for timer"
-  []
-  [:div.field
-    [:label.label "Time color: "]
-    [:div.control.has-icons-left
-      [:input.input {
-          :type "text"
-          :value @(rf/subscribe [:time-color])
-          :on-change #(rf/dispatch [:time-color-change (-> % .-target .-value)])}]
-      [:span.icon.is-small.is-left
-          [:i.fas.fa-palette]]]])
-
-(def times-clicked (reagent/atom 0))
+  (-> @(rf/subscribe [:time])
+      .toTimeString
+      (str/split " ")
+      first))
 
 ;; @TODO: Replace this with something useful
 (defn get-greeting
@@ -40,40 +22,104 @@
 (defn my-component 
   "First custom component"
   []
-  (let [n-evers @times-clicked]
-    [:div
-      [:p.is-size-4.has-text-centered (get-greeting n-evers)]
-      [:br]
+  [:div.columns
+    [:div.column.has-text-centered
       [:div.field
-        [:div.columns
-          [:div.column
-            [:button.button.is-link.is-fullwidth {
-                :type "button"
-                :on-click #(swap! times-clicked inc)}
-              (str "Clicked " n-evers " times!")]]
-          [:div.column
-            [:button.button.is-link.is-fullwidth {
-                :type "button"
-                :on-click #(reset! times-clicked 0)}
-              "Reset"]]]]
-      [:div.columns
-        [:div.column.has-text-centered
-          [:div.field
-            [:button.button.is-link.is-large {
-                :type "button"
-                :on-click #(rf/dispatch [:handler-with-http])}
-              "Get stuff"]]]]]))
+        [:button.button.is-link.is-large {
+            :type "button"
+            :on-click #(rf/dispatch [:handler-with-http])}
+          "Get stuff"]]]])
 
-(defn main-site
-  "Render the entire site"
+;; @TODO: Change appearance depending on current page
+(defn navbar
+  "Navbar of site"
   []
-  [:section.hero.is-fullheight.is-primary.is-bold
-    [:div.hero-body
-      [:div.box
-          {:style {:margin :auto}}
-        [:h1.subtitle.is-3.has-text-primary.has-text-centered
-          "Hello world, it is now.."]
-        [clock]
-        [colour-input]
-        [my-component]
-        [router/router]]]])
+  [:div
+    [:section.hero.is-primary.is-small
+
+      ;; Top bar
+      [:div.hero-head
+        [:nav.navbar
+          [:div.container
+            [:div.navbar-brand
+              [:span.navbar-item
+                [:a.button.is-primary.is-large
+                    {:href "/"}
+                  [:h1.title 
+                    [:span.icon
+                      [:i.fas.fa-rocket]]
+                    " Space"]]]
+              [:span.navbar-burger.burger
+                  {:data-target "navbarMenuHeroA"}
+                [:span]
+                [:span]
+                [:span]]]
+            [:div.navbar-menu
+                {:id "navbarMenuHeroA"}
+              [:div.navbar-end
+                [:span.navbar-item
+                  [:a.button.is-primary.is-inverted
+                    [:span.icon
+                      [:i.fa.fa-user]]
+                    [:span "Sign in"]]]]]]]
+        
+      ;; Hero footer
+      [:div.hero-foot
+        [:nav.tabs
+          [:div.container
+            [:ul
+              [:li.is-active [:a {:href "/"} "Forum"]]
+              [:li [:a {:href "/tags"} "Tags"]]
+              [:li [:a {:href "/members"} "Members"]]
+              [:li [:a {:href "/admin"} "Admin"]]]]]]]]])
+
+(defn footer
+  "Footer of website linking to repository"
+  []
+  [:footer.footer
+    [:div.container.is-fluid
+      [:div.columns
+        [:div.column.is-1]
+        [:div.column.is-10
+          [:div.content
+
+            ;; Logo
+            [:h1.title 
+              [:span.icon
+                [:i.fas.fa-rocket]]
+              " Space"]]
+          [:div.columns
+            [:div.column
+
+              ;; Space information and GitHub link
+              [:div.content
+                [:p "Space is an open-source forum with a modern take on discussions
+                    and collaboration designed from the ground up to be forked and
+                    customised to suit your community's needs."]]
+              [:a.button.is-primary
+                [:span.icon
+                  [:i.fab.fa-github]]
+                [:span "Fork on GitHub"]]]
+            [:div.column
+
+              ;; Forum links
+              [:div.content
+                [:div.content.is-marginless 
+                  [:a "Dashboard"]]
+                [:div.content.is-marginless 
+                  [:a "What is a Space?"]]
+                [:div.content.is-marginless 
+                  [:a "Why open source?"]]]
+
+              ;; Link to author
+              [:div.content.is-marginless
+                [:strong "Made by "
+                  [:a 
+                    {:href "https://aas.sh"}
+                    "Ashley Smith"]
+                  " with "
+                  [:a 
+                    {:href "https://clojure.org"}
+                    "Clojure"]
+                  " and "
+                  [:span.icon [:icon.fa.fa-heart]]]]]]]]]])
