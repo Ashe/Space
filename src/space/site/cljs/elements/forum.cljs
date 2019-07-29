@@ -1,4 +1,4 @@
-(ns space.site.cljs.design.forum)
+(ns space.site.cljs.elements.forum)
 
 ;; Forward declarations
 (declare selection-bar post)
@@ -55,8 +55,8 @@
               Proin ornare magna eros, eu pellentesque tortor vestibulum ut. 
               Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis."]
             [:div.tags
-              [:span.tag.is-info "Clojure"]
-              [:span.tag.is-success "Reagent"]
-              [:span.tag.is-warning "Re-Frame"]]]]
+              [:a.tag.is-info "Clojure"]
+              [:a.tag.is-success "Reagent"]
+              [:a.tag.is-warning "Re-Frame"]]]]
         [:div.media-right
           [:button.delete]]]]])

@@ -1,13 +1,12 @@
 (ns space.site.cljs.route.core
   (:require [re-frame.core :as rf]
             [re-frame-routing.core :as rfr]
-            [space.site.cljs.design.core :as design]))
+            [space.site.cljs.elements.navbar :as navbar]
+            [space.site.cljs.elements.footer :as footer]
+            [space.site.cljs.elements.forum :as forum]))
 
 ;; Forward declarations
-(declare routes)
-
-;; Import routing events
-(rfr/register-events {:routes routes})
+(declare not-found tags members admin)
 
 ;; Determine what URLs match to what view
 (def routes 
@@ -16,6 +15,17 @@
         "tags" :tags
         "members" :members
         "admin" :admin}])
+
+;; Import routing events
+(rfr/register-events {:routes routes})
+
+;; Choose which component function to use depending on route
+(defmulti get-page-content identity)
+(defmethod get-page-content :home [] forum/forum)
+(defmethod get-page-content :tags [] tags)
+(defmethod get-page-content :members [] members)
+(defmethod get-page-content :admin [] admin)
+(defmethod get-page-content :default [] not-found)
 
 (defn routed-page
   "Component containing the page after routing"
@@ -29,7 +39,31 @@
             :path-params @path-params
             :query-params @query-params}]
     [:div
-      [design/navbar]
-      [:secion.section
-        [(design/get-page-content route-key) route-data]]
-      [design/footer]]))
+      [navbar/navbar]
+      [:section.section
+        [(get-page-content route-key) route-data]]
+      [footer/footer]]))
+
+;; @TODO: Expand on this
+(defn not-found
+  "404 Page component"
+  [{:keys [route-key path-params query-params]}]
+  [:div "Page not found"])
+
+;; @TODO: Expand on this
+(defn tags
+  "Display tags used in this forum"
+  [{:keys [route-key path-params query-params]}]
+  [:div "Tags"])
+
+;; @TODO: Expand on this
+(defn members
+  "Show members who belong to this forum"
+  [{:keys [route-key path-params query-params]}]
+  [:div "Members"])
+
+;; @TODO: Expand on this
+(defn admin
+  "Show tools for moderation and configuration of Space"
+  [{:keys [route-key path-params query-params]}]
+  [:div "Admin"])

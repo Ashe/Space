@@ -1,4 +1,4 @@
-(ns space.site.cljs.design.navbar
+(ns space.site.cljs.elements.navbar
   (:require [space.site.cljs.events.time :as time]))
 
 ;; @TODO: Change appearance depending on current page
@@ -25,8 +25,7 @@
                 [:span]
                 [:span]
                 [:span]]]
-            [:div.navbar-menu
-                {:id "navbarMenuHeroA"}
+            [:div#navbarMenuHeroA.navbar-menu
               [:div.navbar-end
                 [:span.navbar-item
                   (time/get-current-time)]
