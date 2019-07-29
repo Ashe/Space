@@ -41,11 +41,12 @@
   [:a.is-block
       {:style {:margin forum-spacing}}
     [:div.box
-      [:article.media
-        [:figure.media-left
-          [:p.image.is-64x64
-            [:img {:src "https://bulma.io/images/placeholders/128x128.png"}]]]
-        [:div.media-content
+      [:article.columns.is-vcentered
+        [:div.column.is-narrow
+            [:figure.has-text-centered
+              [:span.image.is-64x64.is-inline-block
+                [:img {:src "https://bulma.io/images/placeholders/128x128.png"}]]]]
+        [:div.column
           [:div.content
             [:p 
               [:strong.is-size-4 "A post about Clojure"] [:br]
@@ -57,6 +58,4 @@
             [:div.tags
               [:a.tag.is-info "Clojure"]
               [:a.tag.is-success "Reagent"]
-              [:a.tag.is-warning "Re-Frame"]]]]
-        [:div.media-right
-          [:button.delete]]]]])
+              [:a.tag.is-warning "Re-Frame"]]]]]]])
