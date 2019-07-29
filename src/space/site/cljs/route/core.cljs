@@ -3,6 +3,12 @@
             [re-frame-routing.core :as rfr]
             [space.site.cljs.design.core :as design]))
 
+;; Forward declarations
+(declare routes)
+
+;; Import routing events
+(rfr/register-events {:routes routes})
+
 ;; Determine what URLs match to what view
 (def routes 
   ["/" {"" :home
@@ -10,47 +16,6 @@
         "tags" :tags
         "members" :members
         "admin" :admin}])
-
-;; Import routing events
-(rfr/register-events {:routes routes})
-
-;; @TODO: Expand on this
-(defn home
-  "Home screen component"
-  [{:keys [route-key path-params query-params]}]
-  [:div "Home and main forum"])
-
-;; @TODO: Expand on this
-(defn not-found
-  "404 Page component"
-  [{:keys [route-key path-params query-params]}]
-  [:div "Page not found"])
-
-;; @TODO: Expand on this
-(defn tags
-  "Display tags used in this forum"
-  [{:keys [route-key path-params query-params]}]
-  [:div "Tags"])
-
-;; @TODO: Expand on this
-(defn members
-  "Show members who belong to this forum"
-  [{:keys [route-key path-params query-params]}]
-  [:div "Members"])
-
-;; @TODO: Expand on this
-(defn admin
-  "Show tools for moderation and configuration of Space"
-  [{:keys [route-key path-params query-params]}]
-  [:div "Admin"])
-
-;; Choose which component function to use depending on route
-(defmulti get-view identity)
-(defmethod get-view :home [] home)
-(defmethod get-view :default [] not-found)
-(defmethod get-view :tags [] tags)
-(defmethod get-view :members [] members)
-(defmethod get-view :admin [] admin)
 
 (defn routed-page
   "Component containing the page after routing"
@@ -65,5 +30,6 @@
             :query-params @query-params}]
     [:div
       [design/navbar]
-      [(get-view route-key) route-data]
+      [:secion.section
+        [(design/get-page-content route-key) route-data]]
       [design/footer]]))
