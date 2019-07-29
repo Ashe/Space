@@ -1,7 +1,7 @@
 (ns space.site.cljs.elements.forum)
 
 ;; Forward declarations
-(declare post selection-bar)
+(declare post selection-bar pagination)
 
 ;; Make all elements spaced evenly
 (def forum-spacing "10px 0px")
@@ -12,7 +12,8 @@
   [:div.container.is-widescreen
     [:div.container.is-fluid
       [selection-bar]
-      (repeat 3 (post))]])
+      (repeat 3 (post))
+      [pagination]]])
 
 (defn selection-bar
   "Sort, filter and search bar"
@@ -59,3 +60,18 @@
               [:a.tag.is-info "Clojure"]
               [:a.tag.is-success "Reagent"]
               [:a.tag.is-warning "Re-Frame"]]]]]]])
+
+;;@TODO: Make pagination change depending on current page
+(defn pagination
+  "Shows the current page number"
+  [page]
+  [:nav.pagination.is-centered
+      { :role "navigation"
+        :aria-label "pagination"}
+    [:a.pagination-previous "Previous"]
+    [:a.pagination-next "Next"]
+    [:ul.pagination-list
+      [:li>a.pagination-link 
+          {:aria-label "Goto page 1"}
+        "1"]]])
+
