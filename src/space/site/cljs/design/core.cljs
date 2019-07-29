@@ -1,34 +1,6 @@
 (ns space.site.cljs.design.core
   (:require [reagent.core :as reagent]
-            [re-frame.core :as rf]
-            [clojure.string :as str]))
-
-(defn get-time
-  "Returns the current time as string"
-  []
-  (-> @(rf/subscribe [:time])
-      .toTimeString
-      (str/split " ")
-      first))
-
-;; @TODO: Replace this with something useful
-(defn get-greeting
-  "Get the greeting of the page"
-  [n]
-  (let [evers (repeat n "ever ")]
-    (str "My first " (apply str evers) " react component!")))
-
-;; @TODO: Delete this component and make a site
-(defn my-component 
-  "First custom component"
-  []
-  [:div.columns
-    [:div.column.has-text-centered
-      [:div.field
-        [:button.button.is-link.is-large {
-            :type "button"
-            :on-click #(rf/dispatch [:handler-with-http])}
-          "Get stuff"]]]])
+            [space.site.cljs.events.time :as time]))
 
 ;; @TODO: Change appearance depending on current page
 (defn navbar
@@ -57,6 +29,8 @@
             [:div.navbar-menu
                 {:id "navbarMenuHeroA"}
               [:div.navbar-end
+                [:span.navbar-item
+                  (time/get-current-time)]
                 [:span.navbar-item
                   [:a.button.is-primary.is-inverted
                     [:span.icon
@@ -103,11 +77,12 @@
           [:div.column
 
             ;; Forum links
+            ;; @TODO: Link these to somewhere
             [:div.content
               [:div.content.is-marginless 
                 [:a "Dashboard"]]
               [:div.content.is-marginless 
-                [:a "What is a Space?"]]
+                [:a "What is Space?"]]
               [:div.content.is-marginless 
                 [:a "Why open source?"]]]
 

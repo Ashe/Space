@@ -1,14 +1,18 @@
 (ns space.site.cljs.route.core
   (:require [re-frame.core :as rf]
+            [re-frame-routing.core :as rfr]
             [space.site.cljs.design.core :as design]))
 
-; Determine what URLs match to what view
+;; Determine what URLs match to what view
 (def routes 
   ["/" {"" :home
         "home" :home
         "tags" :tags
         "members" :members
         "admin" :admin}])
+
+;; Import routing events
+(rfr/register-events {:routes routes})
 
 ;; @TODO: Expand on this
 (defn home
