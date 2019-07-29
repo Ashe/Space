@@ -1,7 +1,10 @@
 (ns space.site.cljs.elements.forum)
 
 ;; Forward declarations
-(declare selection-bar post)
+(declare post selection-bar)
+
+;; Make all elements spaced evenly
+(def forum-spacing "10px 0px")
 
 (defn forum
   "Draw forum posts"
@@ -10,9 +13,6 @@
     [:div.container.is-fluid
       [selection-bar]
       (repeat 3 (post))]])
-
-;; Make all elements spaced evenly
-(def forum-spacing "10px 0px")
 
 (defn selection-bar
   "Sort, filter and search bar"

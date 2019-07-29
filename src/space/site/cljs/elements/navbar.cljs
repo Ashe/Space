@@ -1,10 +1,12 @@
 (ns space.site.cljs.elements.navbar
   (:require [space.site.cljs.events.time :as time]))
 
+(declare tab foo)
+
 ;; @TODO: Change appearance depending on current page
 (defn navbar
   "Navbar of site"
-  []
+  [route-key]
   [:div
     [:section.hero.is-primary.is-small
 
@@ -37,11 +39,19 @@
         
       ;; Hero footer
       [:div.hero-foot
-        [:nav.tabs
+        [:nav.tabs.is-boxed
           [:div.container
             [:ul
-              [:li.is-active [:a {:href "/"} "Forum"]]
-              [:li [:a {:href "/tags"} "Tags"]]
-              [:li [:a {:href "/members"} "Members"]]
-              [:li [:a {:href "/admin"} "Admin"]]]]]]]]])
+              [tab "Forum" :home "/" route-key]
+              [tab "Tags" :tags "/tags" route-key]
+              [tab "Members" :members "/members" route-key]
+              [tab "Admin" :admin "/admin" route-key]]]]]]]])
+
+(defn tab
+  "Returns a tab that is active when given a matching route"
+  [text route destination page]
+  [:li {:class [(when (= page route) "is-active")]}
+    [:a {:href destination}
+      text]])
+
 

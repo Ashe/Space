@@ -39,7 +39,7 @@
             :path-params @path-params
             :query-params @query-params}]
     [:div
-      [navbar/navbar]
+      [navbar/navbar route-key]
       [:section.section
         [(get-page-content route-key) route-data]]
       [footer/footer]]))
