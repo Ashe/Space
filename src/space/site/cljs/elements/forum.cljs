@@ -1,4 +1,5 @@
-(ns space.site.cljs.elements.forum)
+(ns space.site.cljs.elements.forum
+  (:require [space.site.cljs.elements.notifications :refer [notify]]))
 
 ;; Forward declarations
 (declare post selection-bar pagination)
@@ -12,7 +13,7 @@
   [:div.container.is-widescreen
     [:div.container.is-fluid
       [selection-bar]
-      (repeat 3 (post))
+      (map post (range 3))
       [pagination]]])
 
 (defn selection-bar
@@ -38,9 +39,11 @@
 
 (defn post
   "An overview of a post"
-  []
-  [:a.is-block
-      {:style {:margin forum-spacing}}
+  [post-id]
+  [:div
+      { :id (str "post-" post-id)
+        :key post-id
+        :style {:margin forum-spacing}}
     [:div.box
       [:article.columns.is-vcentered
         [:div.column.is-narrow
@@ -50,7 +53,12 @@
         [:div.column
           [:div.content
             [:p 
-              [:strong.is-size-4 "A post about Clojure"] [:br]
+              [:a 
+                {:on-click (notify
+                    "Cannot open forum post"
+                    "Not yet implemented!"
+                    "is-danger")}
+               [:strong.is-size-4 "A post about Clojure"]] [:br]
               [:a [:strong "Example User "] "@foo"] [:small " 1m ago"] [:br]
 
               "Lorem ipsum dolor sit amet, consectetur adipiscing elit. 

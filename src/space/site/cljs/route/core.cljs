@@ -2,11 +2,12 @@
   (:require [re-frame.core :as rf]
             [re-frame-routing.core :as rfr]
             [space.site.cljs.elements.navbar :as navbar]
+            [space.site.cljs.elements.notifications :as notifications]
             [space.site.cljs.elements.footer :as footer]
             [space.site.cljs.elements.forum :as forum]))
 
 ;; Forward declarations
-(declare not-found tags members admin)
+(declare not-found tags members admin get-page-content)
 
 ;; Determine what URLs match to what view
 (def routes 
@@ -18,14 +19,6 @@
 
 ;; Import routing events
 (rfr/register-events {:routes routes})
-
-;; Choose which component function to use depending on route
-(defmulti get-page-content identity)
-(defmethod get-page-content :home [] forum/forum)
-(defmethod get-page-content :tags [] tags)
-(defmethod get-page-content :members [] members)
-(defmethod get-page-content :admin [] admin)
-(defmethod get-page-content :default [] not-found)
 
 (defn routed-page
   "Component containing the page after routing"
@@ -42,7 +35,17 @@
       [navbar/navbar route-key]
       [:section.section
         [(get-page-content route-key) route-data]]
-      [footer/footer]]))
+      [footer/footer]
+      [notifications/notification-panel]]))
+
+
+;; Choose which component function to use depending on route
+(defmulti get-page-content identity)
+(defmethod get-page-content :home [] forum/forum)
+(defmethod get-page-content :tags [] tags)
+(defmethod get-page-content :members [] members)
+(defmethod get-page-content :admin [] admin)
+(defmethod get-page-content :default [] not-found)
 
 ;; @TODO: Expand on this
 (defn not-found

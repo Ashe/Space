@@ -50,4 +50,4 @@
                   {:href "https://clojure.org"}
                   "Clojure"]
                 " and "
-                [:span.icon [:icon.fa.fa-heart]]]]]]]]])
+                [:span.icon [:i.fa.fa-heart]]]]]]]]])
