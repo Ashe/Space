@@ -13,11 +13,12 @@
 (rf/reg-event-fx
   :initialize
   (fn [{:keys [db]} _]
-    {:db {:time (js/Date.)
-          :time-color "#f88"
-          :notifications []}
+    {:db {:connection-status true
+          :notifications []
+          :time (js/Date.)
+          :time-color "#f88"}
      :pushy-init true
-     :http-xhrio (http-get "count-up/10" [:success-http-result] [:bad-http-result])}))
+     :http-xhrio (http-get "count-up/10" [:good-http-result] [:bad-http-result])}))
 
 ;; usage:  (dispatch [:time-color-change 34562])
 ;; dispatched when the user enters a new colour into the UI text field
@@ -28,19 +29,44 @@
   (fn [db [_ new-color-value]]                  
     (assoc db :time-color new-color-value)))
 
-(rf/reg-event-db
-  :success-http-result
-  (fn [db [_ result]]
-    (println (str "Success: " result))
-    (assoc db :success-http-result result)))
+(rf/reg-event-fx
+  :good-http-result
+  (fn [cofx [_ result]]
+    (println (str "Successful HTTP-GET: " result))
+    { :db (assoc (:db cofx) :success-http-result result)
+      :dispatch [:set-connection-status true]}))
 
 (rf/reg-event-fx
   :bad-http-result
   (fn [cofx [_ result]]
-    (println (str "Failure" result))
+    (println (str "Failed HTTP-GET:" result))
     { :db (assoc (:db cofx) :failure-http-result result)
+      :dispatch [:set-connection-status false]}))
+
+(rf/reg-event-fx
+  :set-connection-status
+  (fn [cofx [_ status]]
+    { :db (assoc (:db cofx) 
+                 :connection-status status)
       :dispatch [:new-notification 
-                    ["Disconnected from server" "Please try again later." "is-danger"]]}))
+                  ["Disconnected from server" "Please try again later." "is-danger"]]}))
+
+(rf/reg-event-fx
+  :set-connection-status
+  (fn [cofx [_ status]]
+    (let [current-status (get-in cofx [:db :connection-status])]
+      (cond-> {:db (assoc (:db cofx) :connection-status status)}
+        (not= status current-status)
+        (assoc :dispatch 
+          (if status
+            [:new-notification 
+              [ "Reconnected to server :)" 
+                "" 
+                "is-success"]]
+            [:new-notification 
+              [ "Disconnected from server :(" 
+                "Please try again later." 
+                "is-danger"]]))))))
 
 (defn http-get
   "Creates a HTTP request"
