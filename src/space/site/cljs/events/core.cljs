@@ -20,15 +20,7 @@
      :pushy-init true
      :http-xhrio (http-get "count-up/10" [:good-http-result] [:bad-http-result])}))
 
-;; usage:  (dispatch [:time-color-change 34562])
-;; dispatched when the user enters a new colour into the UI text field
-;; -db event handlers given 2 parameters:  current application state and event (a vector)
-;; compute and return the new application state
-(rf/reg-event-db                                
-  :time-color-change                            
-  (fn [db [_ new-color-value]]                  
-    (assoc db :time-color new-color-value)))
-
+;; Good http calls set server status to true
 (rf/reg-event-fx
   :good-http-result
   (fn [cofx [_ result]]
@@ -36,6 +28,7 @@
     { :db (assoc (:db cofx) :success-http-result result)
       :dispatch [:set-connection-status true]}))
 
+;; Bad http calls set server status to false
 (rf/reg-event-fx
   :bad-http-result
   (fn [cofx [_ result]]
@@ -43,14 +36,7 @@
     { :db (assoc (:db cofx) :failure-http-result result)
       :dispatch [:set-connection-status false]}))
 
-(rf/reg-event-fx
-  :set-connection-status
-  (fn [cofx [_ status]]
-    { :db (assoc (:db cofx) 
-                 :connection-status status)
-      :dispatch [:new-notification 
-                  ["Disconnected from server" "Please try again later." "is-danger"]]}))
-
+;; Fires a notification when server status changes
 (rf/reg-event-fx
   :set-connection-status
   (fn [cofx [_ status]]
