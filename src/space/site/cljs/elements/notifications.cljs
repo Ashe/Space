@@ -27,18 +27,27 @@
   (fn [db _]     
     (:notifications db))) 
 
+;;@TODO: Change max messages depending on window size
 (defn notification-panel
   "Component to render all notifications"
   []
-  (let [stack @(rf/subscribe [:notifications])]
+  (let [stack @(rf/subscribe [:notifications])
+        max-msgs 6
+        remaining-msgs (- (count stack) max-msgs)]
     [:div#notification-panel
         {:style { :position "fixed"
                   :right "20px"
                   :bottom "20px"
                   :max-width "350px"}}
       [:div
+        (when (> remaining-msgs 0)
+            [:div.box.has-text-centered
+                {:key (str "Notification-count")}
+              [:small [:strong (str "+ " remaining-msgs)] (str " more notification"
+                  (when (> remaining-msgs 1) "s"))]])
         (reverse
-          (map make-notification (iterate inc 0) stack))]]))
+          (take max-msgs
+            (map make-notification (iterate inc 0) stack)))]]))
 
 (defn make-notification
   "An individual notification"
