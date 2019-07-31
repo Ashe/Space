@@ -18,6 +18,7 @@
 
 (defroutes router
   (GET "/" [] "<h1>Hello World :)</h1>")
+  (GET "/ping" [] "{\"response\":\"pong\"}")
   (GET "/count-up/:to" [to] (str-to (Integer. to)))
   (GET "/count-down/:from" [from] (str-from (Integer. from)))
   (route/not-found "<h1>Page not found :(</h1>"))

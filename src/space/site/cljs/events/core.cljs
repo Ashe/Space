@@ -18,7 +18,7 @@
           :time (js/Date.)
           :time-color "#f88"}
      :pushy-init true
-     :http-xhrio (http-get "count-up/10" [:good-http-result] [:bad-http-result])}))
+     :dispatch [:attempt-ping true]}))
 
 ;; Good http calls set server status to true
 (rf/reg-event-fx
@@ -53,6 +53,22 @@
               [ "Disconnected from server :(" 
                 "Please try again later." 
                 "is-danger"]]))))))
+
+
+;; Attempt to connect to server if disconnected OR forced
+(rf/reg-event-fx
+  :attempt-ping
+  (fn [cofx [_ forced]]
+    (let [connected (get-in cofx [:db :connection-status])]
+      (when (or forced (not connected))
+        (println "Attempting to connect to server..")
+        { :http-xhrio (http-get "ping" [:good-http-result] [:bad-http-result])}))))
+
+(defn dispatch-ping-event []
+  (rf/dispatch [:attempt-ping false]))
+
+;; Every 10 seconds, if the server is down, attempt to reconnect
+(defonce do-pinging (js/setInterval dispatch-ping-event 10000))
 
 (defn http-get
   "Creates a HTTP request"
