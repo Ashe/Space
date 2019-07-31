@@ -23,14 +23,11 @@
 (defn routed-page
   "Component containing the page after routing"
   []
-  (let [route-key-ref (rf/subscribe [:router/route])
-        path-params (rf/subscribe [:router/route-params])
-        query-params (rf/subscribe [:router/route-query])
-        route-key @route-key-ref
+  (let [route-key @(rf/subscribe [:router/route])
         route-data {
             :route-key route-key
-            :path-params @path-params
-            :query-params @query-params}]
+            :path-params @(rf/subscribe [:router/route-params])
+            :query-params @(rf/subscribe [:router/route-query])}]
     [:div
       [navbar/navbar route-key]
       [:section.section
