@@ -1,7 +1,7 @@
 (ns space.site.cljs.elements.forum
   (:require [re-frame.core :as rf]
-            [space.site.cljs.events.core :as events]
-            [space.site.cljs.elements.notifications :as n]))
+            [space.site.cljs.events.forum :as f]
+            [space.site.cljs.events.notifications :as n]))
 
 ;; Forward declarations
 (declare selection-bar pagination make-post make-tag)
@@ -9,26 +9,13 @@
 ;; Make all elements spaced evenly
 (def forum-spacing "10px 0px")
 
-;; Add posts to the post-list
-;; @TODO: Place this into events/forum or something
-(rf/reg-event-db
-  :get-forum-posts
-  (fn [db [_ posts]]
-    (update db :posts (partial concat posts))))
-
-;; Allow querying of posts
-(rf/reg-sub
-  :forum-posts
-  (fn [db _]
-    (:posts db))) 
-
+;; @TODO: Fetch the appropriate page of posts
 (defn forum
   "Draw forum posts"
   [{:keys [route-key path-params query-params]}]
-  (rf/dispatch 
-      [:http-get ["forum" :get-forum-posts :bad-http-result]])
+  (f/dispatch-fetch-posts 0)
   (fn []
-    (let [[posts] @(rf/subscribe [:forum-posts])]
+    (let [[posts] @(rf/subscribe [:posts])]
       [:div.container.is-widescreen
         [:div.container.is-fluid
           [selection-bar]
@@ -75,7 +62,7 @@
           [:div.content
             [:p 
               [:a 
-                {:on-click (n/notify
+                {:on-click (n/dispatch-notification
                     "Cannot open forum post"
                     "Not yet implemented!"
                     "is-danger")}
