@@ -1,10 +1,10 @@
 (ns space.site.cljs.events.core
   (:require [re-frame.core :as rf]
             [re-frame-routing.core :as rfr]
-            [day8.re-frame.http-fx]
+            [day8.re-frame.http-fx :as http]
             [ajax.core :as ajax]))
 
-(declare http-get)
+(declare make-http-get-request)
 
 ;; Import subscriptions
 (rfr/register-subscriptions)
@@ -15,16 +15,23 @@
   (fn [{:keys [db]} _]
     {:db {:connection-status true
           :notifications []
+          :posts []
           :time (js/Date.)
           :time-color "#f88"}
      :pushy-init true
      :dispatch [:attempt-ping true]}))
 
+;; Make a HTTP-GET request
+(rf/reg-event-fx
+  :http-get
+  (fn [_ [_ [uri success fail]]]
+    { :dispatch [:attempt-ping false]
+      :http-xhrio (make-http-get-request uri success fail)}))
+
 ;; Good http calls set server status to true
 (rf/reg-event-fx
   :good-http-result
   (fn [cofx [_ result]]
-    (println (str "Successful HTTP-GET: " result))
     { :db (assoc (:db cofx) :success-http-result result)
       :dispatch [:set-connection-status true]}))
 
@@ -32,7 +39,7 @@
 (rf/reg-event-fx
   :bad-http-result
   (fn [cofx [_ result]]
-    (println (str "Failed HTTP-GET:" result))
+    (println "Disconnected from server. \nMessage: " result)
     { :db (assoc (:db cofx) :failure-http-result result)
       :dispatch [:set-connection-status false]}))
 
@@ -47,7 +54,7 @@
           (if status
             [:new-notification 
               [ "Reconnected to server :)" 
-                "" 
+                "You may need to refresh the page." 
                 "is-success"]]
             [:new-notification 
               [ "Disconnected from server :(" 
@@ -62,7 +69,8 @@
     (let [connected (get-in cofx [:db :connection-status])]
       (when (or forced (not connected))
         (println "Attempting to connect to server..")
-        { :http-xhrio (http-get "ping" [:good-http-result] [:bad-http-result])}))))
+        { :http-xhrio 
+            (make-http-get-request "ping" :good-http-result :bad-http-result)}))))
 
 (defn dispatch-ping-event []
   (rf/dispatch [:attempt-ping false]))
@@ -70,14 +78,15 @@
 ;; Every 10 seconds, if the server is down, attempt to reconnect
 (defonce do-pinging (js/setInterval dispatch-ping-event 10000))
 
-(defn http-get
+(defn- make-http-get-request
   "Creates a HTTP request"
   [uri on-success on-fail]
+  (println "Making HTTP-GET request: " uri on-success on-fail)
   { :method          :get
     :uri             (str "http://localhost:3000/" uri)
     ;; optional see API docs
     :timeout         8000
     ;; IMPORTANT!: You must provide this.
     :response-format (ajax/json-response-format {:keywords? true})
-    :on-success      on-success
-    :on-failure      on-fail})
+    :on-success      [on-success]
+    :on-failure      [on-fail]})

@@ -49,7 +49,7 @@
           (take max-msgs
             (map make-notification (iterate inc 0) stack)))]]))
 
-(defn make-notification
+(defn- make-notification
   "An individual notification"
   [i [title msg col]]
   [:div.notification

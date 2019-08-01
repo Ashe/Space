@@ -47,7 +47,7 @@
               [tab "Members" :members "/members" route-key]
               [tab "Admin" :admin "/admin" route-key]]]]]]]])
 
-(defn tab
+(defn- tab
   "Returns a tab that is active when given a matching route"
   [text route destination page]
   [:li {:class [(when (= page route) "is-active")]}

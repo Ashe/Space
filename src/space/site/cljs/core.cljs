@@ -5,7 +5,7 @@
             [space.site.cljs.route.core :as route]))
 
 ;; Mount the application's ui into '<div id="app"/>'
-(defn run-app
+(defn- run-app
   "Use this function to (re)start the site"
   []
   (rf/dispatch-sync [:initialize])

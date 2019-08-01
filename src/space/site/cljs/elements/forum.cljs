@@ -1,22 +1,41 @@
 (ns space.site.cljs.elements.forum
-  (:require [space.site.cljs.elements.notifications :refer [notify]]))
+  (:require [re-frame.core :as rf]
+            [space.site.cljs.events.core :as events]
+            [space.site.cljs.elements.notifications :as n]))
 
 ;; Forward declarations
-(declare post selection-bar pagination)
+(declare selection-bar pagination make-post make-tag)
 
 ;; Make all elements spaced evenly
 (def forum-spacing "10px 0px")
 
+;; Add posts to the post-list
+;; @TODO: Place this into events/forum or something
+(rf/reg-event-db
+  :get-forum-posts
+  (fn [db [_ posts]]
+    (update db :posts (partial concat posts))))
+
+;; Allow querying of posts
+(rf/reg-sub
+  :forum-posts
+  (fn [db _]
+    (:posts db))) 
+
 (defn forum
   "Draw forum posts"
   [{:keys [route-key path-params query-params]}]
-  [:div.container.is-widescreen
-    [:div.container.is-fluid
-      [selection-bar]
-      (map post (range 3))
-      [pagination]]])
+  (rf/dispatch 
+      [:http-get ["forum" :get-forum-posts :bad-http-result]])
+  (fn []
+    (let [[posts] @(rf/subscribe [:forum-posts])]
+      [:div.container.is-widescreen
+        [:div.container.is-fluid
+          [selection-bar]
+          (map make-post posts)
+          [pagination]]])))
 
-(defn selection-bar
+(defn- selection-bar
   "Sort, filter and search bar"
   []
   [:div.level.is-mobile.is-size-7
@@ -37,12 +56,14 @@
       [:a.button.is-small.is-primary
         "Search"]]])
 
-(defn post
+;; @TODO: Place a post's structure in CLJC so that
+;; both client AND server can sync up correctly 
+(defn- make-post
   "An overview of a post"
-  [post-id]
+  [p]
   [:div
-      { :id (str "post-" post-id)
-        :key post-id
+      { :id (str "post-" (:post-number p))
+        :key (:post-number p)
         :style {:margin forum-spacing}}
     [:div.box
       [:article.columns.is-vcentered
@@ -54,23 +75,20 @@
           [:div.content
             [:p 
               [:a 
-                {:on-click (notify
+                {:on-click (n/notify
                     "Cannot open forum post"
                     "Not yet implemented!"
                     "is-danger")}
                [:strong.is-size-4 "A post about Clojure"]] [:br]
-              [:a [:strong "Example User "] "@foo"] [:small " 1m ago"] [:br]
-
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-              Proin ornare magna eros, eu pellentesque tortor vestibulum ut. 
-              Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis."]
+              [:a [:strong (:poster-name p)] (str " " (:poster-alias p))] 
+              [:small (str " " (:post-date p))] [:br]
+              (:post-summary p)]
             [:div.tags
-              [:a.tag.is-info "Clojure"]
-              [:a.tag.is-success "Reagent"]
-              [:a.tag.is-warning "Re-Frame"]]]]]]])
+              (map make-tag (:tag-ids p))]
+              ]]]]])
 
 ;;@TODO: Make pagination change depending on current page
-(defn pagination
+(defn- pagination
   "Shows the current page number"
   [page]
   [:nav.pagination.is-centered
@@ -83,3 +101,18 @@
           {:aria-label "Goto page 1"}
         "1"]]])
 
+;; @TODO: Make this customisable
+(defn- make-tag
+  "Make a tag from a tag's ID"
+  [id]
+  (let [label (case id 
+                  0 "Clojure"
+                  1 "Reagent"
+                  2 "Re-frame")
+        colour (case id
+                  0 "is-info"
+                  1 "is-success"
+                  2 "is-danger")]
+    [:a.tag.is-info 
+        {:class colour}
+      label]))

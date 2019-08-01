@@ -45,25 +45,25 @@
 (defmethod get-page-content :default [] not-found)
 
 ;; @TODO: Expand on this
-(defn not-found
+(defn- not-found
   "404 Page component"
   [{:keys [route-key path-params query-params]}]
   [:div "Page not found"])
 
 ;; @TODO: Expand on this
-(defn tags
+(defn- tags
   "Display tags used in this forum"
   [{:keys [route-key path-params query-params]}]
   [:div "Tags"])
 
 ;; @TODO: Expand on this
-(defn members
+(defn- members
   "Show members who belong to this forum"
   [{:keys [route-key path-params query-params]}]
   [:div "Members"])
 
 ;; @TODO: Expand on this
-(defn admin
+(defn- admin
   "Show tools for moderation and configuration of Space"
   [{:keys [route-key path-params query-params]}]
   [:div "Admin"])

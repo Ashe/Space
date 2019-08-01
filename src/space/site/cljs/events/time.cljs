@@ -17,10 +17,10 @@
 ;; every second an event of this kind will be dispatched
 ;; note how the 2nd parameter is destructured to obtain the data value
 ;; compute and return the new application state
-(rf/reg-event-db                 
-  :timer                         
-  (fn [db [_ new-time]]          
-    (assoc db :time new-time)))  
+(rf/reg-event-db
+  :timer
+  (fn [db [_ new-time]]
+    (assoc db :time new-time)))
 
 ;; db is current app state. 2nd unused param is query vector
 ;; return a query computation over the application state
