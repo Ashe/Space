@@ -1,6 +1,22 @@
-version: '3'
+version: '3.7'
 services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: api.dockerfile
     ports:
       - "3000:3000"
+    depends_on:
+      - db
+  site:
+    build:
+      context: .
+      dockerfile: site.dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api

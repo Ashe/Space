@@ -4,4 +4,4 @@
   :ring-handler space.site.clj.core/site-handler
   :ring-server-options {:port 8080}}
 { :main space.site.cljs.core
-  :output-to "target/public/js/client.js"}
+  :output-to "target/public/js/space.js"}
