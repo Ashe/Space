@@ -1,21 +1,34 @@
 version: '3.7'
 services:
+
   db:
-    image: postgres
+    build:
+      context: ./docker/db/
+    restart: always
     ports:
       - "5432:5432"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "1234:8080"
+    depends_on:
+      - db
+
   api:
     build:
-      context: .
-      dockerfile: api.dockerfile
+      context: ./docker/api/
+    restart: always
     ports:
       - "3000:3000"
     depends_on:
       - db
+
   site:
     build:
-      context: .
-      dockerfile: site.dockerfile
+      context: ./docker/site/
+    restart: always
     ports:
       - "8080:8080"
     depends_on:

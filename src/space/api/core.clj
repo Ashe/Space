@@ -1,19 +1,29 @@
 (ns space.api.core
   (:gen-class)
-  (:require [ring.adapter.jetty :as jetty]
+  (:require [clojure.data.json :as json]
+            [ring.adapter.jetty :as jetty]
             [ring.middleware.cors :as cors]
             [compojure.core :as c]
             [compojure.handler :as handler]
             [compojure.route :as route]
-            [clojure.data.json :as json]))
+            [space.api.db.core :as db]))
 
+;; Forward declarations
 (declare api-handler get-forum-page forum-post)
 
 (defn -main
+  "Prepare to start the server"
   [& _]
+  (db/setup-db)
+  (start-server))
+
+(defn start-server
+  "Start API server"
+  []
   (println "Starting API server now..")
   (jetty/run-jetty api-handler {:port 3000}))
 
+;; Describes how to respond to different URLs
 (c/defroutes router
   (c/GET "/" [] "<h1>Hello World :)</h1>")
   (c/GET "/ping" [] (json/write-str {:response "pong"}))
@@ -21,21 +31,13 @@
   (c/GET "/forum/page-:page" [page] (get-forum-page page))
   (route/not-found "<h1>Page not found :(</h1>"))
 
+;; Wraps around the router to allow cross origin
 (def api-handler
   (cors/wrap-cors router
     :access-control-allow-origin [#"http://localhost:8080"]
     :access-control-allow-methods [:get :put :post :delete]))
 
-(defn- str-to 
-  "Returns a string counting up to a number"
-  [num]
-  (apply str (interpose ", " (range 1 (inc num)))))
-
-(defn- str-from 
-  "Returns a string counting down from a number"
-  [num]
-  (apply str (interpose ", " (reverse (range 1 (inc num))))))
-
+;; How many posts from the database to send per front-end page
 (def posts-per-page 10)
 
 (defn- get-forum-page
@@ -43,6 +45,7 @@
   [page-num]
   (json/write-str [(take posts-per-page (map forum-post (iterate inc 0)))]))
 
+;; @TODO: Merge this with the front end to have one common definition
 (defn- forum-post
   [post-num]
   { :post-number post-num
