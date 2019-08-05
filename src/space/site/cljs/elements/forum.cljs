@@ -66,7 +66,7 @@
                     "Cannot open forum post"
                     "Not yet implemented!"
                     "is-danger")}
-               [:strong.is-size-4 "A post about Clojure"]] [:br]
+               [:strong.is-size-4 (:post-title p)]] [:br]
               [:a [:strong (:poster-name p)] (str " " (:poster-alias p))] 
               [:small (str " " (:post-date p))] [:br]
               (:post-summary p)]

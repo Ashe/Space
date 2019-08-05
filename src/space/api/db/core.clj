@@ -2,15 +2,23 @@
   (:require [clojure.java.jdbc :as sql]))
 
 ;; String to use for SQL calls
-(def db-spec
-  {:dbtype "postgres"
+(def db-spec (atom 
+  {:dbtype "postgresql"
+   :host "localhost:5432"
    :dbname "space"
    :user "space"
-   :password "nebula"})
+   :password "nebula"}))
 
 (defn setup-db
   "Creates necessary tables for space"
-  []
+  [db-host]
+  (when db-host 
+    (do
+      (println "Configuring database..")
+      (println "- Setting host to: " db-host)
+      (swap! db-spec #(assoc % :host db-host))))
   (println "Checking database..")
-  (println "Testing 3 * 5 = " 
-    (sql/query db-spec ["SELECT 3*5 AS result"])))
+  (println "- Number of posts: " (map :count
+      (sql/query @db-spec ["SELECT COUNT(*) FROM Posts"])))
+  (println "- Number of users: " (map :count
+      (sql/query @db-spec ["SELECT COUNT(*) FROM Users"]))))

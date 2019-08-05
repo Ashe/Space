@@ -1,8 +1,3 @@
-CREATE USER space WITH PASSWORD 'nebula';
-CREATE DATABASE space;
-GRANT ALL PRIVILEGES ON DATABASE space TO space;
-\connect space
-
 CREATE TABLE Users (
   UserID bigserial NOT NULL,
   Username varchar(18) NOT NULL,
@@ -14,9 +9,25 @@ CREATE TABLE Users (
 
 CREATE TABLE Posts (
   PostID bigserial NOT NULL,
-  PosterID bigserial NOT NULL,
+  PosterID bigserial,
   PostDate timestamptz NOT NULL,
-  Content text NOT NULL,
+  PostTitle varchar(64) NOT NULL,
+  PostContent text NOT NULL,
   PRIMARY KEY (PostID),
   FOREIGN KEY (PosterID) REFERENCES Users(UserID)
 );
+
+-- Create an initial admin user
+INSERT INTO Users (Username, UserHandle, JoinDate, IsAdmin)
+VALUES ('Space Team', 'space', current_timestamp, true);
+
+-- Create an initial post for the database
+INSERT INTO Posts (PosterID, PostDate, PostTitle, PostContent)
+VALUES (
+  (SELECT UserId FROM Users WHERE UserHandle = 'space'),
+  current_timestamp,
+  'Welcome to Space!',
+  'Hello there and welcome to Space! If you''re seeing this, 
+    Space has been set up correctly and is ready for use!'
+);
+

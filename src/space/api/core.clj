@@ -9,12 +9,12 @@
             [space.api.db.core :as db]))
 
 ;; Forward declarations
-(declare api-handler get-forum-page forum-post)
+(declare start-server api-handler get-forum-page forum-post)
 
 (defn -main
   "Prepare to start the server"
-  [& _]
-  (db/setup-db)
+  [& [db-host]]
+  (db/setup-db db-host)
   (start-server))
 
 (defn start-server
@@ -53,6 +53,7 @@
     :poster-name "Example User"
     :poster-alias "foo"
     :post-date "1m ago"
+    :post-title "A post about clojure"
     :post-summary 
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
         Proin ornare magna eros, eu pellentesque tortor vestibulum ut. 
