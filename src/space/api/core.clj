@@ -4,12 +4,11 @@
             [ring.adapter.jetty :as jetty]
             [ring.middleware.cors :as cors]
             [compojure.core :as c]
-            [compojure.handler :as handler]
             [compojure.route :as route]
             [space.api.db.core :as db]))
 
 ;; Forward declarations
-(declare start-server api-handler get-forum-page forum-post)
+(declare start-server api-handler validate)
 
 (defn -main
   "Prepare to start the server"
@@ -27,8 +26,8 @@
 (c/defroutes router
   (c/GET "/" [] "<h1>Hello World :)</h1>")
   (c/GET "/ping" [] (json/write-str {:response "pong"}))
-  (c/GET "/forum" [] (get-forum-page 0))
-  (c/GET "/forum/page-:page" [page] (get-forum-page page))
+  (c/GET "/forum" [] (db/get-forum-page 0))
+  (c/GET "/forum/page-:page" [page] (validate page db/get-forum-page))
   (route/not-found "<h1>Page not found :(</h1>"))
 
 ;; Wraps around the router to allow cross origin
@@ -37,25 +36,10 @@
     :access-control-allow-origin [#"http://localhost:8080"]
     :access-control-allow-methods [:get :put :post :delete]))
 
-;; How many posts from the database to send per front-end page
-(def posts-per-page 10)
+(defn- validate
+  "Ensure user input is safe"
+  [string on-success]
+  (let [maybe-number (read-string string)]
+    (when (number? maybe-number)
+      (on-success maybe-number))))
 
-(defn- get-forum-page
-  "Gets a given page of the forum"
-  [page-num]
-  (json/write-str [(take posts-per-page (map forum-post (iterate inc 0)))]))
-
-;; @TODO: Merge this with the front end to have one common definition
-(defn- forum-post
-  [post-num]
-  { :post-number post-num
-    :poster-id 0
-    :poster-name "Example User"
-    :poster-alias "foo"
-    :post-date "1m ago"
-    :post-title "A post about clojure"
-    :post-summary 
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-        Proin ornare magna eros, eu pellentesque tortor vestibulum ut. 
-        Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis."
-    :tag-ids [0 1 2]})

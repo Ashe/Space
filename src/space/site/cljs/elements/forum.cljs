@@ -13,14 +13,15 @@
 (defn forum
   "Draw forum posts"
   [{:keys [route-key path-params query-params]}]
-  (f/dispatch-fetch-posts 0)
-  (fn []
-    (let [[posts] @(rf/subscribe [:posts])]
-      [:div.container.is-widescreen
-        [:div.container.is-fluid
-          [selection-bar]
-          (map make-post posts)
-          [pagination]]])))
+  (let [page-number 0]
+    (f/dispatch-fetch-posts page-number)
+    (fn []
+      (let [posts @(rf/subscribe [:posts])]
+        [:div.container.is-widescreen
+          [:div.container.is-fluid
+            [selection-bar]
+            (map make-post posts)
+            [pagination page-number]]]))))
 
 (defn- selection-bar
   "Sort, filter and search bar"
@@ -49,8 +50,8 @@
   "An overview of a post"
   [p]
   [:div
-      { :id (str "post-" (:post-number p))
-        :key (:post-number p)
+      { :id (str "post-" (:postid p))
+        :key (:postid p)
         :style {:margin forum-spacing}}
     [:div.box
       [:article.columns.is-vcentered
@@ -62,14 +63,22 @@
           [:div.content
             [:p 
               [:a 
-                {:on-click (n/dispatch-notification
-                    "Cannot open forum post"
-                    "Not yet implemented!"
-                    "is-danger")}
-               [:strong.is-size-4 (:post-title p)]] [:br]
-              [:a [:strong (:poster-name p)] (str " " (:poster-alias p))] 
-              [:small (str " " (:post-date p))] [:br]
-              (:post-summary p)]
+                  {:on-click (n/dispatch-notification
+                      "Cannot open forum post"
+                      "Not yet implemented!"
+                      "is-danger")}
+               [:strong.is-size-4 (:posttitle p)]] [:br]
+              [:a 
+                  {:on-click (n/dispatch-notification
+                      "Cannot open user's page"
+                      "Not yet implemented!"
+                      "is-danger")}
+                [:span.icon
+                    (when (not (:isadmin p)) {:style {:display "none"}})
+                  [:i.fas.fa-shield-check]]
+                [:strong (:username p)] (str " @" (:userhandle p))]
+              [:small (str " " (:postdate p))] [:br]
+              (:postcontent p)]
             [:div.tags
               (map make-tag (:tag-ids p))]
               ]]]]])
@@ -77,16 +86,17 @@
 ;;@TODO: Make pagination change depending on current page
 (defn- pagination
   "Shows the current page number"
-  [page]
-  [:nav.pagination.is-centered
-      { :role "navigation"
-        :aria-label "pagination"}
-    [:a.pagination-previous "Previous"]
-    [:a.pagination-next "Next"]
-    [:ul.pagination-list
-      [:li>a.pagination-link 
-          {:aria-label "Goto page 1"}
-        "1"]]])
+  [page-number]
+  (let [page (inc page-number)]
+    [:nav.pagination.is-centered
+        { :role "navigation"
+          :aria-label "pagination"}
+      [:a.pagination-previous "Previous"]
+      [:a.pagination-next "Next"]
+      [:ul.pagination-list
+        [:li>a.pagination-link 
+            {:aria-label "Goto page 1"}
+          page]]]))
 
 ;; @TODO: Make this customisable
 (defn- make-tag

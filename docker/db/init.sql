@@ -27,7 +27,6 @@ VALUES (
   (SELECT UserId FROM Users WHERE UserHandle = 'space'),
   current_timestamp,
   'Welcome to Space!',
-  'Hello there and welcome to Space! If you''re seeing this, 
-    Space has been set up correctly and is ready for use!'
+  'Hello there and welcome to Space! If you''re seeing this, Space has been set up correctly and is ready for use!'
 );
 

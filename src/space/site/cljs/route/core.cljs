@@ -11,8 +11,8 @@
 
 ;; Determine what URLs match to what view
 (def routes 
-  ["/" {"" :home
-        "home" :home
+  ["/" {"" :forum
+        "forum" :forum
         "tags" :tags
         "members" :members
         "admin" :admin}])
@@ -38,7 +38,7 @@
 
 ;; Choose which component function to use depending on route
 (defmulti get-page-content identity)
-(defmethod get-page-content :home [] forum/forum)
+(defmethod get-page-content :forum [] forum/forum)
 (defmethod get-page-content :tags [] tags)
 (defmethod get-page-content :members [] members)
 (defmethod get-page-content :admin [] admin)
