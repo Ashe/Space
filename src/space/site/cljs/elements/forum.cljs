@@ -14,15 +14,18 @@
   "Draw forum posts"
   []
   (fn [{:keys [route-key path-params query-params]}]
-    (let [page-number 
-              (max 1 (cmn/str->num (:page-number path-params)))]
+    (f/dispatch-fetch-page-count)
+    (let [page-count @(rf/subscribe [:page-count])
+          page-number
+              (min page-count (max 1 
+              (cmn/str->num (:page-number path-params))))]
       (f/dispatch-fetch-posts (dec page-number))
       (let [posts @(rf/subscribe [:posts])]
         [:div.container.is-widescreen
           [:div.container.is-fluid
             [selection-bar]
             (map make-post posts)
-            [pagination page-number]]]))))
+            [pagination page-number page-count]]]))))
 
 (defn- selection-bar
   "Sort, filter and search bar"
@@ -45,8 +48,6 @@
       [:a.button.is-small.is-primary
         "Search"]]])
 
-;; @TODO: Place a post's structure in CLJC so that
-;; both client AND server can sync up correctly 
 (defn- make-post
   "An overview of a post"
   [p]
@@ -78,25 +79,31 @@
               (map make-tag (:tag-ids p))]
               ]]]]])
 
-;;@TODO: Make pagination change depending on current page
 (defn- pagination
   "Shows the current page number"
-  [page]
+  [page pg-count]
   (let [attr (fn [p] 
           { :aria-label (str "Goto page " p)
-            :style (when (< p 1) {:display "none"})
+            :style (when 
+                (and (not= page p)
+                  (or (< p 1) (> p pg-count)))
+                {:display "none"})
+            :class (when (= p page) ["is-link"])
             :href (if (<= p 1) "/" (str "/forum/page-" p))})]
     [:nav.pagination.is-centered
         { :role "navigation"
           :aria-label "pagination"}
-      [:a.pagination-previous (attr (dec page)) "Previous"]
-      [:a.pagination-next (attr (inc page)) "Next"]
+      [:a.pagination-previous.button (attr 1) "First"]
+      [:a.pagination-previous.button (attr (dec page)) "Previous"]
+      [:a.pagination-next.button (attr (inc page)) "Next"]
+      [:a.pagination-next.button (attr pg-count) "Last"]
       [:ul.pagination-list
-        [:li>a.pagination-link (attr (- page 2)) (- page 2)]
-        [:li>a.pagination-link (attr (dec page)) (dec page)]
-        [:li>a.pagination-link.is-current (attr page) page]
-        [:li>a.pagination-link (attr (inc page)) (inc page)]
-        [:li>a.pagination-link (attr (+ page 2)) (+ page 2)]]]))
+        [:li>a.pagination-link.button (attr (- page 2)) (- page 2)]
+        [:li>a.pagination-link.button (attr (dec page)) (dec page)]
+        [:li>a.pagination-link.button (attr page) page]
+        [:li>a.pagination-link.button (attr (inc page)) (inc page)]
+        [:li>a.pagination-link.button (attr (+ page 2)) (+ page 2)]
+        ]]))
 
 ;; @TODO: Make this customisable
 (defn- make-tag

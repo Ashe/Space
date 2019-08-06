@@ -15,6 +15,7 @@
   (fn [{:keys [db]} _]
     {:db {:connection-status true
           :notifications []
+          :page-count 0
           :posts []
           :time (js/Date.)
           :time-color "#f88"}
@@ -89,3 +90,13 @@
     :response-format (ajax/json-response-format {:keywords? true})
     :on-success      [on-success]
     :on-failure      [on-fail]})
+
+
+
+;; Common Events / Subscriptions ---------------------------------------------------
+
+;; Allow querying of number of pages for current page
+(rf/reg-sub
+  :page-count
+  (fn [db _]
+    (:page-count db))) 

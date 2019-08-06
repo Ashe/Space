@@ -7,6 +7,12 @@
   (fn [db [_ posts]]
     (assoc db :posts posts)))
 
+;; Fetch the current number of pages
+(rf/reg-event-db
+  :fetch-forum-page-count
+  (fn [db [_ pg-count]]
+    (assoc db :page-count pg-count)))
+
 ;; Allow querying of posts
 (rf/reg-sub
   :posts
@@ -19,4 +25,11 @@
   (rf/dispatch [:http-get 
       [(str "forum/page-" page-num) 
       :fetch-forum-posts :bad-http-result]]))
+
+(defn dispatch-fetch-page-count
+  "Dispatch a request to fetch how many pages there are"
+  []
+  (rf/dispatch [:http-get 
+      ["get-forum-page-count" 
+      :fetch-forum-page-count :bad-http-result]]))
 

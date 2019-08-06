@@ -1,6 +1,7 @@
 (ns space.api.db.core
   (:require [clojure.java.jdbc :as sql]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [clojure.math.numeric-tower :as math]))
 
 ;; Clojure.java.json JSON cannot translate java.sql.Timestamp
 (extend-type java.sql.Timestamp
@@ -41,4 +42,11 @@
       INNER JOIN Users ON Posts.PosterID=Users.UserID
       LIMIT ? OFFSET ?"
         posts-per-page
-        (* page posts-per-page)])))
+        (* (max page 0) posts-per-page)])))
+
+(defn get-forum-page-count
+  "Get how many pages there are in the database"
+  []
+  (let [[q] (sql/query @db-spec ["SELECT COUNT(*) FROM Posts"])]
+    (when q
+      (json/write-str (math/ceil (/ (:count q) posts-per-page))))))

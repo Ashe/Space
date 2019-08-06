@@ -27,7 +27,7 @@
 (c/defroutes router
   (c/GET "/" [] "<h1>Hello World :)</h1>")
   (c/GET "/ping" [] (json/write-str {:response "pong"}))
-  (c/GET "/forum" [] (db/get-forum-page 0))
+  (c/GET "/get-forum-page-count" [] (db/get-forum-page-count))
   (c/GET "/forum/page-:page" [page] (db/get-forum-page (cmn/str->num page)))
   (route/not-found "<h1>Page not found :(</h1>"))
 
