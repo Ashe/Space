@@ -31,6 +31,7 @@
                 [:span.navbar-item
                   (time/get-current-time)]
                 [:span.navbar-item
+                    {:style {:padding-left "0px"}}
                   [:a.button.is-primary.is-inverted
                     [:span.icon
                       [:i.fa.fa-user]]
@@ -44,7 +45,8 @@
               [tab "Forum" [:forum :post] "/" route-key]
               [tab "Tags" [:tag :tags] "/tags/" route-key]
               [tab "Members" [:members :user] "/members/" route-key]
-              [tab "Admin" [:admin] "/admin/" route-key]]]]]]]])
+              [tab "Admin" [:admin] "/admin/" route-key]
+            ]]]]]]])
 
 (defn- tab
   "Returns a tab that is active when given a matching route"

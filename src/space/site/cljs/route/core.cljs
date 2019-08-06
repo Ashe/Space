@@ -7,14 +7,16 @@
             [space.site.cljs.elements.forum :as forum]))
 
 ;; Forward declarations
-(declare not-found post tags tag members user admin get-page-content)
+;;@TODO: Place these functions in their own element files
+(declare not-found post create-new tags tag members user admin get-page-content)
 
 ;; Determine what URLs match to what view
 (def routes 
   ["/" {"" :forum
-        "forum/"      { "" :forum
+        "forum/"      {"" :forum
             ["page-"  :page-number] :forum}
         "post/"       {[:post-number] :post}
+        "new/"        {"" :new}
         "tags/"       {"" :tags
             ["page-"  :page-number] :tags}
         "tag/"        {[:tag-id] :tag}
@@ -46,6 +48,7 @@
 (defmulti get-page-content identity)
 (defmethod get-page-content :forum [] forum/forum)
 (defmethod get-page-content :post [] post)
+(defmethod get-page-content :new [] create-new)
 (defmethod get-page-content :tags [] tags)
 (defmethod get-page-content :tag [] tag)
 (defmethod get-page-content :members [] members)
@@ -64,6 +67,12 @@
   "Display a post"
   [{:keys [route-key path-params query-params]}]
   [:div (str "Post: " (:post-number path-params))])
+
+;; @TODO: Expand on this
+(defn- create-new
+  "Create a new post"
+  [{:keys [route-key path-params query-params]}]
+  [:div "Create something new!"])
 
 ;; @TODO: Expand on this
 (defn- tags

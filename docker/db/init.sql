@@ -1,7 +1,12 @@
+CREATE TABLE Tags (
+  TagID bigserial NOT NULL,
+  TagLabel varchar(18)
+);
+
 CREATE TABLE Users (
   UserID bigserial NOT NULL,
   Username varchar(18) NOT NULL,
-  UserHandle varchar(12) NOT NULL,
+  UserHandle varchar(12) NOT NULL UNIQUE,
   JoinDate timestamptz NOT NULL,
   IsAdmin bool NOT NULL,
   PRIMARY KEY (UserID)
