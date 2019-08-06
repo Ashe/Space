@@ -12,15 +12,15 @@
 ;; Determine what URLs match to what view
 (def routes 
   ["/" {"" :forum
-        "forum/"    {"" :forum
-                      ["page-" :page-number] :forum}
-        "post/"     {[:post-id] :post}
-        "tags/"     {"" :tags
-                      ["page-" :page-number] :tags}
-        "members/"  {"" :members
-                      ["page-" :page-number] :members}
-        "user/"     {[:user-id] :user}
-        "admin/"    :admin}])
+        "forum/"      { "" :forum
+            ["page-"  [#"\d+" :page-number]] :forum}
+        "post/"       {[#"\d+" :post-id] :post}
+        "tags/"       {"" :tags
+            ["page-"  [#"\d+" :page-number]] :tags}
+        "members/"    {"" :members
+            ["page-"  [#"\d+" :page-number]] :members}
+        "user/"       {[#"\d+" :user-id] :user}
+        "admin/"      :admin}])
 
 ;; Import routing events
 (rfr/register-events {:routes routes})

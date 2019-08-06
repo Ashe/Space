@@ -81,7 +81,6 @@
 (defn- make-http-get-request
   "Creates a HTTP request"
   [uri on-success on-fail]
-  (println "Making HTTP-GET request: " uri on-success on-fail)
   { :method          :get
     :uri             (str "http://localhost:3000/" uri)
     ;; optional see API docs

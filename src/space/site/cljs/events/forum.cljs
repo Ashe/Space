@@ -5,7 +5,7 @@
 (rf/reg-event-db
   :fetch-forum-posts
   (fn [db [_ posts]]
-    (update db :posts (partial concat posts))))
+    (assoc db :posts posts)))
 
 ;; Allow querying of posts
 (rf/reg-sub

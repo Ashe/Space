@@ -10,14 +10,13 @@
 ;; Make all elements spaced evenly
 (def forum-spacing "10px 0px")
 
-;; @TODO: Fetch the appropriate page of posts
 (defn forum
   "Draw forum posts"
-  [{:keys [route-key path-params query-params]}]
-  (let [page-number 
-            (max 1 (cmn/str->num (:page-number path-params)))]
-    (f/dispatch-fetch-posts (dec page-number))
-    (fn []
+  []
+  (fn [{:keys [route-key path-params query-params]}]
+    (let [page-number 
+              (max 1 (cmn/str->num (:page-number path-params)))]
+      (f/dispatch-fetch-posts (dec page-number))
       (let [posts @(rf/subscribe [:posts])]
         [:div.container.is-widescreen
           [:div.container.is-fluid
@@ -83,21 +82,21 @@
 (defn- pagination
   "Shows the current page number"
   [page]
-  (let [link (fn [p] (if (<= p 1) "/" (str "/forum/page-" p)))]
+  (let [attr (fn [p] 
+          { :aria-label (str "Goto page " p)
+            :style (when (< p 1) {:display "none"})
+            :href (if (<= p 1) "/" (str "/forum/page-" p))})]
     [:nav.pagination.is-centered
         { :role "navigation"
           :aria-label "pagination"}
-      [:a.pagination-previous
-          { :href (link (dec page))}
-        "Previous"]
-      [:a.pagination-next
-          { :href (link (inc page))}
-        "Next"]
+      [:a.pagination-previous (attr (dec page)) "Previous"]
+      [:a.pagination-next (attr (inc page)) "Next"]
       [:ul.pagination-list
-        [:li>a.pagination-link 
-            { :href (link page)
-              :aria-label "Goto page 1"}
-          page]]]))
+        [:li>a.pagination-link (attr (- page 2)) (- page 2)]
+        [:li>a.pagination-link (attr (dec page)) (dec page)]
+        [:li>a.pagination-link.is-current (attr page) page]
+        [:li>a.pagination-link (attr (inc page)) (inc page)]
+        [:li>a.pagination-link (attr (+ page 2)) (+ page 2)]]]))
 
 ;; @TODO: Make this customisable
 (defn- make-tag
