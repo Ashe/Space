@@ -7,19 +7,20 @@
             [space.site.cljs.elements.forum :as forum]))
 
 ;; Forward declarations
-(declare not-found post tags members user admin get-page-content)
+(declare not-found post tags tag members user admin get-page-content)
 
 ;; Determine what URLs match to what view
 (def routes 
   ["/" {"" :forum
         "forum/"      { "" :forum
-            ["page-"  [#"\d+" :page-number]] :forum}
-        "post/"       {[#"\d+" :post-id] :post}
+            ["page-"  :page-number] :forum}
+        "post/"       {[:post-number] :post}
         "tags/"       {"" :tags
-            ["page-"  [#"\d+" :page-number]] :tags}
+            ["page-"  :page-number] :tags}
+        "tag/"        {[:tag-id] :tag}
         "members/"    {"" :members
-            ["page-"  [#"\d+" :page-number]] :members}
-        "user/"       {[#"\d+" :user-id] :user}
+            ["page-"  :page-number] :members}
+        "user/"       {[:user-id] :user}
         "admin/"      :admin}])
 
 ;; Import routing events
@@ -46,6 +47,7 @@
 (defmethod get-page-content :forum [] forum/forum)
 (defmethod get-page-content :post [] post)
 (defmethod get-page-content :tags [] tags)
+(defmethod get-page-content :tag [] tag)
 (defmethod get-page-content :members [] members)
 (defmethod get-page-content :user [] user)
 (defmethod get-page-content :admin [] admin)
@@ -61,13 +63,19 @@
 (defn- post
   "Display a post"
   [{:keys [route-key path-params query-params]}]
-  [:div (str "Post: " path-params)])
+  [:div (str "Post: " (:post-number path-params))])
 
 ;; @TODO: Expand on this
 (defn- tags
   "Display tags used in this forum"
   [{:keys [route-key path-params query-params]}]
   [:div "Tags"])
+
+;; @TODO: Expand on this
+(defn- tag
+  "Display posts and users with this tag"
+  [{:keys [route-key path-params query-params]}]
+  [:div (str "Tag: " (:tag-id path-params))])
 
 ;; @TODO: Expand on this
 (defn- members
@@ -79,7 +87,7 @@
 (defn- user
   "Show a specific user's page"
   [{:keys [route-key path-params query-params]}]
-  [:div (str "User: " path-params)])
+  [:div (str "User: " (:user-id path-params))])
 
 ;; @TODO: Expand on this
 (defn- admin

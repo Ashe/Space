@@ -51,9 +51,10 @@
 (defn- make-post
   "An overview of a post"
   [p]
+  (println p)
   [:div
-      { :id (str "post-" (:postid p))
-        :key (:postid p)
+      { :id (str "post-" (:post-number p))
+        :key (:post-number p)
         :style {:margin forum-spacing}}
     [:div.box
       [:article.columns.is-vcentered
@@ -65,19 +66,19 @@
           [:div.content
             [:p 
               [:a 
-                  { :href (str "/post/" (:postid p))}
-               [:strong.is-size-4 (:posttitle p)]] [:br]
+                  {:href (str "/post/" (:post-number p))}
+               [:strong.is-size-4 (:post-title p)]] [:br]
               [:a 
-                  {:href (str "/user/" (:userid p))}
+                  {:href (str "/user/" (:user-id p))}
                 [:span.icon
-                    (when (not (:isadmin p)) {:style {:display "none"}})
+                    (when (not (:is-admin-post p)) {:style {:display "none"}})
                   [:i.fas.fa-shield-check]]
-                [:strong (:username p)] (str " @" (:userhandle p))]
-              [:small (str " " (:postdate p))] [:br]
-              (:postcontent p)]
+                [:strong (:username p)] (str " @" (:user-handle p))]
+              [:small (str " " (:post-date p))] [:br]
+              (:post-summary p)]
             [:div.tags
               (map make-tag (:tag-ids p))]
-              ]]]]])
+            ]]]]])
 
 (defn- pagination
   "Shows the current page number"
@@ -103,7 +104,7 @@
         [:li>a.pagination-link.button (attr page) page]
         [:li>a.pagination-link.button (attr (inc page)) (inc page)]
         [:li>a.pagination-link.button (attr (+ page 2)) (+ page 2)]
-        ]]))
+      ]]))
 
 ;; @TODO: Make this customisable
 (defn- make-tag
@@ -112,11 +113,15 @@
   (let [label (case id 
                   0 "Clojure"
                   1 "Reagent"
-                  2 "Re-frame")
+                  2 "Re-frame"
+                  nil)
         colour (case id
                   0 "is-info"
                   1 "is-success"
-                  2 "is-danger")]
-    [:a.tag.is-info 
-        {:class colour}
-      label]))
+                  2 "is-danger"
+                  nil)]
+    (when (and label colour) 
+      [:a.tag.is-info 
+          {:class colour
+           :href (str "/tag/" id)}
+        label])))
