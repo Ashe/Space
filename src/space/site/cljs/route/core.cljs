@@ -1,10 +1,11 @@
 (ns space.site.cljs.route.core
   (:require [re-frame.core :as rf]
             [re-frame-routing.core :as rfr]
-            [space.site.cljs.elements.navbar :as navbar]
-            [space.site.cljs.elements.notifications :as notifications]
-            [space.site.cljs.elements.footer :as footer]
-            [space.site.cljs.elements.forum :as forum]))
+            [space.site.cljs.views.navbar :as navbar]
+            [space.site.cljs.views.notifications :as notifications]
+            [space.site.cljs.views.footer :as footer]
+            [space.site.cljs.views.forum :as forum]
+            [space.site.cljs.views.create.core :as create]))
 
 ;; Forward declarations
 ;;@TODO: Place these functions in their own element files
@@ -16,7 +17,8 @@
         "forum/"      {"" :forum
             ["page-"  :page-number] :forum}
         "post/"       {[:post-number] :post}
-        "new/"        {"" :new}
+        "new/"        {"" :new
+                      [:post-type] :new}
         "tags/"       {"" :tags
             ["page-"  :page-number] :tags}
         "tag/"        {[:tag-id] :tag}
@@ -48,7 +50,7 @@
 (defmulti get-page-content identity)
 (defmethod get-page-content :forum [] forum/forum)
 (defmethod get-page-content :post [] post)
-(defmethod get-page-content :new [] create-new)
+(defmethod get-page-content :new [] create/create-new)
 (defmethod get-page-content :tags [] tags)
 (defmethod get-page-content :tag [] tag)
 (defmethod get-page-content :members [] members)

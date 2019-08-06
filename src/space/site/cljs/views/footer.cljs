@@ -1,4 +1,4 @@
-(ns space.site.cljs.elements.footer)
+(ns space.site.cljs.views.footer)
 
 (defn footer
   "Footer of website linking to repository"

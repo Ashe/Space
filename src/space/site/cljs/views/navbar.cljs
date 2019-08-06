@@ -1,5 +1,6 @@
-(ns space.site.cljs.elements.navbar
-  (:require [space.site.cljs.events.time :as time]))
+(ns space.site.cljs.views.navbar
+  (:require [space.site.cljs.events.time :as time]
+            [space.site.cljs.events.notifications :as n]))
 
 (declare tab foo)
 
@@ -33,6 +34,11 @@
                 [:span.navbar-item
                     {:style {:padding-left "0px"}}
                   [:a.button.is-primary.is-inverted
+
+                      {:on-click (n/dispatch-notification
+                        (str "Cannot sign in")
+                        "Not yet implemented."
+                        "is-danger")}
                     [:span.icon
                       [:i.fa.fa-user]]
                     [:span "Sign in"]]]]]]]
@@ -42,7 +48,7 @@
         [:nav.tabs.is-boxed
           [:div.container
             [:ul
-              [tab "Forum" [:forum :post] "/" route-key]
+              [tab "Forum" [:forum :post :new] "/" route-key]
               [tab "Tags" [:tag :tags] "/tags/" route-key]
               [tab "Members" [:members :user] "/members/" route-key]
               [tab "Admin" [:admin] "/admin/" route-key]

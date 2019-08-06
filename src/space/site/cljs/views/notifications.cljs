@@ -1,4 +1,4 @@
-(ns space.site.cljs.elements.notifications
+(ns space.site.cljs.views.notifications
   (:require [re-frame.core :as rf]))
 
 (declare make-notification)

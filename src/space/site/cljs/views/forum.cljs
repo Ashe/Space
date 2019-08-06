@@ -1,4 +1,4 @@
-(ns space.site.cljs.elements.forum
+(ns space.site.cljs.views.forum
   (:require [re-frame.core :as rf]
             [space.common.core :as cmn]
             [space.site.cljs.events.forum :as f]
