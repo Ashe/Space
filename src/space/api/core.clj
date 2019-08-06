@@ -5,7 +5,8 @@
             [ring.middleware.cors :as cors]
             [compojure.core :as c]
             [compojure.route :as route]
-            [space.api.db.core :as db]))
+            [space.api.db.core :as db]
+            [space.common.core :as cmn]))
 
 ;; Forward declarations
 (declare start-server api-handler validate)
@@ -27,7 +28,7 @@
   (c/GET "/" [] "<h1>Hello World :)</h1>")
   (c/GET "/ping" [] (json/write-str {:response "pong"}))
   (c/GET "/forum" [] (db/get-forum-page 0))
-  (c/GET "/forum/page-:page" [page] (validate page db/get-forum-page))
+  (c/GET "/forum/page-:page" [page] (db/get-forum-page (cmn/str->num page)))
   (route/not-found "<h1>Page not found :(</h1>"))
 
 ;; Wraps around the router to allow cross origin
@@ -35,11 +36,3 @@
   (cors/wrap-cors router
     :access-control-allow-origin [#"http://localhost:8080"]
     :access-control-allow-methods [:get :put :post :delete]))
-
-(defn- validate
-  "Ensure user input is safe"
-  [string on-success]
-  (let [maybe-number (read-string string)]
-    (when (number? maybe-number)
-      (on-success maybe-number))))
-

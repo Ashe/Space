@@ -1,5 +1,6 @@
 (ns space.site.cljs.elements.forum
   (:require [re-frame.core :as rf]
+            [space.common.core :as cmn]
             [space.site.cljs.events.forum :as f]
             [space.site.cljs.events.notifications :as n]))
 
@@ -13,8 +14,9 @@
 (defn forum
   "Draw forum posts"
   [{:keys [route-key path-params query-params]}]
-  (let [page-number 0]
-    (f/dispatch-fetch-posts page-number)
+  (let [page-number 
+            (max 1 (cmn/str->num (:page-number path-params)))]
+    (f/dispatch-fetch-posts (dec page-number))
     (fn []
       (let [posts @(rf/subscribe [:posts])]
         [:div.container.is-widescreen
@@ -63,16 +65,10 @@
           [:div.content
             [:p 
               [:a 
-                  {:on-click (n/dispatch-notification
-                      "Cannot open forum post"
-                      "Not yet implemented!"
-                      "is-danger")}
+                  { :href (str "/post/" (:postid p))}
                [:strong.is-size-4 (:posttitle p)]] [:br]
               [:a 
-                  {:on-click (n/dispatch-notification
-                      "Cannot open user's page"
-                      "Not yet implemented!"
-                      "is-danger")}
+                  {:href (str "/user/" (:userid p))}
                 [:span.icon
                     (when (not (:isadmin p)) {:style {:display "none"}})
                   [:i.fas.fa-shield-check]]
@@ -86,16 +82,21 @@
 ;;@TODO: Make pagination change depending on current page
 (defn- pagination
   "Shows the current page number"
-  [page-number]
-  (let [page (inc page-number)]
+  [page]
+  (let [link (fn [p] (if (<= p 1) "/" (str "/forum/page-" p)))]
     [:nav.pagination.is-centered
         { :role "navigation"
           :aria-label "pagination"}
-      [:a.pagination-previous "Previous"]
-      [:a.pagination-next "Next"]
+      [:a.pagination-previous
+          { :href (link (dec page))}
+        "Previous"]
+      [:a.pagination-next
+          { :href (link (inc page))}
+        "Next"]
       [:ul.pagination-list
         [:li>a.pagination-link 
-            {:aria-label "Goto page 1"}
+            { :href (link page)
+              :aria-label "Goto page 1"}
           page]]]))
 
 ;; @TODO: Make this customisable

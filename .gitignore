@@ -1,6 +1,9 @@
 # Created by https://www.gitignore.io/api/clojure
 # Edit at https://www.gitignore.io/?templates=clojure
 
+### Space ###
+/out/
+
 ### Clojure ###
 pom.xml
 pom.xml.asc

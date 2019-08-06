@@ -7,15 +7,20 @@
             [space.site.cljs.elements.forum :as forum]))
 
 ;; Forward declarations
-(declare not-found tags members admin get-page-content)
+(declare not-found post tags members user admin get-page-content)
 
 ;; Determine what URLs match to what view
 (def routes 
   ["/" {"" :forum
-        "forum" :forum
-        "tags" :tags
-        "members" :members
-        "admin" :admin}])
+        "forum/"    {"" :forum
+                      ["page-" :page-number] :forum}
+        "post/"     {[:post-id] :post}
+        "tags/"     {"" :tags
+                      ["page-" :page-number] :tags}
+        "members/"  {"" :members
+                      ["page-" :page-number] :members}
+        "user/"     {[:user-id] :user}
+        "admin/"    :admin}])
 
 ;; Import routing events
 (rfr/register-events {:routes routes})
@@ -39,8 +44,10 @@
 ;; Choose which component function to use depending on route
 (defmulti get-page-content identity)
 (defmethod get-page-content :forum [] forum/forum)
+(defmethod get-page-content :post [] post)
 (defmethod get-page-content :tags [] tags)
 (defmethod get-page-content :members [] members)
+(defmethod get-page-content :user [] user)
 (defmethod get-page-content :admin [] admin)
 (defmethod get-page-content :default [] not-found)
 
@@ -49,6 +56,12 @@
   "404 Page component"
   [{:keys [route-key path-params query-params]}]
   [:div "Page not found"])
+
+;; @TODO: Expand on this
+(defn- post
+  "Display a post"
+  [{:keys [route-key path-params query-params]}]
+  [:div (str "Post: " path-params)])
 
 ;; @TODO: Expand on this
 (defn- tags
@@ -61,6 +74,12 @@
   "Show members who belong to this forum"
   [{:keys [route-key path-params query-params]}]
   [:div "Members"])
+
+;; @TODO: Expand on this
+(defn- user
+  "Show a specific user's page"
+  [{:keys [route-key path-params query-params]}]
+  [:div (str "User: " path-params)])
 
 ;; @TODO: Expand on this
 (defn- admin

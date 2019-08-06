@@ -3,7 +3,6 @@
 
 (declare tab foo)
 
-;; @TODO: Change appearance depending on current page
 (defn navbar
   "Navbar of site"
   [route-key]
@@ -42,10 +41,10 @@
         [:nav.tabs.is-boxed
           [:div.container
             [:ul
-              [tab "Forum" :home "/" route-key]
-              [tab "Tags" :tags "/tags" route-key]
-              [tab "Members" :members "/members" route-key]
-              [tab "Admin" :admin "/admin" route-key]]]]]]]])
+              [tab "Forum" :forum "/" route-key]
+              [tab "Tags" :tags "/tags/" route-key]
+              [tab "Members" :members "/members/" route-key]
+              [tab "Admin" :admin "/admin/" route-key]]]]]]]])
 
 (defn- tab
   "Returns a tab that is active when given a matching route"
