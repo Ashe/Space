@@ -41,15 +41,15 @@
         [:nav.tabs.is-boxed
           [:div.container
             [:ul
-              [tab "Forum" :forum "/" route-key]
-              [tab "Tags" :tags "/tags/" route-key]
-              [tab "Members" :members "/members/" route-key]
-              [tab "Admin" :admin "/admin/" route-key]]]]]]]])
+              [tab "Forum" [:forum :post] "/" route-key]
+              [tab "Tags" [:tag :tags] "/tags/" route-key]
+              [tab "Members" [:members :user] "/members/" route-key]
+              [tab "Admin" [:admin] "/admin/" route-key]]]]]]]])
 
 (defn- tab
   "Returns a tab that is active when given a matching route"
-  [text route destination page]
-  [:li {:class [(when (= page route) "is-active")]}
+  [text routes destination page]
+  [:li {:class [(when (some #{page} routes) "is-active")]}
     [:a {:href destination}
       text]])
 
