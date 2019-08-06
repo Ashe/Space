@@ -51,7 +51,6 @@
 (defn- make-post
   "An overview of a post"
   [p]
-  (println p)
   [:div
       { :id (str "post-" (:post-number p))
         :key (:post-number p)
