@@ -38,7 +38,8 @@
                       {:on-click (n/dispatch-notification
                         (str "Cannot sign in")
                         "Not yet implemented."
-                        "is-danger")}
+                        "is-danger"
+                        "fa-exclamation-triangle")}
                     [:span.icon
                       [:i.fa.fa-user]]
                     [:span "Sign in"]]]]]]]

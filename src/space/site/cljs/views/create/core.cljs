@@ -1,13 +1,20 @@
 (ns space.site.cljs.views.create.core
-  (:require [space.site.cljs.events.notifications :as n]))
+  (:require [space.site.cljs.events.notifications :as n]
+            [space.site.cljs.views.create.post :as p]))
 
 (declare show-post-types type-box)
 
 (defn create-new
   "Show different post types to create"
   []
+  ((n/dispatch-notification
+      "Continuing as Guest"
+      "You should sign in before going further to earn points!"
+      "is-info"
+      "fa-user-times"))
   (fn [{:keys [_ path-params _]}]
     (case (:post-type path-params)
+      "post" [p/create-post]
       [show-post-types])))
 
 (defn- show-post-types
@@ -19,7 +26,8 @@
           "Post"
           "Post something for others to read and 
           gain points from valuble posts."
-          "fa-pencil"]
+          "fa-pencil"
+          "post"]
       [type-box
           "Question"
           "Ask a question and reward those who
@@ -34,14 +42,16 @@
 
 (defn type-box
   "A box containing a post type"
-  [title sub icon]
-  [:div.column.is-one-third.has-text-centered
+  [title sub icon link]
+  [:article.column.is-one-third.has-text-centered
     [:a.box
         { :style {:height "230px"}
-          :on-click (n/dispatch-notification
+          :href (when link (str "/new/" link))
+          :on-click (when (not link) (n/dispatch-notification
             (str "Cannot create new " title)
             "Not yet implemented."
-            "is-danger")}
+            "is-danger"
+            "fa-exclamation-triangle"))}
       [:div.level
         [:div.level-item
           [:span.icon.is-large

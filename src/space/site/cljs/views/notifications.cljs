@@ -27,12 +27,18 @@
 
 (defn- make-notification
   "An individual notification"
-  [i [title msg col]]
-  [:div.notification
-      { :key (str "Notification-" i)
-        :class [col]}
-    [:button.delete 
-      {:on-click 
-        #(rf/dispatch [:remove-notification i])}]
-    [:strong title] [:br]
-    msg])
+  [i [title msg col icon]]
+  (let [colour (or col "is-info")]
+    [:div.notification
+        { :key (str "Notification-" i)
+          :class [colour]}
+      [:button.delete 
+        {:on-click 
+          #(rf/dispatch [:remove-notification i])}]
+      [:div.columns.is-vcentered
+        [:div.column.is-narrow
+          (when icon [:span.icon.is-large
+            [:i.fa-3x.fas {:class icon}]])]
+        [:div.column
+          [:strong title] [:br]
+          msg]]]))

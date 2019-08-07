@@ -3,8 +3,10 @@
 
 (defn dispatch-notification
   "Easy way of sending a notification"
-  [title msg colour]
-  #(rf/dispatch [:new-notification [title msg colour]]))
+  [title msg & [colour icon]]
+  (fn []
+    (println "Dispatching notification: \n" title "\n" msg)
+    (rf/dispatch [:new-notification [title msg colour icon]])))
 
 ;; Add a notification to stack
 (rf/reg-event-db
