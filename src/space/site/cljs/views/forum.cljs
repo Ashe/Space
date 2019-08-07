@@ -48,16 +48,20 @@
           [:select
             [:option "Value"]
             [:option "Newest"]]]]]
-    [:div.level-item.control.has-icons-left
-      [:input.input.is-small
-          {:type "text"
-           :placeholder "Search for posts, users, tags.."}]
-      [:span.icon.is-small.is-left
-        [:i.fas.fa-search]]]
-    [:div.level-right
-      [:div.level-item
+    [:div.level-item
+      [:div.field.has-addons
+          {:style {:width "100%"}}
+        [:div.control.has-icons-left
+            {:style {:width "100%"}}
+          [:input.input.is-small
+              {:type "text"
+               :placeholder "Search for posts, users, tags.."}]
+          [:span.icon.is-small.is-left
+            [:i.fas.fa-search]]]
+      [:div.control
         [:a.button.is-info.is-small
-          "Search"]]
+          "Search"]]]]
+    [:div.level-right
       [:div.level-item
         [:a.button.is-primary.is-small
             {:href "/new/"}
