@@ -25,10 +25,11 @@
 
 ;; Describes how to respond to different URLs
 (c/defroutes router
-  (c/GET "/" [] "<h1>Hello World :)</h1>")
-  (c/GET "/ping" [] (json/write-str {:response "pong"}))
-  (c/GET "/get-forum-page-count" [] (db/get-forum-page-count))
-  (c/GET "/forum/page-:page" [page] (db/get-forum-page (cmn/str->num page)))
+  (c/GET  "/" [] "<h1>Hello World :)</h1>")
+  (c/GET  "/ping" [] (json/write-str {:response "pong"}))
+  (c/GET  "/forum/get-page-count" [] (db/get-forum-page-count))
+  (c/GET  "/forum/page-:page" [page] (db/get-forum-page (cmn/str->num page)))
+  (c/POST "/forum/submit" post (db/submit-forum-post post))
   (route/not-found "<h1>Page not found :(</h1>"))
 
 ;; Wraps around the router to allow cross origin

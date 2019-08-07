@@ -55,6 +55,11 @@
           posts-per-page
           (max 0 (* page posts-per-page))]))))
 
+(defn submit-forum-post
+  "Validate and upload a post to the database"
+  [post]
+  (json/write-str ["Success!"]))
+
 (defn- prepare-forum-post
   "Passes only important information to the client"
   [p]

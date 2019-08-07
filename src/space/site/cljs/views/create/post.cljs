@@ -1,5 +1,6 @@
 (ns space.site.cljs.views.create.post
-  (:require [reagent.core :as r]))
+  (:require [reagent.core :as r]
+            [space.site.cljs.events.post :as p]))
 
 (declare form info-panel make-text-input)
 
@@ -72,12 +73,13 @@
     ;; Title
     (make-text-input title 
         :input.input 
-        "Title" "Thanks!" "Please enter a descriptive title" 
+        "Title" "What is your post about?"
+        "Thanks!" "Please enter a descriptive title" 
         title-min title-max)
 
     ;; Tags
     ;; @TODO: Implement the ability to grab tags
-    [:div.field
+    [:div.field.is-hidden
       [:label.label "Tags"]
       [:div.control.has-icons-right
         [:textarea.textarea.is-danger
@@ -91,7 +93,8 @@
     ;; Body
     (make-text-input content 
         :textarea.textarea 
-        "Content" "Thanks!" "Please write your post" 
+        "Content" "What do you want to talk about?"
+        "Thanks!" "Please write your post" 
         content-min content-max)
 
     ;; Agree to forum rules
@@ -104,24 +107,24 @@
                 :on-change #(reset! has-agreed (.-checked (.-target %)))}]
             " I have read and understood the "
             [:a {:href "/info/#guidelines"} "Community Guidelines "]
-            "expected by this post"]]]
+            "expected by this post."]]]
 
       ;; Submit
       ;;@TODO: Make this work
       [:div.field.is-grouped
         [:div.control
           [:button.button.is-link 
-              {:disabled (not (ready-to-submit))}
+              { :disabled (not (ready-to-submit))
+                :on-click #(p/dispatch-submit-post @title @content)}
             "Post"]]
         [:div.control
           [:a.button.is-text 
               {:href "/"}
-            "Back to forum"]]]
-    ])
+            "Back to forum"]]]])
 
 (defn make-text-input
   "Makes an input with a given atom, tag and set of messages"
-  [input-atom input-type label help-okay help-invalid min-length max-length]
+  [input-atom input-type label placeholder help-okay help-invalid min-length max-length]
   (let [length (count (or @input-atom ""))
         colour (cond
                   (zero? length) ""
@@ -139,7 +142,7 @@
     [:div.control.has-icons-right
       [input-type
         { :type "text"
-          :placeholder "I've been thinking about.."
+          :placeholder placeholder
           :on-change #(reset! input-atom (.-value (.-target %)))
           :class colour}]
       [:span.icon.is-small.is-right

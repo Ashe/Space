@@ -1,10 +1,10 @@
 (ns space.site.cljs.events.core
   (:require [re-frame.core :as rf]
             [re-frame-routing.core :as rfr]
-            [day8.re-frame.http-fx :as http]
+            [day8.re-frame.http-fx]
             [ajax.core :as ajax]))
 
-(declare make-http-get-request)
+(declare make-http-get-request make-http-post-request)
 
 ;; Import subscriptions
 (rfr/register-subscriptions)
@@ -28,6 +28,13 @@
   (fn [_ [_ [uri success fail]]]
     { :dispatch [:attempt-ping false]
       :http-xhrio (make-http-get-request uri success fail)}))
+
+;; Make a HTTP-POST request
+(rf/reg-event-fx
+  :http-post
+  (fn [_ [_ [uri data success fail]]]
+    { :dispatch [:attempt-ping false]
+      :http-xhrio (make-http-post-request uri (clj->js data) success fail)}))
 
 ;; Good http calls set server status to true
 (rf/reg-event-fx
@@ -62,7 +69,6 @@
                 "Please try again later." 
                 "is-danger"]]))))))
 
-
 ;; Attempt to connect to server if disconnected OR forced
 (rf/reg-event-fx
   :attempt-ping
@@ -80,18 +86,26 @@
 (defonce do-pinging (js/setInterval dispatch-ping-event 10000))
 
 (defn- make-http-get-request
-  "Creates a HTTP request"
+  "Creates a HTTP-GET request"
   [uri on-success on-fail]
-  { :method          :get
-    :uri             (str "http://localhost:3000/" uri)
-    ;; optional see API docs
-    :timeout         8000
-    ;; IMPORTANT!: You must provide this.
-    :response-format (ajax/json-response-format {:keywords? true})
-    :on-success      [on-success]
-    :on-failure      [on-fail]})
+  { :method           :get
+    :uri              (str "http://localhost:3000/" uri)
+    :timeout          8000
+    :response-format  (ajax/json-response-format {:keywords? true})
+    :on-success       [on-success]
+    :on-failure       [on-fail]})
 
-
+(defn- make-http-post-request
+  "Creates a HTTP-POST request"
+  [uri data on-success on-fail]
+  { :method           :post
+    :uri              (str "http://localhost:3000/" uri)
+    :params           data 
+    :timeout          8000
+    :format           (ajax/json-request-format)
+    :response-format  (ajax/json-response-format {:keywords? true})
+    :on-success       [on-success]
+    :on-failure       [on-fail]})
 
 ;; Common Events / Subscriptions ---------------------------------------------------
 
