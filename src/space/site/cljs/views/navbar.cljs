@@ -52,6 +52,7 @@
               [tab "Forum" [:forum :post :new] "/" route-key]
               [tab "Tags" [:tag :tags] "/tags/" route-key]
               [tab "Members" [:members :user] "/members/" route-key]
+              [tab "Info" [:info] "/info/" route-key]
               [tab "Admin" [:admin] "/admin/" route-key]
             ]]]]]]])
 

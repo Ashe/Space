@@ -9,7 +9,7 @@
 
 ;; Forward declarations
 ;;@TODO: Place these functions in their own element files
-(declare not-found post create-new tags tag members user admin get-page-content)
+(declare not-found post create-new tags tag members user info admin get-page-content)
 
 ;; Determine what URLs match to what view
 (def routes 
@@ -25,6 +25,7 @@
         "members/"    {"" :members
             ["page-"  :page-number] :members}
         "user/"       {[:user-id] :user}
+        "info/"       {"" :info}
         "admin/"      :admin}])
 
 ;; Import routing events
@@ -56,6 +57,7 @@
 (defmethod get-page-content :tag [] tag)
 (defmethod get-page-content :members [] members)
 (defmethod get-page-content :user [] user)
+(defmethod get-page-content :info [] info)
 (defmethod get-page-content :admin [] admin)
 (defmethod get-page-content :default [] not-found)
 
@@ -100,6 +102,12 @@
   "Show a specific user's page"
   [{:keys [route-key path-params query-params]}]
   [:div (str "User: " (:user-id path-params))])
+
+;; @TODO: Expand on this
+(defn- info
+  "Show tools for moderation and configuration of Space"
+  [{:keys [route-key path-params query-params]}]
+  [:div "Info"])
 
 ;; @TODO: Expand on this
 (defn- admin

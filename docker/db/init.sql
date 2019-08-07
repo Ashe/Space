@@ -16,7 +16,7 @@ CREATE TABLE Posts (
   PostID bigserial NOT NULL,
   PosterID bigserial,
   PostDate timestamptz NOT NULL,
-  PostTitle varchar(64) NOT NULL,
+  PostTitle varchar(100) NOT NULL,
   PostContent text NOT NULL,
   PRIMARY KEY (PostID),
   FOREIGN KEY (PosterID) REFERENCES Users(UserID)
