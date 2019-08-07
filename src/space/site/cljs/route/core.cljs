@@ -40,10 +40,11 @@
             :query-params @(rf/subscribe [:router/route-query])}]
     [:div
       [navbar/navbar route-key]
+      [notifications/mobile-alerts]
       [:section.section
         [(get-page-content route-key) route-data]]
-      [footer/footer]
-      [notifications/notification-panel]]))
+      [notifications/notification-panel]
+      [footer/footer]]))
 
 
 ;; Choose which component function to use depending on route

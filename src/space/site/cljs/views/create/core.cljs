@@ -46,11 +46,12 @@
   [:article.column.is-one-third.has-text-centered
     [:a.box
         { :href (when link (str "/new/" link))
-          :on-click (when (not link) (n/dispatch-notification
-            (str "Cannot create new " title)
-            "Not yet implemented."
-            "is-danger"
-            "fa-exclamation-triangle"))}
+          :on-click (when (not link) 
+            (n/dispatch-notification
+                (str "Cannot create new " title)
+                "Not yet implemented."
+                "is-danger"
+                "fa-exclamation-triangle"))}
       [:div.level
         [:div.level-item
           [:span.icon.is-large
@@ -59,5 +60,5 @@
             [:i.fa-3x.fas
               {:class icon}]]]]
       [:article
-        [:h1.title title]
-        [:h2.subtitle sub]]]])
+        [:h1.is-size-3.has-text-weight-bold title]
+        [:h2.is-size-5 sub]]]])
