@@ -25,18 +25,18 @@
       [type-box
           "Post"
           "Post something for others to read and 
-          gain points from valuble posts."
+          gain points for positive or interesting posts."
           "fa-pencil"
           "post"]
       [type-box
           "Question"
-          "Ask a question and reward those who
-          solve your problems with points."
+          "Ask a question and reward everyone who tried 
+          to help solve your problems with points."
           "fa-question"]
       [type-box
           "Chat"
           "Start a conversation on a subject
-          where everyone has the chance to gain points." 
+          where everyone has the chance to earn points." 
           "fa-comment-dots"]
     ]])
 
@@ -45,8 +45,7 @@
   [title sub icon link]
   [:article.column.is-one-third.has-text-centered
     [:a.box
-        { :style {:height "230px"}
-          :href (when link (str "/new/" link))
+        { :href (when link (str "/new/" link))
           :on-click (when (not link) (n/dispatch-notification
             (str "Cannot create new " title)
             "Not yet implemented."
