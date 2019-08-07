@@ -2,6 +2,7 @@
   (:gen-class)
   (:require [clojure.data.json :as json]
             [ring.adapter.jetty :as jetty]
+            [ring.middleware.json :as rjson]
             [ring.middleware.cors :as cors]
             [compojure.core :as c]
             [compojure.route :as route]
@@ -32,8 +33,9 @@
   (c/POST "/forum/submit" post (db/submit-forum-post post))
   (route/not-found "<h1>Page not found :(</h1>"))
 
-;; Wraps around the router to allow cross origin
+;; Wraps middleware around router
 (def api-handler
-  (cors/wrap-cors router
-    :access-control-allow-origin [#"http://localhost:8080"]
-    :access-control-allow-methods [:get :put :post :delete]))
+  (rjson/wrap-json-body
+    (cors/wrap-cors router
+      :access-control-allow-origin [#"http://localhost:8080"]
+      :access-control-allow-methods [:get :put :post :delete])))

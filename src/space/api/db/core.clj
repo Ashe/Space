@@ -13,11 +13,11 @@
 
 ;; String to use for SQL calls
 (def db-spec (atom 
-  {:dbtype "postgresql"
-   :host "localhost:5432"
-   :dbname "space"
-   :user "space"
-   :password "nebula"}))
+  { :dbtype "postgresql"
+    :host "localhost:5432"
+    :dbname "space"
+    :user "space"
+    :password "nebula"}))
 
 (defn setup-db
   "Creates necessary tables for space"
@@ -58,7 +58,11 @@
 (defn submit-forum-post
   "Validate and upload a post to the database"
   [post]
-  (json/write-str ["Success!"]))
+  (let [body (:body post)]
+    (sql/insert! @db-spec :Posts
+      { :PostTitle (:post-title body)
+        :PostContent (:post-content body)})
+    (json/write-str {:result "Success!"})))
 
 (defn- prepare-forum-post
   "Passes only important information to the client"

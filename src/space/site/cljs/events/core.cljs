@@ -62,12 +62,14 @@
           (if status
             [:new-notification 
               [ "Reconnected to server :)" 
-                "You may need to refresh the page." 
-                "is-success"]]
+                "You may need to refresh the Space to see what's new." 
+                "is-success"
+                "fa-heart"]]
             [:new-notification 
               [ "Disconnected from server :(" 
                 "Please try again later." 
-                "is-danger"]]))))))
+                "is-danger"
+                "fa-heart-broken"]]))))))
 
 ;; Attempt to connect to server if disconnected OR forced
 (rf/reg-event-fx
@@ -98,6 +100,7 @@
 (defn- make-http-post-request
   "Creates a HTTP-POST request"
   [uri data on-success on-fail]
+  (println "Making post request: " data)
   { :method           :post
     :uri              (str "http://localhost:3000/" uri)
     :params           data 
