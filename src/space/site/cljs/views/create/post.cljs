@@ -1,6 +1,5 @@
 (ns space.site.cljs.views.create.post
-  (:require [reagent.core :as r]
-            [space.site.cljs.events.notifications :as n]))
+  (:require [reagent.core :as r]))
 
 (declare form info-panel)
 
@@ -35,22 +34,19 @@
       Use this opportunity to demonstrate passion,
       skill or knowledge to gain points in your chosen
       tags while exchanging ideas."]
-    [:div.container.is-fluid
-      [:div.columns
-        [:div.column.is-half.has-text-success
-          [:h3.is-size-5.has-text-weight-bold "Do:"]
-          [:ol
-            [:li "Include insightful or positive ideas in your post"]
-            [:li "Ensure that you have done research where you can"]
-            [:li "Be clear and take care with grammar and spelling"]
-          ]]
-        [:div.column.is-half.has-text-danger
-          [:h3.is-size-5.has-text-weight-bold "Don't:"]
-          [:ol
-            [:li "Post anything illegal or against forum rules"]
-            [:li "Single out or rant at other users (ignore or report them)"]
-            [:li "Knowingly lie or mislead other users unless it's clearly in jest"]
-        ]]]]])
+    [:div
+      [:div.content.has-text-success
+        [:h3.is-size-5.has-text-weight-bold.has-text-success "Do:"]
+        [:ol
+          [:li "Include insightful or positive ideas in your post"]
+          [:li "Ensure that you have done research where you can"]
+          [:li "Be clear and take care with grammar and spelling"]]]
+      [:div.content.has-text-danger
+        [:h3.is-size-5.has-text-weight-bold.has-text-danger "Don't:"]
+        [:ol
+          [:li "Post anything illegal or against forum rules"]
+          [:li "Single out or rant at other users (ignore or report them)"]
+          [:li "Knowingly lie or mislead other users unless it's clearly in jest"]]]]])
 
 ;; Constraints for post
 (def title-min 10)
