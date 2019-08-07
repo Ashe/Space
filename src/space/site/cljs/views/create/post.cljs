@@ -52,13 +52,17 @@
             [:li "Knowingly lie or mislead other users unless it's clearly in jest"]
         ]]]]])
 
+;; Constraints for post
+(def title-min 10)
+(def title-max 100)
+
 ;; Atoms for form validation
 (def title (r/atom ""))
 (def has-agreed (r/atom false))
 (defn ready-to-submit [] (and
     @has-agreed 
-    (> (count @title) 10)
-    (< (count @title) 100)))
+    (> (count @title) title-min)
+    (< (count @title) title-max)))
 
 (defn form
   "Form for creating a new post"
@@ -69,9 +73,9 @@
     (let [length (count (or @title ""))
           colour (cond
                     (zero? length) ""
-                    (or (< length 10) (> length 100)) "is-danger"
+                    (or (< length title-min) (> length title-max)) "is-danger"
                     :else "is-success")
-          icon (if (and (>= length 10) (<= length 100))
+          icon (if (and (>= length title-min) (<= length title-max))
                     "fa-check" "fa-exclamation-triangle")]
       [:div.field
         [:label.label "Post title"]
@@ -84,13 +88,13 @@
           [:span.icon.is-small.is-right
             [:i.fas {:class icon}]]]
           (cond
-            (< length 10) [:p.help
+            (< length title-min) [:p.help
                 {:class colour}
-              "Please enter a valid title (" (str (- 10 length)) " characters left)"]
-            (< length 100) [:p.help.is-success
-              "Thanks! " (str (- 100 length)) " characters left"]
-            (> length 100) [:p.help.is-danger
-              "Please enter a valid title (" (str (- length 100)) " characters too many)"])])
+              "Please enter a valid title (" (str (- title-min length)) " characters left)"]
+            (< length title-max) [:p.help.is-success
+              "Thanks! " (str (- title-max length)) " characters left"]
+            :else [:p.help.is-danger
+              "Please enter a valid title (" (str (- length title-max)) " characters too many)"])])
 
     ;; Tags
     ;; @TODO: Implement the ability to grab tags
