@@ -63,18 +63,28 @@
       (println "Receiving post: " body)
       (sql/insert! @db-spec :Posts
           { :PostTitle (:post-title body)
-            :PostContent (:post-content body)})
+            :PostContent (:post-content body)
+            :IsAnonymous (:is-anonymous body)})
       (json/write-str {:result "Success!"}))))
 
 (defn- prepare-forum-post
   "Passes only important information to the client"
   [p]
-  { :post-number (:postid p)
-    :post-title (:posttitle p)
-    :is-admin-post (:isadmin p)
-    :user-id (:userid p)
-    :username (:username p)
-    :user-handle (:userhandle p)
-    :post-date (:postdate p)
-    :post-summary (:postcontent p)
-    :tag-ids [0 1 2 3]})
+  (cond-> 
+    { :post-number (:postid p)
+      :post-title (:posttitle p)
+      :post-date (:postdate p)
+      :post-summary (:postcontent p)
+      :tag-ids [0 1 2 3]}
+
+    ;; When there is a user, send stats depending on anonymous
+    ;; @TODO: Change 'true' to user's ID
+    true
+      (#(if (:isanonymous p)
+        (assoc % 
+          :is-anonymous true)
+        (assoc % 
+          :is-admin-post (:isadmin p)
+          :user-id (:userid p)
+          :username (:username p)
+          :user-handle (:userhandle p))))))

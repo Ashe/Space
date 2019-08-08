@@ -18,6 +18,7 @@ CREATE TABLE Posts (
   PostDate timestamptz NOT NULL DEFAULT NOW(),
   PostTitle varchar(100) NOT NULL,
   PostContent text NOT NULL,
+  IsAnonymous bool,
   PRIMARY KEY (PostID),
   FOREIGN KEY (PosterID) REFERENCES Users(UserID)
 );

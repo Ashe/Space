@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]
             [space.site.cljs.events.post :as p]))
 
-(declare form info-panel make-text-input)
+(declare form info-panel make-text-input make-checkbox)
 
 (defn create-post
   "Shows an overview of post expectations and the form"
@@ -58,6 +58,7 @@
 ;; Atoms for form validation
 (def title (r/atom ""))
 (def content (r/atom ""))
+(def is-anonymous (r/atom false))
 (def has-agreed (r/atom false))
 (defn ready-to-submit [] (and
     @has-agreed 
@@ -97,32 +98,27 @@
         "Thanks!" "Please write your post" 
         content-min content-max)
 
+    ;; Ask the user if they want their post to remain anonymous
+    (make-checkbox is-anonymous "Please make my post anonymous.")
+
     ;; Agree to forum rules
-    [:div.field
-      [:div.control
-        [:label.checkbox
-          [:input 
-              { :type "checkbox"
-                :value @has-agreed
-                :on-change #(reset! has-agreed (.-checked (.-target %)))}]
-            " I have read and understood the "
-            [:a {:href "/info/#guidelines"} "Community Guidelines "]
-            "expected by this post."]]]
+    (make-checkbox has-agreed 
+        '("I have read and understood the "
+          [:a {:href "/info/#guidelines"} "Community Guidelines"]"."))
 
       ;; Submit
-      ;;@TODO: Make this work
       [:div.field.is-grouped
         [:div.control
           [:button.button.is-link 
               { :disabled (not (ready-to-submit))
-                :on-click #(p/dispatch-submit-post @title @content)}
+                :on-click #(p/dispatch-submit-post @title @content @is-anonymous)}
             "Post"]]
         [:div.control
           [:a.button.is-text 
               {:href "/"}
             "Back to forum"]]]])
 
-(defn make-text-input
+(defn- make-text-input
   "Makes an input with a given atom, tag and set of messages"
   [input-atom input-type label placeholder help-okay help-invalid min-length max-length]
   (let [length (count (or @input-atom ""))
@@ -158,3 +154,16 @@
         (> max-length 0)
           [:p.help.is-danger
             help-invalid " (" (str (- length max-length)) " characters too many)"])]))
+
+(defn- make-checkbox
+  "Makes a checkbox"
+  [checkbox-atom label]
+  [:div.field
+    [:div.control
+      [:label.checkbox
+        [:input 
+            { :type "checkbox"
+              :value @checkbox-atom
+              :on-change #(reset! checkbox-atom (.-checked (.-target %)))
+              :style {:margin-right "8px"}}]
+        label]]])

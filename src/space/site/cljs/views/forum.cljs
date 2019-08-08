@@ -109,7 +109,7 @@
                     [:strong (:username p)] (str " @" (:user-handle p))]
 
                 ;; Show anonymous if it's an anonymous post
-                false
+                (:is-anonymous p)
                   [:a 
                       {:on-click 
                         (n/dispatch-notification
@@ -130,9 +130,9 @@
                             "Cannot open profile"
                             "This post was made by a guest with no profile."
                             "is-info"
-                            "fa-question")}
+                            "fa-user-slash")}
                     [:span.icon
-                      [:i.fas.fa-question]]
+                      [:i.fas.fa-user-slash]]
                     [:strong "Guest"]])
 
               ;; Post date

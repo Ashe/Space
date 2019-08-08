@@ -3,10 +3,11 @@
 
 (defn dispatch-submit-post
   "Submit a post to the API"
-  [title content]
+  [title content is-anonymous]
   (rf/dispatch [:http-post [
       "forum/submit"
       { :post-title title
-        :post-content content }
+        :post-content content 
+        :is-anonymous is-anonymous}
       :good-http-result
       :bad-http-result]]))
