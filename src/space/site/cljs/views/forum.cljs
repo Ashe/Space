@@ -25,7 +25,9 @@
           [:div.container.is-fluid
             [selection-bar]
             (map make-post posts)
-            [pagination page-number page-count]]
+            [pagination 
+                (max 1 page-number) 
+                (max 1 page-count)]]
           [:div.div.level
               {:style {:margin-top "10px"}}
             [:div.level-item
@@ -80,23 +82,68 @@
     [:div.box
       [:article.columns.is-vcentered
         [:div.column.is-narrow
+
+            ;; Post image
             [:figure.has-text-centered
               [:span.image.is-64x64.is-inline-block
                 [:img {:src "https://bulma.io/images/placeholders/128x128.png"}]]]]
         [:div.column
           [:div.content
             [:p 
+
+              ;; Post title
               [:a 
                   {:href (str "/post/" (:post-number p))}
                [:strong.is-size-4 (:post-title p)]] [:br]
-              [:a 
-                  {:href (str "/user/" (:user-handle p))}
-                [:span.icon
-                    (when (not (:is-admin-post p)) {:style {:display "none"}})
-                  [:i.fas.fa-shield-check]]
-                [:strong (:username p)] (str " @" (:user-handle p))]
-              [:small (str " " (:post-date p))] [:br]
+              
+              ;; User name and handle
+              (cond 
+
+                ;; Show user if provided
+                (pos? (:user-id p)) 
+                  [:a 
+                      {:href (str "/user/" (:user-handle p))}
+                    [:span.icon
+                        (when (not (:is-admin-post p)) {:style {:display "none"}})
+                      [:i.fas.fa-shield-check]]
+                    [:strong (:username p)] (str " @" (:user-handle p))]
+
+                ;; Show anonymous if it's an anonymous post
+                false
+                  [:a 
+                      {:on-click 
+                        (n/dispatch-notification
+                            "Cannot open profile"
+                            "This user has chosen to remain anonymous for this post 
+                                but will still earn points."
+                            "is-info"
+                            "fa-user-secret")}
+                    [:span.icon
+                      [:i.fas.fa-user-secret]]
+                    [:strong "Anonymous"]]
+
+                ;; Show guest if otherwise
+                :else 
+                  [:a 
+                      {:on-click 
+                        (n/dispatch-notification
+                            "Cannot open profile"
+                            "This post was made by a guest with no profile."
+                            "is-info"
+                            "fa-question")}
+                    [:span.icon
+                      [:i.fas.fa-question]]
+                    [:strong "Guest"]])
+
+              ;; Post date
+              [:small 
+                  {:style {:margin-left "5px"}}
+                (str " " (:post-date p))] [:br]
+
+              ;; Post summary
               (:post-summary p)]
+
+            ;; Post tags
             [:div.tags
               (map make-tag (:tag-ids p))]
             ]]]]])
@@ -106,8 +153,8 @@
   [page pg-count]
   (let [attr (fn [p] 
       { :aria-label (str "Goto page " p)
-        :style (when 
-            (and (not= page p)
+        :style 
+          (when (and (not= page p)
               (or (< p 1) (> p pg-count)))
             {:display "none"})
         :class (when (= p page) ["is-link"])

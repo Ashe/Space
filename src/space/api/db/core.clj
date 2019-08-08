@@ -1,5 +1,5 @@
 (ns space.api.db.core
-  (:require [clojure.java.jdbc :as sql]
+  (:require [next.jdbc.sql :as sql]
             [clojure.data.json :as json]
             [clojure.math.numeric-tower :as math]))
 
@@ -46,24 +46,24 @@
 (defn get-forum-page
   "Get a forum page from the database"
   [page]
-  (json/write-str (doall
+  (json/write-str
     (map prepare-forum-post 
       (sql/query @db-spec
-        ["SELECT * FROM Posts 
-          INNER JOIN Users ON Posts.PosterID=Users.UserID
+        [ "SELECT * FROM Posts 
+          LEFT OUTER JOIN Users ON Posts.PosterID=Users.UserID
           LIMIT ? OFFSET ?"
           posts-per-page
-          (max 0 (* page posts-per-page))])))))
+          (max 0 (* page posts-per-page))]))))
 
 (defn submit-forum-post
   "Validate and upload a post to the database"
   [post]
   (let [body (:body post)]
     (when body
-      (println "\n\nSubmitting Body: " body "\n\n")
+      (println "Receiving post: " body)
       (sql/insert! @db-spec :Posts
-        { :PostTitle (:post-title body)
-          :PostContent (:post-content body)})
+          { :PostTitle (:post-title body)
+            :PostContent (:post-content body)})
       (json/write-str {:result "Success!"}))))
 
 (defn- prepare-forum-post
