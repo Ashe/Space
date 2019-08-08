@@ -39,4 +39,4 @@
     (cors/wrap-cors router
       :access-control-allow-origin [#"http://localhost:8080"]
       :access-control-allow-methods [:get :put :post :delete]) 
-    {:keywords? true}))
+    {:keywords? true :bigdecimals? true}))

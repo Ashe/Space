@@ -105,13 +105,13 @@
   "Shows the current page number"
   [page pg-count]
   (let [attr (fn [p] 
-          { :aria-label (str "Goto page " p)
-            :style (when 
-                (and (not= page p)
-                  (or (< p 1) (> p pg-count)))
-                {:display "none"})
-            :class (when (= p page) ["is-link"])
-            :href (if (<= p 1) "/" (str "/forum/page-" p))})]
+      { :aria-label (str "Goto page " p)
+        :style (when 
+            (and (not= page p)
+              (or (< p 1) (> p pg-count)))
+            {:display "none"})
+        :class (when (= p page) ["is-link"])
+        :href (if (<= p 1) "/" (str "/forum/page-" p))})]
     [:nav.pagination.is-centered
         { :role "navigation"
           :aria-label "pagination"}
@@ -143,6 +143,7 @@
                   nil)]
     (when (and label colour) 
       [:a.tag.is-info 
-          {:class colour
-           :href (str "/tag/" label)}
+          { :key (str "tag-" id)
+            :class colour
+            :href (str "/tag/" label)}
         label])))
