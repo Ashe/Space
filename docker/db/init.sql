@@ -14,8 +14,8 @@ CREATE TABLE Users (
 
 CREATE TABLE Posts (
   PostID bigserial NOT NULL,
-  PosterID bigserial,
-  PostDate timestamptz NOT NULL,
+  PosterID bigint,
+  PostDate timestamptz NOT NULL DEFAULT NOW(),
   PostTitle varchar(100) NOT NULL,
   PostContent text NOT NULL,
   PRIMARY KEY (PostID),

@@ -59,6 +59,7 @@
   "Validate and upload a post to the database"
   [post]
   (let [body (:body post)]
+    (println "\n\nSubmitting Body: " body "\n\n")
     (sql/insert! @db-spec :Posts
       { :PostTitle (:post-title body)
         :PostContent (:post-content body)})
