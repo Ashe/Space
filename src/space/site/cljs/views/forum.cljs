@@ -151,28 +151,40 @@
 (defn- pagination
   "Shows the current page number"
   [page pg-count]
-  (let [attr (fn [p] 
+
+  ;; Get pagination-button attributes
+  (let [attr (fn [p & [disable]] 
+    (let [invalid (and (not= page p)
+        (or (< p 1) (> p pg-count)))]
       { :aria-label (str "Goto page " p)
         :style 
-          (when (and (not= page p)
-              (or (< p 1) (> p pg-count)))
+          (when (and invalid (not disable))
             {:display "none"})
-        :class (when (= p page) ["is-link"])
-        :href (if (<= p 1) "/" (str "/forum/page-" p))})]
+        :disabled (and invalid disable)
+        :class [(when (= p page) "is-link")]
+        :href (if (<= p 1) "/" (str "/forum/page-" p))}))]
+
     [:nav.pagination.is-centered
         { :role "navigation"
           :aria-label "pagination"}
-      [:a.pagination-previous.button.is-small (attr 1) "First"]
-      [:a.pagination-previous.button.is-small (attr (dec page)) "Previous"]
-      [:a.pagination-next.button.is-small (attr (inc page)) "Next"]
-      [:a.pagination-next.button.is-small (attr pg-count) "Last"]
+
+      ;; Constant buttons
+      [:a.pagination-previous.button.is-small (attr 1 true) "First"]
+      [:a.pagination-previous.button.is-small (attr (dec page) true) "Prev"]
+      [:a.pagination-next.button.is-small (attr (inc page) true) "Next"]
+      [:a.pagination-next.button.is-small (attr pg-count true) "Last"]
+
+      ;; Page number buttons
       [:ul.pagination-list
-        [:li>a.pagination-link.button.is-small (attr (- page 2)) (- page 2)]
-        [:li>a.pagination-link.button.is-small (attr (dec page)) (dec page)]
-        [:li>a.pagination-link.button.is-small (attr page) page]
-        [:li>a.pagination-link.button.is-small (attr (inc page)) (inc page)]
-        [:li>a.pagination-link.button.is-small (attr (+ page 2)) (+ page 2)]
-      ]]))
+        (let [extras 2
+              pages (inc (* 2 extras))
+              start (max 1 (min (- pg-count pages -1) (- page extras)))]
+          (println "PAGE COUNT: " page "/" pg-count)
+          (println "START " start)
+          (map
+              (fn [p] [:li>a.pagination-link.button.is-small (attr p) p])
+              (take pages (iterate inc start))))]
+      ]))
 
 ;; @TODO: Make this customisable
 (defn- make-tag
