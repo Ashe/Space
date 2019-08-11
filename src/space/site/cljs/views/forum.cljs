@@ -162,7 +162,7 @@
             {:display "none"})
         :disabled (and invalid disable)
         :class [(when (= p page) "is-link")]
-        :href (if (<= p 1) "/" (str "/forum/page-" p))}))]
+        :href (if (<= p 1) "/" (str "/forum/page-" (min pg-count p)))}))]
 
     [:nav.pagination.is-centered
         { :role "navigation"
@@ -179,8 +179,6 @@
         (let [extras 2
               pages (inc (* 2 extras))
               start (max 1 (min (- pg-count pages -1) (- page extras)))]
-          (println "PAGE COUNT: " page "/" pg-count)
-          (println "START " start)
           (map
               (fn [p] [:li>a.pagination-link.button.is-small (attr p) p])
               (take pages (iterate inc start))))]
