@@ -5,11 +5,12 @@
             [space.site.cljs.views.notifications :as notifications]
             [space.site.cljs.views.footer :as footer]
             [space.site.cljs.views.forum :as forum]
+            [space.site.cljs.views.post :as post]
             [space.site.cljs.views.create.core :as create]))
 
 ;; Forward declarations
 ;;@TODO: Place these functions in their own element files
-(declare not-found post create-new tags tag members user info admin get-page-content)
+(declare not-found create-new tags tag members user info admin get-page-content)
 
 ;; Determine what URLs match to what view
 (def routes 
@@ -51,7 +52,7 @@
 ;; Choose which component function to use depending on route
 (defmulti get-page-content identity)
 (defmethod get-page-content :forum [] forum/forum)
-(defmethod get-page-content :post [] post)
+(defmethod get-page-content :post [] post/post)
 (defmethod get-page-content :new [] create/create-new)
 (defmethod get-page-content :tags [] tags)
 (defmethod get-page-content :tag [] tag)
@@ -66,12 +67,6 @@
   "404 Page component"
   [{:keys [route-key path-params query-params]}]
   [:div "Page not found"])
-
-;; @TODO: Expand on this
-(defn- post
-  "Display a post"
-  [{:keys [route-key path-params query-params]}]
-  [:div (str "Post: " (:post-number path-params))])
 
 ;; @TODO: Expand on this
 (defn- create-new

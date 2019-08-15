@@ -1,13 +1,6 @@
 (ns space.site.cljs.events.notifications
   (:require [re-frame.core :as rf]))
 
-(defn dispatch-notification
-  "Easy way of sending a notification"
-  [title msg & [colour icon]]
-  (fn []
-    (println "Dispatching notification: \n" title "\n" msg)
-    (rf/dispatch [:new-notification [title msg colour icon]])))
-
 ;; Add a notification to stack
 (rf/reg-event-db
   :new-notification
@@ -26,3 +19,10 @@
   :notifications
   (fn [db _]     
     (:notifications db))) 
+
+(defn dispatch-notification
+  "Easy way of sending a notification"
+  [title msg & [colour icon]]
+  (fn []
+    (println "Dispatching notification: \n" title "\n" msg)
+    (rf/dispatch [:new-notification [title msg colour icon]])))

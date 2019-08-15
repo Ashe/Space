@@ -23,8 +23,8 @@
   "Dispatch a request to collect forum post data"
   [page-num]
   (rf/dispatch [:http-get 
-      [(str "forum/page-" page-num) 
-      :fetch-forum-posts :bad-http-result]]))
+      [ (str "forum/page-" page-num) 
+        :fetch-forum-posts :bad-http-result]]))
 
 (defn dispatch-fetch-page-count
   "Dispatch a request to fetch how many pages there are"

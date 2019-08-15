@@ -59,7 +59,8 @@
 (defn- tab
   "Returns a tab that is active when given a matching route"
   [text routes destination page]
-  [:li {:class [(when (some #{page} routes) "is-active")]}
+  [:li 
+      {:class [(when (some #{page} routes) "is-active")]}
     [:a {:href destination}
       text]])
 

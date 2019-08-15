@@ -56,7 +56,20 @@
           LIMIT ? OFFSET ?"
           posts-per-page
           (max 0 (* page posts-per-page))])]
+    (println "QUERY: " query)
     (json/write-str (map prepare-forum-post query))))
+
+(defn get-forum-post
+  "Get an individual forum post from the database"
+  [post-id]
+  (when (pos? post-id)
+    (let [query
+        (sql/query @db-spec
+          [ "SELECT * FROM Posts
+            LEFT OUTER JOIN Users On Posts.PosterID=Users.UserID
+            WHERE PostID=?"
+            post-id])]
+      (json/write-str query))))
 
 (defn submit-forum-post
   "Validate and upload a post to the database, return the post ID on success"

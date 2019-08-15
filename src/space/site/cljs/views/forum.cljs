@@ -153,10 +153,11 @@
   [page pg-count]
 
   ;; Get pagination-button attributes
-  (let [attr (fn [p & [disable]] 
+  (let [attr (fn [p & [k disable]] 
     (let [invalid (and (not= page p)
         (or (< p 1) (> p pg-count)))]
       { :aria-label (str "Goto page " p)
+        :key (or k (str "goto-page-" p "-invalid-" invalid))
         :style 
           (when (and invalid (not disable))
             {:display "none"})
@@ -169,10 +170,10 @@
           :aria-label "pagination"}
 
       ;; Constant buttons
-      [:a.pagination-previous.button.is-small (attr 1 true) "First"]
-      [:a.pagination-previous.button.is-small (attr (dec page) true) "Prev"]
-      [:a.pagination-next.button.is-small (attr (inc page) true) "Next"]
-      [:a.pagination-next.button.is-small (attr pg-count true) "Last"]
+      [:a.pagination-previous.button.is-small (attr 1 "first "true) "First"]
+      [:a.pagination-previous.button.is-small (attr (dec page) "prev" true) "Prev"]
+      [:a.pagination-next.button.is-small (attr (inc page) "next" true) "Next"]
+      [:a.pagination-next.button.is-small (attr pg-count "last" true) "Last"]
 
       ;; Page number buttons
       [:ul.pagination-list

@@ -17,6 +17,7 @@
           :notifications []
           :page-count 0
           :posts []
+          :post nil
           :time (js/Date.)
           :time-color "#f88"}
      :pushy-init true

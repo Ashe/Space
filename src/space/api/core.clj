@@ -31,6 +31,7 @@
   (c/GET  "/forum/get-page-count" [] (db/get-forum-page-count))
   (c/GET  "/forum/page-:page" [page] (db/get-forum-page (cmn/str->num page)))
   (c/POST "/forum/submit" post (db/submit-forum-post post))
+  (c/GET  "/post/:post" [post] (db/get-forum-post (cmn/str->num post)))
   (route/not-found "<h1>Page not found :(</h1>"))
 
 ;; Wraps middleware around router

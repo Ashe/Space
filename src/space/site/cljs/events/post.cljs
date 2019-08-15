@@ -1,6 +1,12 @@
 (ns space.site.cljs.events.post
   (:require [re-frame.core :as rf]))
 
+;; Fetch a post for the current page
+(rf/reg-event-db
+  :fetch-post
+  (fn [db [_ post]]
+    (assoc db :post post)))
+
 ;; Read response from server
 ;; - Either redirect to new post or remain on page
 ;; - Notify user of success or failure
@@ -27,8 +33,21 @@
                 "is-danger"
                 "fa-file-times"]]})))))
 
+;; Get the currently loaded post
+(rf/reg-sub
+  :post
+  (fn [db _]
+    (:post db))) 
+
+(defn dispatch-fetch-post
+  "Get a post by its postID"
+  [post-id]
+  (rf/dispatch [:http-get
+      [ (str "post/" post-id)
+        :fetch-post :bad-http-result]]))
+
 (defn dispatch-submit-post
-  "Submit a post to the API"
+  "Submit a post to the Space API"
   [title content is-anonymous]
   (rf/dispatch [:http-post 
       [ "forum/submit"
