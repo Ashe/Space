@@ -56,7 +56,6 @@
           LIMIT ? OFFSET ?"
           posts-per-page
           (max 0 (* page posts-per-page))])]
-    (println "QUERY: " query)
     (json/write-str (map prepare-forum-post query))))
 
 (defn get-forum-post
