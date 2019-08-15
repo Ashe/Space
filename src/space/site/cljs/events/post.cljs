@@ -3,16 +3,29 @@
 
 ;; Read response from server
 ;; - Either redirect to new post or remain on page
-;; - Notify user 
+;; - Notify user of success or failure
 (rf/reg-event-fx
   :post-submission-success
-  (fn [cofx [_ response]]
-    {:dispatch 
-      [:new-notification
-        [ "Submission successful!"
-          response
-          "is-success"
-          "fa-file-check"]]}))
+  (fn [_ [_ response]]
+    (let [postid (:new-post-id response)]
+      (if (pos? postid)
+        (do
+          (println "Submitted post: " postid)
+          { :nav-to (str "/post/" postid)
+            :dispatch
+            [ :new-notification
+              [ "Post submission successful!"
+                ""
+                "is-success"
+                "fa-file-check"]]})
+        (do
+          (println "Failed to submit post.")
+          {:dispatch 
+            [:new-notification
+              [ "Post Submission failed"
+                "Something went wrong. Please try again later."
+                "is-danger"
+                "fa-file-times"]]})))))
 
 (defn dispatch-submit-post
   "Submit a post to the API"

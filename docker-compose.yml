@@ -16,7 +16,7 @@ services:
     image: adminer
     restart: always
     environment:
-      ADMINER_DEFAULT_SERVER: postgresql
+      ADMINER_DEFAULT_SERVER: db
       ADMINER_DESIGN: pepa-linha
     ports:
       - "1234:8080"

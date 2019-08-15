@@ -49,37 +49,37 @@
 (defn get-forum-page
   "Get a forum page from the database"
   [page]
-  (json/write-str
-    (map prepare-forum-post 
+  (let [query
       (sql/query @db-spec
         [ "SELECT * FROM Posts 
           LEFT OUTER JOIN Users ON Posts.PosterID=Users.UserID
           LIMIT ? OFFSET ?"
           posts-per-page
-          (max 0 (* page posts-per-page))]))))
+          (max 0 (* page posts-per-page))])]
+    (json/write-str (map prepare-forum-post query))))
 
 (defn submit-forum-post
-  "Validate and upload a post to the database"
+  "Validate and upload a post to the database, return the post ID on success"
   [post]
   (let [body (:body post)]
     (when body
-      (println "Receiving post: " body)
       (let [result
           (sql/insert! @db-spec :Posts
               { :PostTitle (:post-title body)
                 :PostContent (:post-content body)
-                :IsAnonymous (:is-anonymous body)})]
-        (println "RESULT: " result)
-        (json/write-str {:result result})))))
+                :IsAnonymous (:is-anonymous body)})
+            postid (:posts/postid result)]
+        (println "Submitted new post: " postid)
+        (json/write-str {:new-post-id postid})))))
 
 (defn- prepare-forum-post
   "Passes only important information to the client"
   [p]
   (cond-> 
-    { :post-number (:postid p)
-      :post-title (:posttitle p)
-      :post-date (:postdate p)
-      :post-summary (:postcontent p)
+    { :post-number (:posts/postid p)
+      :post-title (:posts/posttitle p)
+      :post-date (:posts/postdate p)
+      :post-summary (:posts/postcontent p)
       :tag-ids [0 1 2 3]}
 
     ;; When there is a user, send stats depending on anonymous
@@ -89,7 +89,7 @@
         (assoc % 
           :is-anonymous true)
         (assoc % 
-          :is-admin-post (:isadmin p)
-          :user-id (:userid p)
-          :username (:username p)
-          :user-handle (:userhandle p))))))
+          :is-admin-post (:users/isadmin p)
+          :user-id (:users/userid p)
+          :username (:users/username p)
+          :user-handle (:users/userhandle p))))))
