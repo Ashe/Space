@@ -14,8 +14,8 @@
 
 (defn -main
   "Prepare to start the server"
-  [& [db-host]]
-  (db/setup-db db-host)
+  [& [db-host db-port]]
+  (db/setup-db db-host db-port)
   (start-server))
 
 (defn start-server

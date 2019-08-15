@@ -30,6 +30,6 @@
   "Dispatch a request to fetch how many pages there are"
   []
   (rf/dispatch [:http-get 
-      ["forum/get-page-count" 
-      :fetch-forum-page-count :bad-http-result]]))
+      [ "forum/get-page-count" 
+        :fetch-forum-page-count :bad-http-result]]))
 

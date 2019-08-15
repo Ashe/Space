@@ -14,19 +14,22 @@
 ;; String to use for SQL calls
 (def db-spec (atom 
   { :dbtype "postgresql"
-    :host "localhost:5432"
     :dbname "space"
     :user "space"
     :password "nebula"}))
 
 (defn setup-db
   "Creates necessary tables for space"
-  [new-db-host]
-  (when new-db-host 
+  [db-host db-port]
+  (println "Configuring database..")
+  (when db-host 
     (do
-      (println "Configuring database..")
-      (println "- Setting host to: " new-db-host)
-      (swap! db-spec #(assoc % :host new-db-host))))
+      (println "- Setting host to: " db-host)
+      (swap! db-spec #(assoc % :host db-host))))
+  (when db-port 
+    (do
+      (println "- Setting port to: " db-port)
+      (swap! db-spec #(assoc % :port db-port))))
   (println "Checking database..")
   (println "- Number of posts: " (map :count
       (sql/query @db-spec ["SELECT COUNT(*) FROM Posts"])))
@@ -61,11 +64,13 @@
   (let [body (:body post)]
     (when body
       (println "Receiving post: " body)
-      (sql/insert! @db-spec :Posts
-          { :PostTitle (:post-title body)
-            :PostContent (:post-content body)
-            :IsAnonymous (:is-anonymous body)})
-      (json/write-str {:result "Success!"}))))
+      (let [result
+          (sql/insert! @db-spec :Posts
+              { :PostTitle (:post-title body)
+                :PostContent (:post-content body)
+                :IsAnonymous (:is-anonymous body)})]
+        (println "RESULT: " result)
+        (json/write-str {:result result})))))
 
 (defn- prepare-forum-post
   "Passes only important information to the client"
