@@ -106,7 +106,7 @@
         (assoc % 
           :user-id (:users/userid p)
           :username (:users/username p)
-          :user-handle (:users/userhandle p)
+          :usernick (:users/usernick p)
           :user-image (:users/userimage p)
           :is-admin (:users/isadmin p))))))
 

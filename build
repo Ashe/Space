@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit when any command fails
+set -e
+
 # Build a jar that can serve a site or api
 echo "Building space.jar.."
 clojure -A:depstar -m hf.depstar.uberjar target/build/space.jar
@@ -9,4 +12,4 @@ echo "Building space.js.."
 clojure -m cljs.main -o target/public/js/space.js -O advanced -c space.site.cljs.core
 
 # Announce that everything has been built
-echo "Building successful."
+echo "Building finished successfully."

@@ -1,9 +1,8 @@
 (ns space.site.cljs.views.post
   (:require [re-frame.core :as rf]
             [space.common.core :as cmn]
-            [space.site.cljs.views.common :as cmnv]
-            [space.site.cljs.events.post :as p]
-            [space.site.cljs.events.notifications :as n]))
+            [space.site.cljs.views.common.user :as usr]
+            [space.site.cljs.events.post :as p]))
 
 (declare make-tag)
 
@@ -28,7 +27,7 @@
                         [:img {:src user-img-src}]]]])
 
                 ;; Link to user
-                [:p (cmnv/create-user-link p true)]
+                [:p (usr/create-user-link p true)]
 
                 ;; Post date
                 [:p.is-size-7 (:post-date p)]]

@@ -1,4 +1,4 @@
-(ns space.site.cljs.views.common
+(ns space.site.cljs.views.common.user
   (:require [space.site.cljs.events.notifications :as n]))
 
 (defn create-user-link
@@ -9,13 +9,13 @@
     ;; Show user if provided
     (pos? (:user-id p)) 
       [:a 
-          {:href (str "/user/" (:user-handle p))}
+          {:href (str "/user/" (:username p))}
         [:span.icon
             (when (not (:is-admin p)) {:style {:display "none"}})
           [:i.fas.fa-shield-check]]
-        [:strong (:username p)] 
+        [:strong (:usernick p)] 
         (when break-line [:br])
-        (str " @" (:user-handle p))]
+        (str " @" (:username p))]
 
     ;; Show anonymous if it's an anonymous post
     (:is-anonymous p)

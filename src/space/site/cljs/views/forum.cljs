@@ -1,9 +1,8 @@
 (ns space.site.cljs.views.forum
   (:require [re-frame.core :as rf]
             [space.common.core :as cmn]
-            [space.site.cljs.views.common :as cmnv]
-            [space.site.cljs.events.forum :as f]
-            [space.site.cljs.events.notifications :as n]))
+            [space.site.cljs.views.common.user :as usr]
+            [space.site.cljs.events.forum :as f]))
 
 ;; Forward declarations
 (declare selection-bar pagination make-post make-tag)
@@ -106,7 +105,7 @@
                [:strong.is-size-4 (:post-title p)]] [:br]
               
               ;; User name and handle
-              (cmnv/create-user-link p)
+              (usr/create-user-link p)
 
               ;; Post date
               [:small 
