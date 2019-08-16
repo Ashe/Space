@@ -3,6 +3,7 @@
             [re-frame-routing.core :as rfr]
             [space.site.cljs.views.navbar :as navbar]
             [space.site.cljs.views.notifications :as notifications]
+            [space.site.cljs.views.sign-in :as sign-in]
             [space.site.cljs.views.footer :as footer]
             [space.site.cljs.views.forum :as forum]
             [space.site.cljs.views.post :as post]
@@ -26,6 +27,7 @@
         "members/"    {"" :members
             ["page-"  :page-number] :members}
         "user/"       {[:user-id] :user}
+        "sign-in/"    :sign-in
         "info/"       {"" :info}
         "admin/"      :admin}])
 
@@ -58,6 +60,7 @@
 (defmethod get-page-content :tag [] tag)
 (defmethod get-page-content :members [] members)
 (defmethod get-page-content :user [] user)
+(defmethod get-page-content :sign-in [] sign-in/sign-in)
 (defmethod get-page-content :info [] info)
 (defmethod get-page-content :admin [] admin)
 (defmethod get-page-content :default [] not-found)

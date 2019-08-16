@@ -42,12 +42,7 @@
                 [:span.navbar-item
                     {:style {:padding-left "0px"}}
                   [:a.button.is-primary.is-inverted
-
-                      {:on-click (n/dispatch-notification
-                        (str "Cannot sign in")
-                        "Not yet implemented."
-                        "is-danger"
-                        "fa-exclamation-triangle")}
+                      {:href "/sign-in/"}
                     [:span.icon
                       [:i.fa.fa-user]]
                     [:span "Sign in"]]]]]]]
