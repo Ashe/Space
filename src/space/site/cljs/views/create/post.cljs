@@ -2,11 +2,40 @@
   (:require [reagent.core :as r]
             [space.site.cljs.events.post :as p]))
 
-(declare form info-panel make-text-input make-checkbox)
+;; Forward declare
+(declare form info-panel make-text-input make-url-input make-checkbox validate-url)
+
+;; Constraints for post
+(def title-min 10)
+(def title-max 100)
+(def content-min 25)
+(def content-max 0)
+
+;; Atoms for form validation
+(def title (r/atom ""))
+(def content (r/atom ""))
+(def post-image (r/atom ""))
+(def is-anonymous (r/atom false))
+(def has-agreed (r/atom false))
+(defn ready-to-submit [] (and
+    @has-agreed 
+    (or (zero? (count @post-image)) (validate-url @post-image))
+    (>= (count @title) title-min)
+    (<= (count @title) title-max)
+    (>= (count @content) content-min)))
 
 (defn create-post
   "Shows an overview of post expectations and the form"
   []
+
+  ;; Clear values
+  (reset! title "")
+  (reset! content "")
+  (reset! post-image "")
+  (reset! is-anonymous false)
+  (reset! has-agreed false)
+
+  ;; Return the page
   [:div.container
     [:div.columns
       [:article.column.is-hidden-tablet
@@ -49,23 +78,6 @@
           [:li "Single out or rant at other users (ignore or report them)"]
           [:li "Knowingly lie or mislead other users unless it's clearly in jest"]]]]])
 
-;; Constraints for post
-(def title-min 10)
-(def title-max 100)
-(def content-min 25)
-(def content-max 0)
-
-;; Atoms for form validation
-(def title (r/atom ""))
-(def content (r/atom ""))
-(def is-anonymous (r/atom false))
-(def has-agreed (r/atom false))
-(defn ready-to-submit [] (and
-    @has-agreed 
-    (>= (count @title) title-min)
-    (<= (count @title) title-max)
-    (>= (count @content) content-min)))
-
 (defn form
   "Form for creating a new post"
   []
@@ -73,10 +85,29 @@
 
     ;; Title
     (make-text-input title 
-        :input.input 
-        "Title" "What is your post about?"
+        :input.input
+        "Title*" "What is your post about?"
         "Thanks!" "Please enter a descriptive title" 
         title-min title-max)
+
+    ;; Post image
+    [:div.columns.is-vcentered
+      [:div.column
+        (make-url-input post-image 
+            :input.input
+            "Post Image" "URL to your picture"
+            "Optional - your profile picture will be used otherwise" 
+            "Thanks!" "Please enter a valid URL")]
+
+    ;; Post's picture
+    (when (and (pos? (count @post-image)) (validate-url @post-image))
+      [:div.column.is-narrow
+      [:figure
+        [:span.image.is-inline-block
+            {:style
+              { :max-width "128px"
+                :max-height "128px"}}
+          [:img {:src @post-image}]]]])]
 
     ;; Tags
     ;; @TODO: Implement the ability to grab tags
@@ -93,8 +124,8 @@
 
     ;; Body
     (make-text-input content 
-        :textarea.textarea 
-        "Content" "What do you want to talk about?"
+        :textarea.textarea
+        "Content*" "What do you want to talk about?"
         "Thanks!" "Please write your post" 
         content-min content-max)
 
@@ -111,7 +142,7 @@
         [:div.control
           [:button.button.is-link 
               { :disabled (not (ready-to-submit))
-                :on-click #(p/dispatch-submit-post @title @content @is-anonymous)}
+                :on-click #(p/dispatch-submit-post @title @content @post-image @is-anonymous)}
             "Post"]]
         [:div.control
           [:a.button.is-text 
@@ -119,8 +150,8 @@
             "Back to forum"]]]])
 
 (defn- make-text-input
-  "Makes an input with a given atom, tag and set of messages"
-  [input-atom input-type label placeholder help-okay help-invalid min-length max-length]
+  "Makes a text input with a given atom, tag and set of messages"
+  [input-atom input label placeholder help-okay help-invalid min-length max-length]
   (let [length (count (or @input-atom ""))
         colour (cond
                   (zero? length) ""
@@ -136,7 +167,7 @@
   [:div.field
     [:label.label label]
     [:div.control.has-icons-right
-      [input-type
+      [input
         { :type "text"
           :placeholder placeholder
           :on-change #(reset! input-atom (.-value (.-target %)))
@@ -155,6 +186,35 @@
           [:p.help.is-danger
             help-invalid " (" (str (- length max-length)) " characters too many)"])]))
 
+(defn- make-url-input
+  "Makes a URL input with a given atom, tag and set of messages"
+  [input-atom input label placeholder help help-okay help-invalid]
+  (let [length (count (or @input-atom ""))
+        is-valid (if (pos? length) (validate-url @input-atom) true)
+        colour (cond
+                  (zero? length) ""
+                  is-valid "is-success"
+                  :else "is-danger")
+        icon (cond 
+              (zero? length) "fa-link"
+              is-valid "fa-check" 
+              :else "fa-exclamation-triangle")]
+  [:div.field
+    [:label.label label]
+    [:div.control.has-icons-right
+      [input
+        { :type "text"
+          :placeholder placeholder
+          :on-change #(reset! input-atom (.-value (.-target %)))
+          :class colour}]
+      [:span.icon.is-small.is-right
+        [:i.fas {:class icon}]]]
+        [:p.help {:class colour}
+          (cond 
+            (zero? length) help
+            is-valid help-okay 
+            :else help-invalid)]]))
+
 (defn- make-checkbox
   "Makes a checkbox"
   [checkbox-atom label]
@@ -167,3 +227,9 @@
               :on-change #(reset! checkbox-atom (.-checked (.-target %)))
               :style {:margin-right "8px"}}]
         label]]])
+
+(defn- validate-url
+  "Checks to see if a URL is valid or not"
+  [url]
+  (let [pattern #"(?i)^(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$"]
+    (re-matches pattern url)))

@@ -3,7 +3,7 @@
             [clojure.data.json :as json]
             [clojure.math.numeric-tower :as math]))
 
-(declare prepare-forum-post)
+(declare prepare-forum-post valid-url?)
 
 ;; Clojure.java.json JSON cannot translate java.sql.Timestamp
 (extend-type java.sql.Timestamp
@@ -79,6 +79,7 @@
           (sql/insert! @db-spec :Posts
               { :PostTitle (:post-title body)
                 :PostContent (:post-content body)
+                :PostImage (if (valid-url? (:post-image body)) (:post-image body) nil)
                 :IsAnonymous (:is-anonymous body)})
             postid (:posts/postid result)]
         (println "Submitted new post: " postid)
@@ -108,3 +109,10 @@
           :user-handle (:users/userhandle p)
           :user-image (:users/userimage p)
           :is-admin (:users/isadmin p))))))
+
+;; @TODO: This should probably go somewhere else?
+(import 'org.apache.commons.validator.UrlValidator)
+(defn- valid-url? [url-str]
+  "Validate a URL"
+  (let [validator (UrlValidator.)]
+    (.isValid validator url-str)))
