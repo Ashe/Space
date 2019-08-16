@@ -68,7 +68,7 @@
             LEFT OUTER JOIN Users On Posts.PosterID=Users.UserID
             WHERE PostID=?"
             post-id])]
-      (json/write-str query))))
+      (json/write-str (map prepare-forum-post query)))))
 
 (defn submit-forum-post
   "Validate and upload a post to the database, return the post ID on success"
@@ -84,6 +84,7 @@
         (println "Submitted new post: " postid)
         (json/write-str {:new-post-id postid})))))
 
+;; @TODO: Differentiate between post-summary and post-content based on needs
 (defn- prepare-forum-post
   "Passes only important information to the client"
   [p]
@@ -92,16 +93,18 @@
       :post-title (:posts/posttitle p)
       :post-date (:posts/postdate p)
       :post-summary (:posts/postcontent p)
+      :post-image (:posts/postimage p)
       :tag-ids [0 1 2 3]}
 
     ;; When there is a user, send stats depending on anonymous
     ;; @TODO: Change 'true' to user's ID
     true
-      (#(if (:isanonymous p)
+      (#(if (:posts/isanonymous p)
         (assoc % 
           :is-anonymous true)
         (assoc % 
-          :is-admin-post (:users/isadmin p)
           :user-id (:users/userid p)
           :username (:users/username p)
-          :user-handle (:users/userhandle p))))))
+          :user-handle (:users/userhandle p)
+          :user-image (:users/userimage p)
+          :is-admin (:users/isadmin p))))))

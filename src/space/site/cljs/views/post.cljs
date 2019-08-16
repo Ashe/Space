@@ -1,6 +1,7 @@
 (ns space.site.cljs.views.post
   (:require [re-frame.core :as rf]
             [space.common.core :as cmn]
+            [space.site.cljs.views.common :as cmnv]
             [space.site.cljs.events.post :as p]
             [space.site.cljs.events.notifications :as n]))
 
@@ -12,37 +13,44 @@
   (fn [{:keys [route-key path-params query-params]}]
     (let [post-id (cmn/str->num (:post-number path-params))]
       (p/dispatch-fetch-post post-id)
-      (let [post-data @(rf/subscribe [:post])]
-        (println "POST: " post-data)
+      (when-let [[p] @(rf/subscribe [:post])]
         [:div.container
           [:article.box
-            [:div.columns.is-vcentered
+            [:div.columns
+              
               [:div.column.is-narrow
 
                 ;; User's picture
-                [:figure.has-text-centered
-                  [:span.image.is-128x128.is-inline-block
-                    [:img
-                      {:src 
-                        "https://bulma.io/images/placeholders/128x128.png"}]]]
+                (when-let [user-img-src (:user-image p)]
+                  [:a {:href (str "/user/" (:user-handle p))}
+                    [:figure.has-text-centered
+                      [:span.image.is-128x128.is-inline-block
+                        [:img {:src user-img-src}]]]])
 
-                [:a
-                  [:strong "Space Team"] [:br]
-                  [:small "@space"]]
-                [:p.is-size-7
-                  "2019-08-15"]]
+                ;; Link to user
+                [:p (cmnv/create-user-link p true)]
+
+                ;; Post date
+                [:p.is-size-7 (:post-date p)]]
 
               [:div.column
 
                 ;; Post title
-                [:h1.title "Post title"]
+                [:h1.title (:post-title p)]
+
+                ;; Post image
+                (when-let [post-img-src (:post-image p)]
+                  [:a {:href post-img-src}
+                    [:figure.has-text-centered
+                      [:span.image.is-inline-block
+                        [:img {:src post-img-src}]]]])
 
                 ;; Post tags
                 [:div.tags
-                  (map make-tag (range 3))]
+                  (map make-tag (:tag-ids p))]
 
                 ;; Body
-                [:p (str post-data)]]]]]))))
+                [:p (:post-summary p)]]]]]))))
 
 ;; @TODO: Make this customisable
 ;; @TODO: Merge with views/forum.cljs

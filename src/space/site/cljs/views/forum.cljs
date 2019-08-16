@@ -1,6 +1,7 @@
 (ns space.site.cljs.views.forum
   (:require [re-frame.core :as rf]
             [space.common.core :as cmn]
+            [space.site.cljs.views.common :as cmnv]
             [space.site.cljs.events.forum :as f]
             [space.site.cljs.events.notifications :as n]))
 
@@ -81,12 +82,20 @@
         :style {:margin forum-spacing}}
     [:div.box
       [:article.columns.is-vcentered
-        [:div.column.is-narrow
 
-            ;; Post image
-            [:figure.has-text-centered
-              [:span.image.is-64x64.is-inline-block
-                [:img {:src "https://bulma.io/images/placeholders/128x128.png"}]]]]
+        
+        ;; Post image
+        (when-let [img-src (or (:post-image p) (:user-image p))]
+          [:div.column.is-narrow
+            [:a {:href (str "/post/" (:post-number p))}
+              [:figure.has-text-centered
+                [:span.image.is-inline-block
+                    {:style
+                      { :max-width "128px"
+                        :max-height "128px"}}
+                  [:img 
+                    {:src img-src}]]]]])
+
         [:div.column
           [:div.content
             [:p 
@@ -97,43 +106,7 @@
                [:strong.is-size-4 (:post-title p)]] [:br]
               
               ;; User name and handle
-              (cond 
-
-                ;; Show user if provided
-                (pos? (:user-id p)) 
-                  [:a 
-                      {:href (str "/user/" (:user-handle p))}
-                    [:span.icon
-                        (when (not (:is-admin-post p)) {:style {:display "none"}})
-                      [:i.fas.fa-shield-check]]
-                    [:strong (:username p)] (str " @" (:user-handle p))]
-
-                ;; Show anonymous if it's an anonymous post
-                (:is-anonymous p)
-                  [:a 
-                      {:on-click 
-                        (n/dispatch-notification
-                            "Cannot open profile"
-                            "This user has chosen to remain anonymous for this post 
-                                but will still earn points."
-                            "is-info"
-                            "fa-user-secret")}
-                    [:span.icon
-                      [:i.fas.fa-user-secret]]
-                    [:strong "Anonymous"]]
-
-                ;; Show guest if otherwise
-                :else 
-                  [:a 
-                      {:on-click 
-                        (n/dispatch-notification
-                            "Cannot open profile"
-                            "This post was made by a guest with no profile."
-                            "is-info"
-                            "fa-user-slash")}
-                    [:span.icon
-                      [:i.fas.fa-user-slash]]
-                    [:strong "Guest"]])
+              (cmnv/create-user-link p)
 
               ;; Post date
               [:small 
