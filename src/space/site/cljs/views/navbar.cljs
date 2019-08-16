@@ -1,8 +1,13 @@
 (ns space.site.cljs.views.navbar
-  (:require [space.site.cljs.events.time :as time]
+  (:require [reagent.core :as r]
+            [space.site.cljs.events.time :as time]
             [space.site.cljs.events.notifications :as n]))
 
-(declare tab foo)
+;; Forward declare
+(declare tab)
+
+;; Atom for showing burger menu on mobile
+(def show-burger-nav (r/atom false))
 
 (defn navbar
   "Navbar of site"
@@ -23,11 +28,14 @@
                       [:i.fas.fa-rocket]]
                     " Space"]]]
               [:span.navbar-burger.burger
-                  {:data-target "navbarMenuHeroA"}
+                  { :data-target "navbarMenuHeroA"
+                    :class (when @show-burger-nav "is-active")
+                    :on-click #(swap! show-burger-nav not)}
                 [:span]
                 [:span]
                 [:span]]]
             [:div#navbarMenuHeroA.navbar-menu
+                {:class (when @show-burger-nav "is-active")}
               [:div.navbar-end
                 [:span.navbar-item
                   (time/get-current-time)]
@@ -43,7 +51,7 @@
                     [:span.icon
                       [:i.fa.fa-user]]
                     [:span "Sign in"]]]]]]]
-        
+
       ;; Hero footer
       [:div.hero-foot
         [:nav.tabs.is-boxed

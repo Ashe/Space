@@ -72,8 +72,8 @@
 
 (defn submit-forum-post
   "Validate and upload a post to the database, return the post ID on success"
-  [post]
-  (let [body (:body post)]
+  [request]
+  (let [body (:body request)]
     (when body
       (let [result
           (sql/insert! @db-spec :Posts

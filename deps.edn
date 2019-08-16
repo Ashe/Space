@@ -8,6 +8,9 @@
           ring/ring-jetty-adapter             {:mvn/version "1.7.1"}
           ring-cors/ring-cors                 {:mvn/version "0.1.13"}
           ring/ring-json                      {:mvn/version "0.5.0"}
+          buddy/buddy-sign                    {:mvn/version "3.1.0"}
+          buddy/buddy-hashers                 {:mvn/version "1.4.0"}
+          buddy/buddy-auth                    {:mvn/version "2.2.0"}
           compojure                           {:mvn/version "1.6.1"}
           commons-validator/commons-validator {:mvn/version "1.6"}
           reagent                             {:mvn/version "0.8.1"}
