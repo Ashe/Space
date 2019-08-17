@@ -80,7 +80,9 @@
       (when (or forced (not connected))
         (println "Attempting to connect to server..")
         { :http-xhrio 
-            (make-http-get-request "ping" :good-http-result :bad-http-result)}))))
+            (make-http-get-request "" 
+                :good-http-result 
+                :bad-http-result)}))))
 
 (defn dispatch-ping-event []
   (rf/dispatch [:attempt-ping false]))

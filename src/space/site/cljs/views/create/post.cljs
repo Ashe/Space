@@ -143,7 +143,7 @@
         [:div.control
           [:button.button.is-link 
               { :disabled (not (ready-to-submit?))
-                :on-click #(p/dispatch-submit-post 
+                :on-click (p/dispatch-submit-post 
                     @title @content @post-image @is-anonymous)}
             "Post"]]
         [:div.control

@@ -1,7 +1,8 @@
 (ns space.api.db.core
   (:require [next.jdbc.sql :as sql]
             [clojure.data.json :as json]
-            [clojure.math.numeric-tower :as math]))
+            [clojure.math.numeric-tower :as math]
+            [space.api.response :as r]))
 
 (declare prepare-forum-post valid-url?)
 
@@ -41,49 +42,57 @@
 
 (defn get-forum-page-count
   "Get how many pages there are in the database"
-  []
-  (let [[q] (sql/query @db-spec ["SELECT COUNT(*) FROM Posts"])]
-    (when q
-      (json/write-str (math/ceil (/ (:count q) posts-per-page))))))
+  [_]
+  (if-let [[q] (sql/query @db-spec ["SELECT COUNT(*) FROM Posts"])]
+    (r/ok {:pages (math/ceil (/ (:count q) posts-per-page))})
+    (r/bad-request {:message "API Error: (get-forum-page-count)"})))
 
 (defn get-forum-page
   "Get a forum page from the database"
   [page]
-  (let [query
+  (if-let [query
       (sql/query @db-spec
         [ "SELECT * FROM Posts 
           LEFT OUTER JOIN Users ON Posts.PosterID=Users.UserID
           LIMIT ? OFFSET ?"
           posts-per-page
           (max 0 (* page posts-per-page))])]
-    (json/write-str (map prepare-forum-post query))))
+    (r/ok {:posts (map prepare-forum-post query)})
+    (r/bad-request {:message "API Error: (get-forum-page)"})))
 
 (defn get-forum-post
   "Get an individual forum post from the database"
   [post-id]
-  (when (pos? post-id)
-    (let [query
+  (if (pos? post-id)
+    (if-let [query
         (sql/query @db-spec
           [ "SELECT * FROM Posts
             LEFT OUTER JOIN Users On Posts.PosterID=Users.UserID
             WHERE PostID=?"
             post-id])]
-      (json/write-str (map prepare-forum-post query)))))
+      (r/ok {:post (map prepare-forum-post query)})
+      (r/bad-request {:message "API Error: (get-forum-post)"}))
+    (r/bad-request {
+        :message (str "API User Error: (get-forum-post) - 
+                      invalid post id (" post-id ")")})))
 
 (defn submit-forum-post
   "Validate and upload a post to the database, return the post ID on success"
   [request]
   (let [body (:body request)]
-    (when body
-      (let [result
+    (if body
+      (if-let [result
           (sql/insert! @db-spec :Posts
               { :PostTitle (:post-title body)
                 :PostContent (:post-content body)
                 :PostImage (if (valid-url? (:post-image body)) (:post-image body) nil)
-                :IsAnonymous (:is-anonymous body)})
-            postid (:posts/postid result)]
-        (println "Submitted new post: " postid)
-        (json/write-str {:new-post-id postid})))))
+                :IsAnonymous (:is-anonymous body)})]
+        (let [postid (:posts/postid result)] 
+          (println "Submitted new post: " postid)
+          (r/ok {:new-post-id postid}))
+        (r/bad-request {:message "API Error: (submit-forum-post)"}))
+      (r/bad-request {:message "API User Error: (submit-forum-post) - 
+                               no body provided."}))))
 
 ;; @TODO: Differentiate between post-summary and post-content based on needs
 (defn- prepare-forum-post

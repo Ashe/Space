@@ -44,7 +44,7 @@
                   [:a.button.is-primary.is-inverted
                       {:href "/sign-in/"}
                     [:span.icon
-                      [:i.fa.fa-user]]
+                      [:i.fas.fa-user-astronaut]]
                     [:span "Sign in"]]]]]]]
 
       ;; Hero footer

@@ -4,14 +4,18 @@
 ;; Add posts to the post-list
 (rf/reg-event-db
   :fetch-forum-posts
-  (fn [db [_ posts]]
-    (assoc db :posts posts)))
+  (fn [db [_ response]]
+    (if-let [posts (:posts response)]
+      (assoc db :posts posts)
+      (println "Site Error: (event :fetch-forum-posts)"))))
 
 ;; Fetch the current number of pages
 (rf/reg-event-db
   :fetch-forum-page-count
-  (fn [db [_ pg-count]]
-    (assoc db :page-count pg-count)))
+  (fn [db [_ response]]
+    (if-let [pg-count (:pages response)]
+      (assoc db :page-count pg-count)
+      (println "Site Error: (event :fetch-forum-page-count)"))))
 
 ;; Allow querying of posts
 (rf/reg-sub

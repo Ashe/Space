@@ -4,8 +4,10 @@
 ;; Fetch a post for the current page
 (rf/reg-event-db
   :fetch-post
-  (fn [db [_ post]]
-    (assoc db :post post)))
+  (fn [db [_ response]]
+    (if-let [post (:post response)]
+      (assoc db :post post)
+      (println "Site Error: (event :fetch-forum-posts)"))))
 
 ;; Read response from server
 ;; - Either redirect to new post or remain on page
@@ -15,13 +17,15 @@
   (fn [_ [_ response]]
     (let [postid (:new-post-id response)]
       (if (pos? postid)
-        (do
+        (let [link (str "/post/" postid)]
           (println "Submitted post: " postid)
-          { :nav-to (str "/post/" postid)
+          { :nav-to link
             :dispatch
             [ :new-notification
               [ "Post submission successful!"
-                ""
+                `("Click " 
+                    [:a {:href ~link} "here"] 
+                    " to see it.")
                 "is-success"
                 "fa-file-check"]]})
         (do
@@ -49,11 +53,11 @@
 (defn dispatch-submit-post
   "Submit a post to the Space API"
   [title content image is-anonymous]
-  (rf/dispatch [:http-post 
+  (fn [] (rf/dispatch [:http-post 
       [ "forum/submit"
         { :post-title title
           :post-content content 
           :post-image image
           :is-anonymous is-anonymous}
         :post-submission-success
-        :bad-http-result]]))
+        :bad-http-result]])))
