@@ -54,7 +54,6 @@
   "Get a forum page from the database"
   [request]
   (let [page (cmn/str->num (get-in request [:params :page]))]
-    (println "AUTH? " (auth/authenticated? request))
     (if-let [query
         (sql/query @db-spec
           [ "SELECT * FROM Posts 
@@ -108,16 +107,20 @@
   (let [body (:body request)
         username (:username body)
         password (:password body)
-        valid? (some-> users
-            (get username)
-            (= password))]
-    (println "REQUEST: " request)
-    (println "USERNAME: " username)
-    (println "PASSWORD: " password)
-    (println "VALID?: " valid?)
-    (if valid?
-      (r/ok {:token (s/make-token 1)})
-      (r/bad-request {:message "Unrecognised credentials."}))))
+        [query] (sql/query @db-spec
+            [ "SELECT * FROM Users
+              WHERE Username=? AND Password=?"
+              username password])
+        id (:users/userid query)
+        vname (:users/username query)
+        vnick (:users/usernick query)]
+      (if (and id vname vnick)
+        (r/ok { :token (s/make-token id)
+                :user
+                    { :userid id
+                      :username vname
+                      :usernick vnick}})
+        (r/bad-request {:message "Unrecognised credentials."}))))
 
 ;; @TODO: Differentiate between post-summary and post-content based on needs
 (defn- prepare-forum-post

@@ -42,9 +42,7 @@
                   (time/get-current-time)]
                 [:span.navbar-item
                     {:style {:padding-left "0px"}}
-                  [:a.button.is-primary.is-inverted
-                      {:href "/sign-in/"}
-                    (user-button)]]]]]]]
+                  [user-button]]]]]]]
 
       ;; Hero footer
       [:div.hero-foot
@@ -69,11 +67,14 @@
 (defn- user-button
   "Sign in button or user profile depending on status"
   []
-  (let [token @(rf/subscribe [:token])]
-    [:div
+  (let [user @(rf/subscribe [:user])
+        username (:username user)
+        usernick (:usernick user)]
+    [:a.button.is-primary.is-inverted
+        {:href (if username 
+            (str "/user/" username) 
+            "/sign-in/")}
       [:span.icon
         [:i.fas.fa-user-astronaut]]
       [:span 
-        (if token 
-          "Signed in!"
-          "Sign in")]]))
+        (or usernick "Sign in")]]))

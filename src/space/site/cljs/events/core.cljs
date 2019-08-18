@@ -15,6 +15,7 @@
   (fn [{:keys [db]} _]
     {:db {:connection-status true
           :token nil
+          :user nil
           :notifications []
           :page-count 0
           :posts []
@@ -132,3 +133,9 @@
   :page-count
   (fn [db _]
     (:page-count db))) 
+
+;; Query the user's info
+(rf/reg-sub
+  :user
+  (fn [db _]
+    (:user db)))
