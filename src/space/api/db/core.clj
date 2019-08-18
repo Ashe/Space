@@ -4,7 +4,8 @@
             [next.jdbc.sql :as sql]
             [buddy.auth :as auth]
             [space.common.core :as cmn]
-            [space.api.response :as r]))
+            [space.api.response :as r]
+            [space.api.security.core :as s]))
 
 (declare prepare-forum-post valid-url?)
 
@@ -97,6 +98,26 @@
         (r/bad-request {:message "API Error: (submit-forum-post)"}))
       (r/bad-request {:message "API User Error: (submit-forum-post) - 
                                no body provided."}))))
+
+;; @TODO: Remove this and use Postgresql instead
+(def users {"space" "nebula"})
+
+(defn attempt-sign-in
+  "Attempt to authenticate and authorize a user"
+  [request]
+  (let [body (:body request)
+        username (:username body)
+        password (:password body)
+        valid? (some-> users
+            (get username)
+            (= password))]
+    (println "REQUEST: " request)
+    (println "USERNAME: " username)
+    (println "PASSWORD: " password)
+    (println "VALID?: " valid?)
+    (if valid?
+      (r/ok {:token (s/make-token 1)})
+      (r/bad-request {:message "Unrecognised credentials."}))))
 
 ;; @TODO: Differentiate between post-summary and post-content based on needs
 (defn- prepare-forum-post
