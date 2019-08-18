@@ -5,6 +5,7 @@
             [ring.adapter.jetty :as jetty]
             [ring.middleware.json :as rjson]
             [ring.middleware.cors :as cors]
+            [buddy.core.nonce :as nonce]
             [buddy.auth.backends.token :as jws]
             [buddy.auth.middleware :as auth]
             [buddy.sign.jwt :as jwt]
@@ -16,6 +17,10 @@
 
 ;; Forward declarations
 (declare start-server api-handler sign-in-handler)
+
+(def users {:space "nebula"})
+(def secret (nonce/random-bytes 32))
+(def auth-backend (jws/jws-backend {:secret secret :options {:alg :hs512}}))
 
 (defn -main
   "Prepare to start the server"
@@ -33,15 +38,11 @@
 (c/defroutes router
   (c/GET  "/" [] (r/ok {:message "This is the Space API server."}))
   (c/GET  "/forum/get-page-count" [] db/get-forum-page-count)
-  (c/GET  "/forum/page-:page{[0-9]+}" [page] (db/get-forum-page (cmn/str->num page)))
+  (c/GET  "/forum/page-:page{[0-9]+}" [page] db/get-forum-page)
   (c/POST "/forum/submit" [] db/submit-forum-post)
   (c/GET  "/post/:post{[0-9]+}" [post] (db/get-forum-post (cmn/str->num post)))
   (c/POST "/sign-in" [] sign-in-handler)
   (route/not-found (r/bad-request {:message "API User Error: Invalid route."})))
-
-(def users {:space "nebula"})
-(def secret "mysupersecret")
-(def auth-backend (jws/jws-backend {:secret secret :options {:alg :hs512}}))
 
 ;; Wraps middleware around router
 (def api-handler
@@ -67,7 +68,8 @@
             (= password))]
     (if valid?
       (let [claims 
-              { :user (keyword username)
+              ;;@TODO: Get the user's id from the database
+              { :usr 1
                 :exp (time/plus (time/now) (time/seconds 3600))}
             token (jwt/sign claims secret {:alg :hs512})]
       (r/ok {:token token}))

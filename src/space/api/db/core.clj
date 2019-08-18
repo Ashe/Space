@@ -1,7 +1,9 @@
 (ns space.api.db.core
-  (:require [next.jdbc.sql :as sql]
-            [clojure.data.json :as json]
+  (:require [clojure.data.json :as json]
             [clojure.math.numeric-tower :as math]
+            [next.jdbc.sql :as sql]
+            [buddy.auth :as auth]
+            [space.common.core :as cmn]
             [space.api.response :as r]))
 
 (declare prepare-forum-post valid-url?)
@@ -49,16 +51,18 @@
 
 (defn get-forum-page
   "Get a forum page from the database"
-  [page]
-  (if-let [query
-      (sql/query @db-spec
-        [ "SELECT * FROM Posts 
-          LEFT OUTER JOIN Users ON Posts.PosterID=Users.UserID
-          LIMIT ? OFFSET ?"
-          posts-per-page
-          (max 0 (* page posts-per-page))])]
-    (r/ok {:posts (map prepare-forum-post query)})
-    (r/bad-request {:message "API Error: (get-forum-page)"})))
+  [request]
+  (let [page (cmn/str->num (get-in request [:params :page]))]
+    (println "AUTH? " (auth/authenticated? request))
+    (if-let [query
+        (sql/query @db-spec
+          [ "SELECT * FROM Posts 
+            LEFT OUTER JOIN Users ON Posts.PosterID=Users.UserID
+            LIMIT ? OFFSET ?"
+            posts-per-page
+            (max 0 (* page posts-per-page))])]
+      (r/ok {:posts (map prepare-forum-post query)})
+      (r/bad-request {:message "API Error: (get-forum-page)"}))))
 
 (defn get-forum-post
   "Get an individual forum post from the database"

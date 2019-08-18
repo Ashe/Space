@@ -1,10 +1,11 @@
 (ns space.site.cljs.views.navbar
   (:require [reagent.core :as r]
+            [re-frame.core :as rf]
             [space.site.cljs.events.time :as time]
             [space.site.cljs.events.notifications :as n]))
 
 ;; Forward declare
-(declare tab)
+(declare tab user-button)
 
 ;; Atom for showing burger menu on mobile
 (def show-burger-nav (r/atom false))
@@ -43,9 +44,7 @@
                     {:style {:padding-left "0px"}}
                   [:a.button.is-primary.is-inverted
                       {:href "/sign-in/"}
-                    [:span.icon
-                      [:i.fas.fa-user-astronaut]]
-                    [:span "Sign in"]]]]]]]
+                    (user-button)]]]]]]]
 
       ;; Hero footer
       [:div.hero-foot
@@ -57,7 +56,7 @@
               [tab "Members" [:members :user] "/members/" route-key]
               [tab "Info" [:info] "/info/" route-key]
               [tab "Admin" [:admin] "/admin/" route-key]
-            ]]]]]]])
+            ]]]]]])
 
 (defn- tab
   "Returns a tab that is active when given a matching route"
@@ -67,4 +66,14 @@
     [:a {:href destination}
       text]])
 
-
+(defn- user-button
+  "Sign in button or user profile depending on status"
+  []
+  (let [token @(rf/subscribe [:token])]
+    [:div
+      [:span.icon
+        [:i.fas.fa-user-astronaut]]
+      [:span 
+        (if token 
+          "Signed in!"
+          "Sign in")]]))

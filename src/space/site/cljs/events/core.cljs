@@ -14,6 +14,7 @@
   :initialize
   (fn [{:keys [db]} _]
     {:db {:connection-status true
+          :token nil
           :notifications []
           :page-count 0
           :posts []
@@ -93,27 +94,38 @@
 (defn- make-http-get-request
   "Creates a HTTP-GET request"
   [uri on-success on-fail]
-  { :method           :get
-    :uri              (str "http://localhost:3000/" uri)
-    :timeout          8000
-    :response-format  (ajax/json-response-format {:keywords? true})
-    :on-success       [on-success]
-    :on-failure       [on-fail]})
+  (let [token @(rf/subscribe [:token])]
+    { :method           :get
+      :uri              (str "http://localhost:3000/" uri)
+      :timeout          8000
+      :response-format  (ajax/json-response-format {:keywords? true})
+      :headers          (when token [:Authorization (str "Token " token)])
+      :on-success       [on-success]
+      :on-failure       [on-fail]}))
 
 (defn- make-http-post-request
   "Creates a HTTP-POST request"
   [uri data on-success on-fail]
-  (println "Making post request: " data)
-  { :method           :post
-    :uri              (str "http://localhost:3000/" uri)
-    :params           data 
-    :timeout          8000
-    :format           (ajax/json-request-format)
-    :response-format  (ajax/json-response-format {:keywords? true})
-    :on-success       [on-success]
-    :on-failure       [on-fail]})
+  (let [token @(rf/subscribe [:token])]
+    (println "Making post request: " data)
+    (println "Post request token: " token)
+    { :method           :post
+      :uri              (str "http://localhost:3000/" uri)
+      :params           data 
+      :timeout          8000
+      :format           (ajax/json-request-format)
+      :response-format  (ajax/json-response-format {:keywords? true})
+      :headers          (when token [:Authorization (str "Token " token)])
+      :on-success       [on-success]
+      :on-failure       [on-fail]}))
 
-;; Common Events / Subscriptions ---------------------------------------------------
+;; Common Events / Subscriptions -----------------------------------
+
+;; Query for security token
+(rf/reg-sub
+  :token
+  (fn [db _]
+    (:token db)))
 
 ;; Allow querying of number of pages for current page
 (rf/reg-sub
