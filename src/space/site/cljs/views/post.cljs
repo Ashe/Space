@@ -20,8 +20,10 @@
               [:div.column.is-narrow
 
                 ;; User's picture
+                ;; @TODO: Decide if it should show your picture if
+                ;; you're currently anonymous
                 (when-let [user-img-src (:user-image p)]
-                  [:a {:href (str "/user/" (:user-handle p))}
+                  [:a {:href (str "/user/" (:username p))}
                     [:figure.has-text-centered
                       [:span.image.is-128x128.is-inline-block
                         [:img {:src user-img-src}]]]])

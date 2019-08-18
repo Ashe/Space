@@ -24,7 +24,7 @@
         [:div.container.is-widescreen
           [:div.container.is-fluid
             [selection-bar]
-            (map make-post posts)
+            (doall (map make-post posts))
             [pagination 
                 (max 1 page-number) 
                 (max 1 page-count)]]
@@ -84,7 +84,10 @@
 
         
         ;; Post image
-        (when-let [img-src (or (:post-image p) (:user-image p))]
+        ;; @TODO: Maybe factor this out to share with post page
+        (when-let [img-src (or 
+                      (:post-image p) 
+                      (when (not (:is-anonymous p)) (:user-image p)))]
           [:div.column.is-narrow
             [:a {:href (str "/post/" (:post-number p))}
               [:figure.has-text-centered
@@ -129,7 +132,9 @@
     (let [invalid (and (not= page p)
         (or (< p 1) (> p pg-count)))]
       { :aria-label (str "Goto page " p)
-        :key (or k (str "goto-page-" p "-invalid-" invalid))
+        :key (or k (str "goto-page-" p 
+                        "-invalid-" invalid
+                        "-disabled" disable))
         :style 
           (when (and invalid (not disable))
             {:display "none"})

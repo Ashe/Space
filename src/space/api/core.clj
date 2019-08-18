@@ -32,7 +32,7 @@
   (c/GET  "/forum/get-page-count" [] db/get-forum-page-count)
   (c/GET  "/forum/page-:page{[0-9]+}" [page] db/get-forum-page)
   (c/POST "/forum/submit" [] db/submit-forum-post)
-  (c/GET  "/post/:post{[0-9]+}" [post] (db/get-forum-post (cmn/str->num post)))
+  (c/GET  "/post/:post{[0-9]+}" [post] db/get-forum-post)
   (c/POST "/sign-in" [] db/attempt-sign-in)
   (route/not-found 
       (r/bad-request {:message "API User Error: Invalid route."})))

@@ -14,7 +14,6 @@
   :initialize
   (fn [{:keys [db]} _]
     {:db {:connection-status true
-          :token nil
           :user nil
           :notifications []
           :page-count 0
@@ -95,7 +94,8 @@
 (defn- make-http-get-request
   "Creates a HTTP-GET request"
   [uri on-success on-fail]
-  (let [token @(rf/subscribe [:token])]
+  (let [user @(rf/subscribe [:user])
+        token (:token user)]
     { :method           :get
       :uri              (str "http://localhost:3000/" uri)
       :timeout          8000
@@ -107,9 +107,8 @@
 (defn- make-http-post-request
   "Creates a HTTP-POST request"
   [uri data on-success on-fail]
-  (let [token @(rf/subscribe [:token])]
-    (println "Making post request: " data)
-    (println "Post request token: " token)
+  (let [user @(rf/subscribe [:user])
+        token (:token user)]
     { :method           :post
       :uri              (str "http://localhost:3000/" uri)
       :params           data 
@@ -122,11 +121,11 @@
 
 ;; Common Events / Subscriptions -----------------------------------
 
-;; Query for security token
+;; Query the user's info (including their token)
 (rf/reg-sub
-  :token
+  :user
   (fn [db _]
-    (:token db)))
+    (:user db)))
 
 ;; Allow querying of number of pages for current page
 (rf/reg-sub
@@ -134,8 +133,3 @@
   (fn [db _]
     (:page-count db))) 
 
-;; Query the user's info
-(rf/reg-sub
-  :user
-  (fn [db _]
-    (:user db)))

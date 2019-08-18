@@ -53,7 +53,8 @@
 (defn get-forum-page
   "Get a forum page from the database"
   [request]
-  (let [page (cmn/str->num (get-in request [:params :page]))]
+  (let [page (cmn/str->num (get-in request [:params :page]))
+        id (:identity request)]
     (if-let [query
         (sql/query @db-spec
           [ "SELECT * FROM Posts 
@@ -61,45 +62,51 @@
             LIMIT ? OFFSET ?"
             posts-per-page
             (max 0 (* page posts-per-page))])]
-      (r/ok {:posts (map prepare-forum-post query)})
+      (r/ok {:posts (map (partial prepare-forum-post id) query)})
       (r/bad-request {:message "API Error: (get-forum-page)"}))))
 
 (defn get-forum-post
   "Get an individual forum post from the database"
-  [post-id]
-  (if (pos? post-id)
-    (if-let [query
-        (sql/query @db-spec
-          [ "SELECT * FROM Posts
-            LEFT OUTER JOIN Users On Posts.PosterID=Users.UserID
-            WHERE PostID=?"
-            post-id])]
-      (r/ok {:post (map prepare-forum-post query)})
-      (r/bad-request {:message "API Error: (get-forum-post)"}))
-    (r/bad-request {
-        :message (str "API User Error: (get-forum-post) - 
-                      invalid post id (" post-id ")")})))
+  [request]
+  (let [post-id (cmn/str->num (get-in request [:params :post]))
+        id (:identity request)]
+    (if (pos? post-id)
+      (if-let [query
+          (sql/query @db-spec
+            [ "SELECT * FROM Posts
+              LEFT OUTER JOIN Users On Posts.PosterID=Users.UserID
+              WHERE PostID=?"
+              post-id])]
+        (r/ok {:post (map (partial prepare-forum-post id) query)})
+        (r/bad-request {:message "API Error: (get-forum-post)"}))
+      (r/bad-request {
+          :message (str "API User Error: (get-forum-post) - 
+                        invalid post id (" post-id ")")}))))
 
 (defn submit-forum-post
   "Validate and upload a post to the database, return the post ID on success"
   [request]
-  (let [body (:body request)]
+  (let [body (:body request)
+        auth? (auth/authenticated? request)
+        id (:identity request)]
+    (println "\n\nPOSTER ID: " id)
     (if body
       (if-let [result
           (sql/insert! @db-spec :Posts
               { :PostTitle (:post-title body)
+                :PosterID (:usr id)
                 :PostContent (:post-content body)
-                :PostImage (if (valid-url? (:post-image body)) (:post-image body) nil)
-                :IsAnonymous (:is-anonymous body)})]
+                :PostImage 
+                    (if (valid-url? (:post-image body)) 
+                        (:post-image body) 
+                        nil)
+                :IsAnonymous (when auth? (:is-anonymous body))})]
         (let [postid (:posts/postid result)] 
           (println "Submitted new post: " postid)
           (r/ok {:new-post-id postid}))
         (r/bad-request {:message "API Error: (submit-forum-post)"}))
       (r/bad-request {:message "API User Error: (submit-forum-post) - 
                                no body provided."}))))
-
-;; @TODO: Remove this and use Postgresql instead
-(def users {"space" "nebula"})
 
 (defn attempt-sign-in
   "Attempt to authenticate and authorize a user"
@@ -115,41 +122,47 @@
         vname (:users/username query)
         vnick (:users/usernick query)]
       (if (and id vname vnick)
-        (r/ok { :token (s/make-token id)
-                :user
-                    { :userid id
-                      :username vname
-                      :usernick vnick}})
+        (r/ok { :user
+                { :token (s/make-token id)
+                  :userid id
+                  :username vname
+                  :usernick vnick}})
         (r/bad-request {:message "Unrecognised credentials."}))))
 
 ;; @TODO: Differentiate between post-summary and post-content based on needs
 (defn- prepare-forum-post
   "Passes only important information to the client"
-  [p]
+  [id p]
   (cond-> 
+
+    ;; Share post details by default
+    ;; - Anonymous posts are anonymous regardless 
+    ;;   of if you're signed in
     { :post-number (:posts/postid p)
       :post-title (:posts/posttitle p)
       :post-date (:posts/postdate p)
       :post-summary (:posts/postcontent p)
       :post-image (:posts/postimage p)
+      :is-anonymous (:posts/isanonymous p)
       :tag-ids [0 1 2 3]}
 
-    ;; When there is a user, send stats depending on anonymous
-    ;; @TODO: Change 'true' to user's ID
-    true
-      (#(if (:posts/isanonymous p)
-        (assoc % 
-          :is-anonymous true)
-        (assoc % 
-          :user-id (:users/userid p)
-          :username (:users/username p)
-          :usernick (:users/usernick p)
-          :user-image (:users/userimage p)
-          :is-admin (:users/isadmin p))))))
+    ;; Reveal user information IF
+    ;; - post IS NOT anonymous
+    ;; - post IS anonymous but owned by current user
+    (or 
+        (not (:posts/isanonymous p)) 
+        (= (:users/userid p) (:usr id)))
+      (assoc 
+        :user-id (:users/userid p)
+        :username (:users/username p)
+        :usernick (:users/usernick p)
+        :user-image (:users/userimage p)
+        :is-admin (:users/isadmin p))))
 
 ;; @TODO: This should probably go somewhere else?
 (import 'org.apache.commons.validator.UrlValidator)
-(defn- valid-url? [url-str]
+(defn- valid-url? 
   "Validate a URL"
+  [url-str]
   (let [validator (UrlValidator.)]
     (.isValid validator url-str)))

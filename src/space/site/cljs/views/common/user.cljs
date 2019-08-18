@@ -1,21 +1,16 @@
 (ns space.site.cljs.views.common.user
-  (:require [space.site.cljs.events.notifications :as n]))
+  (:require [re-frame.core :as rf]
+            [space.site.cljs.events.notifications :as n]))
 
 (defn create-user-link
   "Creates a link to a user's profile"
   [p & [break-line]]
+  (let [usr @(rf/subscribe [:user])
+        same? (and
+                (not (nil? usr))
+                (= (:username usr) (:username p)))
+        you-tag (when same? [:small " (you)"])]
   (cond 
-
-    ;; Show user if provided
-    (pos? (:user-id p)) 
-      [:a 
-          {:href (str "/user/" (:username p))}
-        [:span.icon
-            (when (not (:is-admin p)) {:style {:display "none"}})
-          [:i.fas.fa-shield-check]]
-        [:strong (:usernick p)] 
-        (when break-line [:br])
-        (str " @" (:username p))]
 
     ;; Show anonymous if it's an anonymous post
     (:is-anonymous p)
@@ -29,7 +24,20 @@
                 "fa-user-secret")}
         [:span.icon
           [:i.fas.fa-user-secret]]
-        [:strong "Anonymous"]]
+        [:strong "Anonymous"]
+        you-tag]
+
+    ;; Show user if provided
+    (pos? (:user-id p)) 
+      [:a 
+          {:href (str "/user/" (:username p))}
+        [:span.icon
+            (when (not (:is-admin p)) {:style {:display "none"}})
+          [:i.fas.fa-shield-check]]
+        [:strong (:usernick p)] 
+        (when break-line [:br])
+        (str " @" (:username p))
+        you-tag]
 
     ;; Show guest if otherwise
     :else 
@@ -42,4 +50,4 @@
                 "fa-user-slash")}
         [:span.icon
           [:i.fas.fa-user-slash]]
-        [:strong "Guest"]]))
+        [:strong "Guest"]])))

@@ -5,31 +5,24 @@
 (rf/reg-event-fx
   :good-sign-in-response
   (fn [cofx [_ response]]
-    (let [token (:token response)
-          user  (:user response)]
-      (if (and token user)
-        { :db (assoc (:db cofx) 
-              :token token 
-              :user user)
-          :nav-to "/"
-          :dispatch
-          [ :new-notification
-            [ (str "Hello, " (:usernick user) "!")
-              "Welcome to Space."
-              "is-success"
-              "fa-user-astronaut"]]}
-        (do
-          (println "Site Error: (event :good-sign-in-response)")
-          {:db (assoc (:db cofx) :token nil :user nil)})))))
+    (if-let [user (:user response)]
+      { :db (assoc (:db cofx) :user user)
+        :nav-to "/"
+        :dispatch
+        [ :new-notification
+          [ (str "Hello, " (:usernick user) "!")
+            "Welcome to Space."
+            "is-success"
+            "fa-user-astronaut"]]}
+      (do
+        (println "Site Error: (event :good-sign-in-response)")
+        {:db (assoc (:db cofx) :user nil)}))))
 
 ;; Retrieve the sign-in attempt's response
 (rf/reg-event-fx
   :bad-sign-in-response
   (fn [cofx [_ response]]
-    { :db (assoc (:db cofx) 
-          :token nil 
-          :username nil
-          :usernick nil)
+    { :db (assoc (:db cofx) :user nil)
       :dispatch
       [ :new-notification
         [ "Sign-in failed"

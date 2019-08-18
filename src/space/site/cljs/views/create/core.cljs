@@ -1,5 +1,6 @@
 (ns space.site.cljs.views.create.core
-  (:require [space.site.cljs.events.notifications :as n]
+  (:require [re-frame.core :as rf]
+            [space.site.cljs.events.notifications :as n]
             [space.site.cljs.views.create.post :as p]))
 
 (declare show-post-types type-box)
@@ -7,11 +8,14 @@
 (defn create-new
   "Show different post types to create"
   []
-  ((n/dispatch-notification
-      "Continuing as Guest"
-      "You should sign in before going further to earn points!"
-      "is-info"
-      "fa-user-times"))
+  (when (nil? @(rf/subscribe [:user]))
+    ((n/dispatch-notification
+        "Continuing as Guest"
+        `("You should "
+            [:a {:href "/sign-in/"} "sign in"]
+          " before going further to earn points!")
+        "is-info"
+        "fa-user-times")))
   (fn [{:keys [_ path-params _]}]
     (case (:post-type path-params)
       "post" [p/create-post]

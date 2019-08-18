@@ -1,5 +1,6 @@
 (ns space.site.cljs.views.create.post
   (:require [reagent.core :as r]
+            [re-frame.core :as rf]
             [space.site.cljs.views.common.forms :as f]
             [space.site.cljs.events.post :as p]))
 
@@ -131,7 +132,8 @@
         content-min content-max)
 
     ;; Ask the user if they want their post to remain anonymous
-    (f/make-checkbox is-anonymous "Please make my post anonymous.")
+    (when @(rf/subscribe [:user])
+      (f/make-checkbox is-anonymous "Please make my post anonymous."))
 
     ;; Agree to forum rules
     (f/make-checkbox has-agreed 
