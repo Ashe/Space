@@ -1,10 +1,13 @@
 (ns space.site.cljs.views.post
-  (:require [re-frame.core :as rf]
+  (:require [clojure.string :as s]
+            [re-frame.core :as rf]
+            [markdown.core :as md]
+            [markdown.transformers :as mdt]
             [space.common.core :as cmn]
             [space.site.cljs.views.common.user :as usr]
             [space.site.cljs.events.post :as p]))
 
-(declare make-tag)
+(declare make-tag escape-html)
 
 (defn post
   "Display the page for a specific forum post"
@@ -50,8 +53,19 @@
                 [:div.tags
                   (map make-tag (:tag-ids p))]
 
+                ;import { Remarkable } from 'remarkable';
+                ;var md = new Remarkable();
+                ;console.log(md.render('# Remarkable rulezz!'));
+                ;// => <h1>Remarkable rulezz!</h1>
+
                 ;; Body
-                [:p (:post-summary p)]]]]]))))
+                [:div
+                  {:dangerouslySetInnerHTML
+                    {:__html  (md/md->html 
+                                  (:post-summary p)
+                                  :replacement-transformers
+                                  (cons escape-html mdt/transformer-vector))}}]
+                ]]]]))))
 
 ;; @TODO: Make this customisable
 ;; @TODO: Merge with views/forum.cljs
@@ -74,3 +88,19 @@
             :class colour
             :href (str "/tag/" label)}
         label])))
+
+
+(def ^:dynamic ^:no-doc *html-mode* :xhtml)
+
+(defn- escape-html
+  "Change special characters into HTML character entities."
+  [text state]
+  (let [sanitized-text 
+          (clojure.string/escape text 
+             {\& "&amp;" 
+              \< "&lt;" 
+              \> "&gt;" 
+              \" "&quot;"
+              \' "&#39;"})]
+    [(if (not (or (:code state) (:codeblock state)))
+      sanitized-text text) state]))

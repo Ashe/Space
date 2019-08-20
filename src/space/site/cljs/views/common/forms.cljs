@@ -1,7 +1,8 @@
-(ns space.site.cljs.views.common.forms)
+(ns space.site.cljs.views.common.forms
+  (:require [reagent.core :as r]))
 
 ;; Forward declare
-(declare valid-url?)
+(declare valid-url? md-editor)
 
 (defn make-text-input
   "Makes a text input with a given atom, tag and set of messages"
@@ -42,6 +43,19 @@
         (> max-length 0)
           (when (pos? max-length) [:p.help.is-danger
             help-invalid " (" (str (- length max-length)) " characters too many)"]))]))
+
+(defn make-md-input
+  "Makes a text input that supports markdown"
+  [input-atom label icon placeholder]
+  [:div.field
+    [:label.label label]
+    [:div.control.has-icons-right
+      [md-editor input-atom 
+        { :type "text"
+          :placeholder placeholder
+          :on-change #(reset! input-atom (.-value (.-target %)))}]
+      [:span.icon.is-small.is-right
+        [:i.fas {:class icon}]]]])
 
 (defn make-url-input
   "Makes a URL input with a given atom, tag and set of messages"
@@ -85,7 +99,22 @@
               :style {:margin-right "8px"}}]
         label]]])
 
-(defn valid-url?
+
+(defn- md-editor 
+  "Creates a text editor with Simple MDE integration"
+  [input-atom attrs]
+  (r/create-class
+    { :component-did-mount
+        (fn [comp]
+          (let [mde (js/SimpleMDE. (clj->js {:element (r/dom-node comp)}))]
+            (.on mde.codemirror "change" 
+                #(reset! input-atom (.value mde)))
+            mde))
+      :reagent-render
+        (fn []
+          [:textarea.textarea attrs])}))
+
+(defn- valid-url?
   "Checks to see if a URL is valid or not"
   [url]
   (let [pattern #"(?i)^(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$"]

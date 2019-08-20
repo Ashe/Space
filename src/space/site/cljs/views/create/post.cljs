@@ -23,8 +23,7 @@
     @has-agreed 
     (or (zero? (count @post-image)) (f/valid-url? @post-image))
     (>= (count @title) title-min)
-    (<= (count @title) title-max)
-    (>= (count @content) content-min)))
+    (<= (count @title) title-max)))
 
 (defn create-post
   "Shows an overview of post expectations and the form"
@@ -124,14 +123,9 @@
       [:p.help.is-danger
         "Please provide at least one tag to give context to your post"]]
 
-    [md-editor content {}]
-
-    ;; Body
-    ;(f/make-text-input content 
-    ;   [md-editor content] "text"
-    ;   "Content*" "What do you want to talk about?" "fa-pencil"
-    ;   "Thanks!" "Please write your post" 
-    ;   content-min content-max)
+    [f/make-md-input content
+        "Post Content" "fa-pencil" 
+        "Write your post here"]
 
     ;; Ask the user if they want their post to remain anonymous
     (when @(rf/subscribe [:user])
@@ -155,15 +149,3 @@
               {:href "/"}
             "Back to forum"]]]])
 
-(defn- md-editor 
-  [input-atom attrs]
-  (r/create-class
-    { :component-did-mount
-        (fn [comp]
-          (let [mde (js/SimpleMDE. (clj->js {:element (r/dom-node comp)}))]
-            (.on mde.codemirror "change" 
-                #(reset! input-atom (.value mde)))
-            mde))
-      :reagent-render
-        (fn []
-          [:textarea.textarea attrs])}))

@@ -15,6 +15,7 @@
           commons-validator/commons-validator {:mvn/version "1.6"}
           reagent                             {:mvn/version "0.8.1"}
           re-frame                            {:mvn/version "0.10.8"}
+          markdown-clj                        {:mvn/version "1.10.0"}
           oconn/re-frame-routing              {:mvn/version "0.1.2"}
           day8.re-frame/http-fx               {:mvn/version "0.1.6"}}
   :paths ["src" "resources"]
