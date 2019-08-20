@@ -62,7 +62,7 @@
             LIMIT ? OFFSET ?"
             posts-per-page
             (max 0 (* page posts-per-page))])]
-      (r/ok {:posts (map (partial prepare-forum-post id) query)})
+      (r/ok {:posts (map (partial prepare-forum-post id false) query)})
       (r/bad-request {:message "API Error: (get-forum-page)"}))))
 
 (defn get-forum-post
@@ -77,7 +77,7 @@
               LEFT OUTER JOIN Users On Posts.PosterID=Users.UserID
               WHERE PostID=?"
               post-id])]
-        (r/ok {:post (map (partial prepare-forum-post id) query)})
+        (r/ok {:post (map (partial prepare-forum-post id true) query)})
         (r/bad-request {:message "API Error: (get-forum-post)"}))
       (r/bad-request {
           :message (str "API User Error: (get-forum-post) - 
@@ -89,12 +89,12 @@
   (let [body (:body request)
         auth? (auth/authenticated? request)
         id (:identity request)]
-    (println "\n\nPOSTER ID: " id)
     (if body
       (if-let [result
           (sql/insert! @db-spec :Posts
               { :PostTitle (:post-title body)
                 :PosterID (:usr id)
+                :PostSummary (:post-summary body)
                 :PostContent (:post-content body)
                 :PostImage 
                     (if (valid-url? (:post-image body)) 
@@ -129,10 +129,9 @@
                   :usernick vnick}})
         (r/bad-request {:message "Unrecognised credentials."}))))
 
-;; @TODO: Differentiate between post-summary and post-content based on needs
 (defn- prepare-forum-post
   "Passes only important information to the client"
-  [id p]
+  [id show-content? p]
   (cond-> 
 
     ;; Share post details by default
@@ -141,7 +140,8 @@
     { :post-number (:posts/postid p)
       :post-title (:posts/posttitle p)
       :post-date (:posts/postdate p)
-      :post-summary (:posts/postcontent p)
+      :post-summary (:posts/postsummary p)
+      :post-content (when show-content? (:posts/postcontent p))
       :post-image (:posts/postimage p)
       :is-anonymous (:posts/isanonymous p)
       :tag-ids [0 1 2 3]}

@@ -32,17 +32,25 @@
           :class colour}]
       [:span.icon.is-small.is-right
         [:i.fas {:class icon}]]]
-      (cond
-        (< length min-length) 
-          (when (pos? min-length)[:p.help
-              {:class colour}
-            help-invalid " (" (str (- min-length length)) " characters to go)"])
-        (or (<= max-length 0) (< length max-length))
-          [:p.help.is-success
-            help-okay (when (pos? max-length) (str " (" (str (- max-length length)) " characters left)"))]
-        (> max-length 0)
-          (when (pos? max-length) [:p.help.is-danger
-            help-invalid " (" (str (- length max-length)) " characters too many)"]))]))
+      (let [has-minimum? (> min-length 0)
+            has-maximum? (> max-length 0)
+            too-few? (< length min-length)
+            too-many? (> length max-length)
+            entered? (> length 0)]
+        [:p.help {:class colour}
+          (if (or 
+                (and has-minimum? too-few?) 
+                (and has-maximum? too-many?) 
+                (not entered?))
+              help-invalid 
+              help-okay)
+          (cond
+            (and has-minimum? too-few?) 
+              (str " (" (- min-length length) " characters to go)")
+            (and has-maximum? (<= length max-length))
+              (str " (" (- max-length length) " characters to go)")
+            (and has-maximum? too-many?) 
+              (str " (" (- length max-length) " characters too many)"))])]))
 
 (defn make-md-input
   "Makes a text input that supports markdown"

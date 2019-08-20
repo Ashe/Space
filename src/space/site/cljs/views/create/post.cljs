@@ -10,11 +10,11 @@
 ;; Constraints for post
 (def title-min 10)
 (def title-max 100)
-(def content-min 25)
-(def content-max 0)
+(def summary-max 100)
 
 ;; Atoms for form validation
 (def title (r/atom ""))
+(def summary (r/atom ""))
 (def content (r/atom ""))
 (def post-image (r/atom ""))
 (def is-anonymous (r/atom false))
@@ -23,7 +23,8 @@
     @has-agreed 
     (or (zero? (count @post-image)) (f/valid-url? @post-image))
     (>= (count @title) title-min)
-    (<= (count @title) title-max)))
+    (<= (count @title) title-max)
+    (<= (count @summary) summary-max)))
 
 (defn create-post
   "Shows an overview of post expectations and the form"
@@ -31,6 +32,7 @@
 
   ;; Clear values
   (reset! title "")
+  (reset! summary "")
   (reset! content "")
   (reset! post-image "")
   (reset! is-anonymous false)
@@ -91,6 +93,13 @@
         "Thanks!" "Please enter a descriptive title" 
         title-min title-max)
 
+    ;; Summary
+    (f/make-text-input summary 
+        :textarea.textarea "text"
+        "Summary" "What makes your post interesting?" "fa-pencil"
+        "Thanks!" "Please describe why someone should visit your post"
+        0 summary-max)
+
     ;; Post image
     [:div.columns.is-vcentered
       [:div.column
@@ -123,6 +132,7 @@
       [:p.help.is-danger
         "Please provide at least one tag to give context to your post"]]
 
+    ;; Content
     [f/make-md-input content
         "Post Content" "fa-pencil" 
         "Write your post here"]
@@ -142,7 +152,7 @@
           [:button.button.is-link 
               { :disabled (not (ready-to-submit?))
                 :on-click (p/dispatch-submit-post 
-                    @title @content @post-image @is-anonymous)}
+                    @title @content @summary @post-image @is-anonymous)}
             "Post"]]
         [:div.control
           [:a.button.is-text 

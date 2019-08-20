@@ -52,10 +52,11 @@
 
 (defn dispatch-submit-post
   "Submit a post to the Space API"
-  [title content image is-anonymous]
+  [title content summary image is-anonymous]
   (fn [] (rf/dispatch [:http-post 
       [ "forum/submit"
         { :post-title title
+          :post-summary summary
           :post-content content 
           :post-image image
           :is-anonymous is-anonymous}

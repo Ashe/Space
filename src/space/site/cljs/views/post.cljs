@@ -1,5 +1,6 @@
 (ns space.site.cljs.views.post
   (:require [clojure.string :as s]
+            [reagent.core :as r]
             [re-frame.core :as rf]
             [markdown.core :as md]
             [markdown.transformers :as mdt]
@@ -7,7 +8,7 @@
             [space.site.cljs.views.common.user :as usr]
             [space.site.cljs.events.post :as p]))
 
-(declare make-tag escape-html)
+(declare make-tag md-renderer escape-html)
 
 (defn post
   "Display the page for a specific forum post"
@@ -59,12 +60,8 @@
                 ;// => <h1>Remarkable rulezz!</h1>
 
                 ;; Body
-                [:div
-                  {:dangerouslySetInnerHTML
-                    {:__html  (md/md->html 
-                                  (:post-summary p)
-                                  :replacement-transformers
-                                  (cons escape-html mdt/transformer-vector))}}]
+                [md-renderer (:post-content p)]
+
                 ]]]]))))
 
 ;; @TODO: Make this customisable
@@ -89,18 +86,46 @@
             :href (str "/tag/" label)}
         label])))
 
+(defn- md-renderer 
+  "Creates a text editor with Simple MDE integration"
+  [text]
+  (r/create-class
+    { :component-did-mount
+        (fn [_]
+          (.forEach (.querySelectorAll js/document "pre code") 
+            (fn [e] 
+              (js/console.dir e)
+              (js/hljs.highlightBlock e)
+              (aset e "style" "background-color" "transparent")
+              )))
+      :component-did-update
+        (fn [_]
+          (.forEach (.querySelectorAll js/document "pre code") 
+            (fn [e] 
+              (js/console.dir e)
+              (js/hljs.highlightBlock e)
+              (aset e "style" "background-color" "transparent")
+              )))
+      :reagent-render
+        (fn []
+          [:div
+            {:dangerouslySetInnerHTML
+              {:__html  
+                (md/md->html 
+                    text
+                    :replacement-transformers
+                    (into [escape-html] mdt/transformer-vector))}}])}))
 
 (def ^:dynamic ^:no-doc *html-mode* :xhtml)
 
 (defn- escape-html
   "Change special characters into HTML character entities."
   [text state]
-  (let [sanitized-text 
-          (clojure.string/escape text 
-             {\& "&amp;" 
-              \< "&lt;" 
-              \> "&gt;" 
-              \" "&quot;"
-              \' "&#39;"})]
-    [(if (not (or (:code state) (:codeblock state)))
-      sanitized-text text) state]))
+  [(if-not (or (:code state) (:codeblock state))
+    (clojure.string/escape text 
+       {\& "&amp;" 
+        \< "&lt;" 
+        \> "&gt;" 
+        \" "&quot;"
+        \' "&#39;"}) 
+    text) state])
