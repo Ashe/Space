@@ -63,8 +63,8 @@
       [nick-type
         [get-icon u]
         (:usernick u)]
-      [username-type (str " @" (:username u))]
-      you-tag]))
+      [username-type (str " @" (:username u))
+        you-tag]]))
 
 (defn get-icon
   "Gets the icon for displayed user"
