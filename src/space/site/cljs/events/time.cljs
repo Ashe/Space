@@ -32,7 +32,8 @@
 (defn get-current-time
   "Returns the current time as string"
   []
-  (-> @(rf/subscribe [:time])
-      .toTimeString
-      (str/split " ")
-      first))
+  (when-let [t @(rf/subscribe [:time])]
+    (-> t
+        .toTimeString
+        (str/split " ")
+        first)))

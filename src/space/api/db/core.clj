@@ -71,14 +71,16 @@
   (let [post-id (cmn/str->num (get-in request [:params :post]))
         id (:identity request)]
     (if (pos? post-id)
-      (if-let [query
-          (sql/query @db-spec
+      (let [[query] (sql/query @db-spec
             [ "SELECT * FROM Posts
               LEFT OUTER JOIN Users On Posts.PosterID=Users.UserID
-              WHERE PostID=?"
+              WHERE Posts.PostID=?
+              LIMIT 1"
               post-id])]
-        (r/ok {:post (map (partial prepare-forum-post id true) query)})
-        (r/bad-request {:message "API Error: (get-forum-post)"}))
+        (if query
+          (r/ok {:post (prepare-forum-post id true query)})
+          (r/bad-request {:message "API Error: (get-forum-post) 
+                                   - post not found"})))
       (r/bad-request {
           :message (str "API User Error: (get-forum-post) - 
                         invalid post id (" post-id ")")}))))
@@ -116,7 +118,8 @@
         password (:password body)
         [query] (sql/query @db-spec
             [ "SELECT * FROM Users
-              WHERE Username=? AND Password=?"
+              WHERE Username=? AND Password=?
+              LIMIT 1"
               username password])
         id (:users/userid query)
         vname (:users/username query)
@@ -128,6 +131,34 @@
                   :username vname
                   :usernick vnick}})
         (r/bad-request {:message "Unrecognised credentials."}))))
+
+(defn get-user-data
+  "Retrieve information about a given user from database"
+  [request]
+  (let [id (:identity request)
+        username (get-in request [:params :username])
+        [usr-query] (sql/query @db-spec
+            [ "SELECT * FROM Users
+              WHERE Username=?
+              LIMIT 1"
+              username])
+        posts-query (sql/query @db-spec
+            [ "SELECT * FROM Posts
+              INNER JOIN Users On Posts.PosterID=Users.UserID
+              WHERE Users.Username=?
+              LIMIT 5"
+              username])]
+    (if (and usr-query posts-query)
+      (r/ok { :viewed-user
+              { :username (:users/username usr-query)
+                :usernick (:users/usernick usr-query)
+                :user-bio (:users/userbio usr-query)
+                :user-image (:users/userimage usr-query)}
+              :posts
+                (filter #(not (nil? (:user-id %)))
+                  (map (partial prepare-forum-post id false) 
+                    posts-query))})
+      (r/bad-request {:message "Couldn't find user"}))))
 
 (defn- prepare-forum-post
   "Passes only important information to the client"

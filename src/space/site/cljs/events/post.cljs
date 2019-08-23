@@ -5,9 +5,14 @@
 (rf/reg-event-db
   :fetch-post
   (fn [db [_ response]]
-    (if-let [post (:post response)]
-      (assoc db :post post)
-      (println "Site Error: (event :fetch-forum-posts)"))))
+    (let [post (:post response)]
+      (assoc db :post post))))
+
+;; Fetch a post for the current page
+(rf/reg-event-db
+  :failed-fetch-post
+  (fn [db [_ response]]
+    (assoc db :post nil)))
 
 ;; Read response from server
 ;; - Either redirect to new post or remain on page
@@ -48,7 +53,7 @@
   [post-id]
   (rf/dispatch [:http-get
       [ (str "post/" post-id)
-        :fetch-post :bad-http-result]]))
+        :fetch-post :failed-fetch-post]]))
 
 (defn dispatch-submit-post
   "Submit a post to the Space API"

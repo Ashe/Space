@@ -8,6 +8,7 @@ CREATE TABLE Users (
   UserNick varchar(18) NOT NULL,
   Username varchar(12) NOT NULL UNIQUE,
   Password varchar(50) NOT NULL,
+  UserBio varchar(350),
   UserImage text NOT NULL DEFAULT 
     'https://cdn.pixabay.com/photo/2018/10/16/09/55/astronaut-3751046_960_720.png',
   JoinDate timestamptz NOT NULL DEFAULT NOW(),
@@ -29,8 +30,8 @@ CREATE TABLE Posts (
 );
 
 -- Create an initial admin user
-INSERT INTO Users (UserNick, Username, Password, IsAdmin)
-VALUES ('Space Team', 'space', 'nebula', true);
+INSERT INTO Users (UserNick, Username, Password, UserBio, IsAdmin)
+VALUES ('Space Team', 'space', 'nebula', '(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ Your friendly neighbourhood Space Team!', true);
 
 -- Create an initial post for the database
 INSERT INTO Posts (PosterID, PostDate, PostTitle, PostImage, PostContent)

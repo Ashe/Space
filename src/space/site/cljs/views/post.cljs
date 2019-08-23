@@ -8,7 +8,7 @@
             [space.site.cljs.views.common.tags :as tags]
             [space.site.cljs.events.post :as p]))
 
-(declare md-renderer escape-html)
+(declare md-renderer escape-html show-post show-post-not-found)
 
 (defn post
   "Display the page for a specific forum post"
@@ -16,61 +16,66 @@
   (fn [{:keys [route-key path-params query-params]}]
     (let [post-id (cmn/str->num (:post-number path-params))]
       (p/dispatch-fetch-post post-id)
-      (when-let [[p] @(rf/subscribe [:post])]
-        [:div.container.is-widescreen
+      [:div.container.is-widescreen
+        (if-let [p @(rf/subscribe [:post])]
+          [show-post p]
+          [show-post-not-found])])))
 
-          ;; Breadcrumb
-          [:nav.breadcrumb
-            [:ul
-              [:li>a {:href "/"} "Space"]
-              [:li>a {:href "/"} "Page ?"]
-              [:li.is-active>a (:post-title p)]]]
+(defn- show-post
+  "Show the requested post"
+  [p]
+  [:div
 
-          [:article.box
-            [:div.columns
-              
-              [:div.column.is-narrow
+    ;; Breadcrumb
+    [:nav.breadcrumb
+      [:ul
+        [:li>a {:href "/"} "Space"]
+        [:li>a {:href "/"} "Page ?"]
+        [:li.is-active>a (:post-title p)]]]
 
-                ;; User's picture
-                ;; @TODO: Decide if it should show your picture if
-                ;; you're currently anonymous
-                (when-let [user-img-src (:user-image p)]
-                  [:a {:href (str "/user/" (:username p))}
-                    [:figure.has-text-centered
-                      [:span.image.is-128x128.is-inline-block
-                        [:img {:src user-img-src}]]]])
+    [:article.box
+      [:div.columns
+        
+        [:div.column.is-narrow
 
-                ;; Link to user
-                [:div (usr/create-user-link p {:seperate-names true})]
+          ;; User's picture
+          ;; @TODO: Decide if it should show your picture if
+          ;; you're currently anonymous
+          (when-let [user-img-src (:user-image p)]
+            [:a {:href (str "/user/" (:username p))}
+              [:figure.has-text-centered
+                [:span.image.is-128x128.is-inline-block
+                  [:img {:src user-img-src}]]]])
 
-                ;; Post date
-                [:p.is-size-7 (:post-date p)]]
+          ;; Link to user
+          [:div (usr/create-user-link p {:seperate-names true})]
 
-              [:div.column
+          ;; Post date
+          [:p.is-size-7 (:post-date p)]]
 
-                ;; Post title
-                [:h1.title (:post-title p)]
+        [:div.column
 
-                ;; Post image
-                (when-let [post-img-src (:post-image p)]
-                  [:a {:href post-img-src}
-                    [:figure.has-text-centered
-                      [:span.image.is-inline-block
-                        [:img {:src post-img-src}]]]])
+          ;; Post title
+          [:h1.title (:post-title p)]
 
-                ;; Post tags
-                [:div.tags
-                  (map tags/make-tag (:tag-ids p))]
+          ;; Post image
+          (when-let [post-img-src (:post-image p)]
+            [:a {:href post-img-src}
+              [:figure.has-text-centered
+                [:span.image.is-inline-block
+                  [:img {:src post-img-src}]]]])
 
-                ;import { Remarkable } from 'remarkable';
-                ;var md = new Remarkable();
-                ;console.log(md.render('# Remarkable rulezz!'));
-                ;// => <h1>Remarkable rulezz!</h1>
+          ;; Post tags
+          [:div.tags
+            (map tags/make-tag (:tag-ids p))]
 
-                ;; Body
-                [md-renderer (:post-content p)]
+          ;; Body
+          [md-renderer (:post-content p)]]]]])
 
-                ]]]]))))
+(defn- show-post-not-found
+  "Show a post not found screen"
+  []
+  [:div "Post not found :("])
 
 (defn- md-renderer 
   "Creates a text editor with Simple MDE integration"

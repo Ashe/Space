@@ -42,7 +42,13 @@
                [:strong.is-size-4 (:post-title p)]]
               
               ;; User name and handle
-              (when-not (:hide-names flags)
+              ;; If names shouldn't be displayed, make
+              ;; an exception for anonymous posts to
+              ;; create distinction between standard 
+              ;; and anonymous posts
+              (if (:hide-names flags)
+                (when (:is-anonymous p) 
+                    [:span.icon>i.fas.fa-user-secret])
                 [:span [:br] (usr/create-user-link p flags)])
 
               ;; Post date

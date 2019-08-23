@@ -33,6 +33,7 @@
   (c/GET  "/forum/page-:page{[0-9]+}" [page] db/get-forum-page)
   (c/POST "/forum/submit" [] db/submit-forum-post)
   (c/GET  "/post/:post{[0-9]+}" [post] db/get-forum-post)
+  (c/GET  "/user/:username" [username] db/get-user-data)
   (c/POST "/sign-in" [] db/attempt-sign-in)
   (route/not-found 
       (r/bad-request {:message "API User Error: Invalid route."})))

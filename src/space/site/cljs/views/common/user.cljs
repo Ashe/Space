@@ -59,7 +59,7 @@
                 (not (nil? usr))
                 (= (:username usr) (:username u)))
         you-tag (when same? [:small " (you)"])]
-    [:div
+    [:span
       [nick-type
         [get-icon u]
         (:usernick u)]

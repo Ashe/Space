@@ -4,6 +4,7 @@
             [day8.re-frame.http-fx]
             [ajax.core :as ajax]))
 
+;; Forward declarations
 (declare make-http-get-request make-http-post-request)
 
 ;; Import subscriptions
@@ -15,6 +16,7 @@
   (fn [{:keys [db]} _]
     {:db {:connection-status true
           :user nil
+          :viewed-user nil
           :notifications []
           :page-count 0
           :posts []
