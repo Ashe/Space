@@ -4,7 +4,8 @@
 
 (defn create-user-link
   "Creates a link to a user's profile"
-  [p & [break-line]]
+  ([p] (create-user-link p []))
+  ([p f]
   (let [usr @(rf/subscribe [:user])
         same? (and
                 (not (nil? usr))
@@ -30,12 +31,12 @@
     ;; Show user if provided
     (pos? (:user-id p)) 
       [:a 
-          {:href (str "/user/" (:username p))}
+          {:href (str "/users/" (:username p))}
         [:span.icon
             (when (not (:is-admin p)) {:style {:display "none"}})
           [:i.fas.fa-shield-check]]
         [:strong (:usernick p)] 
-        (when break-line [:br])
+        (when (:seperate-names f) [:br])
         (str " @" (:username p))
         you-tag]
 
@@ -50,4 +51,4 @@
                 "fa-user-slash")}
         [:span.icon
           [:i.fas.fa-user-slash]]
-        [:strong "Guest"]])))
+        [:strong "Guest"]]))))

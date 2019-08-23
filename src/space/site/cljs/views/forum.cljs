@@ -1,14 +1,11 @@
 (ns space.site.cljs.views.forum
   (:require [re-frame.core :as rf]
             [space.common.core :as cmn]
-            [space.site.cljs.views.common.user :as usr]
+            [space.site.cljs.views.common.posts :as p]
             [space.site.cljs.events.forum :as f]))
 
 ;; Forward declarations
-(declare selection-bar pagination make-post make-tag)
-
-;; Make all elements spaced evenly
-(def forum-spacing "10px 0px")
+(declare selection-bar pagination)
 
 (defn forum
   "Draw forum posts"
@@ -22,12 +19,25 @@
       (f/dispatch-fetch-posts (dec page-number))
       (let [posts @(rf/subscribe [:posts])]
         [:div.container.is-widescreen
-          [:div.container.is-fluid
-            [selection-bar]
-            (doall (map make-post posts))
-            [pagination 
-                (max 1 page-number) 
-                (max 1 page-count)]]
+
+          ;; Breadcrumb
+          [:nav.breadcrumb
+            [:ul
+              [:li>a {:href "/"} "Space"]
+              [:li.is-active>a "Page 1"]]]
+
+          ;; Selection bar
+          [selection-bar]
+
+          ;; Posts
+          (doall (map p/make-post posts))
+
+          ;; Pagination
+          [pagination 
+              (max 1 page-number) 
+              (max 1 page-count)]
+
+          ;; New-post button
           [:div.div.level
               {:style {:margin-top "10px"}}
             [:div.level-item
@@ -72,57 +82,6 @@
           [:span
             "New Post"]]]]])
 
-(defn- make-post
-  "An overview of a post"
-  [p]
-  [:div
-      { :id (str "post-" (:post-number p))
-        :key (:post-number p)
-        :style {:margin forum-spacing}}
-    [:div.box
-      [:article.columns.is-vcentered
-
-        
-        ;; Post image
-        ;; @TODO: Maybe factor this out to share with post page
-        (when-let [img-src (or 
-                      (:post-image p) 
-                      (when (not (:is-anonymous p)) (:user-image p)))]
-          [:div.column.is-narrow
-            [:a {:href (str "/post/" (:post-number p))}
-              [:figure.has-text-centered
-                [:span.image.is-inline-block
-                    {:style
-                      { :max-width "128px"
-                        :max-height "128px"}}
-                  [:img 
-                    {:src img-src}]]]]])
-
-        [:div.column
-          [:div.content
-            [:p 
-
-              ;; Post title
-              [:a 
-                  {:href (str "/post/" (:post-number p))}
-               [:strong.is-size-4 (:post-title p)]] [:br]
-              
-              ;; User name and handle
-              (usr/create-user-link p)
-
-              ;; Post date
-              [:small 
-                  {:style {:margin-left "5px"}}
-                (str " " (:post-date p))] [:br]
-
-              ;; Post summary
-              (:post-summary p)]
-
-            ;; Post tags
-            [:div.tags
-              (map make-tag (:tag-ids p))]
-            ]]]]])
-
 (defn- pagination
   "Shows the current page number"
   [page pg-count]
@@ -140,7 +99,7 @@
             {:display "none"})
         :disabled (and invalid disable)
         :class [(when (= p page) "is-link")]
-        :href (if (<= p 1) "/" (str "/forum/page-" (min pg-count p)))}))]
+        :href (if (<= p 1) "/" (str "/posts/page-" (min pg-count p)))}))]
 
     [:nav.pagination.is-centered
         { :role "navigation"
@@ -161,25 +120,3 @@
               (fn [p] [:li>a.pagination-link.button.is-small (attr p) p])
               (take pages (iterate inc start))))]
       ]))
-
-;; @TODO: Make this customisable
-;; @TODO: Merge with views/post.cljs
-(defn- make-tag
-  "Make a tag from a tag's ID"
-  [id]
-  (let [label (case id 
-                  0 "Clojure"
-                  1 "Reagent"
-                  2 "Re-frame"
-                  nil)
-        colour (case id
-                  0 "is-info"
-                  1 "is-success"
-                  2 "is-danger"
-                  nil)]
-    (when (and label colour) 
-      [:a.tag.is-info 
-          { :key (str "tag-" id)
-            :class colour
-            :href (str "/tag/" label)}
-        label])))

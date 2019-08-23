@@ -1,4 +1,5 @@
-(ns space.site.cljs.views.footer)
+(ns space.site.cljs.views.footer
+  (:require [re-frame.core :as rf]))
 
 (defn footer
   "Footer of website linking to repository"
@@ -33,7 +34,10 @@
             ;; @TODO: Link these to somewhere
             [:div.content
               [:div.content.is-marginless 
-                [:a "Dashboard"]]
+                (if-let [user @(rf/subscribe [:user])]
+                  [:a {:href (str "/users/" (:username user))}
+                    "Dashboard"]
+                  [:a {:href "/sign-in/"} "Sign-in"])]
               [:div.content.is-marginless 
                 [:a "What is Space?"]]
               [:div.content.is-marginless 

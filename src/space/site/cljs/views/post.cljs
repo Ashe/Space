@@ -1,14 +1,14 @@
 (ns space.site.cljs.views.post
-  (:require [clojure.string :as s]
-            [reagent.core :as r]
+  (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [markdown.core :as md]
             [markdown.transformers :as mdt]
             [space.common.core :as cmn]
             [space.site.cljs.views.common.user :as usr]
+            [space.site.cljs.views.common.tags :as tags]
             [space.site.cljs.events.post :as p]))
 
-(declare make-tag md-renderer escape-html)
+(declare md-renderer escape-html)
 
 (defn post
   "Display the page for a specific forum post"
@@ -17,7 +17,15 @@
     (let [post-id (cmn/str->num (:post-number path-params))]
       (p/dispatch-fetch-post post-id)
       (when-let [[p] @(rf/subscribe [:post])]
-        [:div.container
+        [:div.container.is-widescreen
+
+          ;; Breadcrumb
+          [:nav.breadcrumb
+            [:ul
+              [:li>a {:href "/"} "Space"]
+              [:li>a {:href "/"} "Page ?"]
+              [:li.is-active>a (:post-title p)]]]
+
           [:article.box
             [:div.columns
               
@@ -33,7 +41,7 @@
                         [:img {:src user-img-src}]]]])
 
                 ;; Link to user
-                [:p (usr/create-user-link p true)]
+                [:p (usr/create-user-link p {:seperate-names true})]
 
                 ;; Post date
                 [:p.is-size-7 (:post-date p)]]
@@ -52,7 +60,7 @@
 
                 ;; Post tags
                 [:div.tags
-                  (map make-tag (:tag-ids p))]
+                  (map tags/make-tag (:tag-ids p))]
 
                 ;import { Remarkable } from 'remarkable';
                 ;var md = new Remarkable();
@@ -63,28 +71,6 @@
                 [md-renderer (:post-content p)]
 
                 ]]]]))))
-
-;; @TODO: Make this customisable
-;; @TODO: Merge with views/forum.cljs
-(defn- make-tag
-  "Make a tag from a tag's ID"
-  [id]
-  (let [label (case id 
-                  0 "Clojure"
-                  1 "Reagent"
-                  2 "Re-frame"
-                  nil)
-        colour (case id
-                  0 "is-info"
-                  1 "is-success"
-                  2 "is-danger"
-                  nil)]
-    (when (and label colour) 
-      [:a.tag.is-info 
-          { :key (str "tag-" id)
-            :class colour
-            :href (str "/tag/" label)}
-        label])))
 
 (defn- md-renderer 
   "Creates a text editor with Simple MDE integration"

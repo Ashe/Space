@@ -17,7 +17,7 @@
   (fn [_ [_ response]]
     (let [postid (:new-post-id response)]
       (if (pos? postid)
-        (let [link (str "/post/" postid)]
+        (let [link (str "/posts/" postid)]
           (println "Submitted post: " postid)
           { :nav-to link
             :dispatch

@@ -7,29 +7,31 @@
             [space.site.cljs.views.footer :as footer]
             [space.site.cljs.views.forum :as forum]
             [space.site.cljs.views.post :as post]
+            [space.site.cljs.views.user :as user]
             [space.site.cljs.views.create.core :as create]))
 
 ;; Forward declarations
 ;;@TODO: Place these functions in their own element files
-(declare not-found create-new tags tag members user info admin get-page-content)
+(declare not-found create-new tags tag users info admin get-page-content)
 
 ;; Determine what URLs match to what view
 (def routes 
-  ["/" {"" :forum
-        "forum/"      {"" :forum
-            ["page-"  :page-number] :forum}
-        "post/"       {[:post-number] :post}
-        "new/"        {"" :new
-                      [:post-type] :new}
-        "tags/"       {"" :tags
-            ["page-"  :page-number] :tags}
-        "tag/"        {[:tag-id] :tag}
-        "members/"    {"" :members
-            ["page-"  :page-number] :members}
-        "user/"       {[:user-id] :user}
-        "sign-in/"    :sign-in
-        "info/"       {"" :info}
-        "admin/"      :admin}])
+  ["/" 
+      {""                 :posts
+      "posts/"            {"" :posts
+          ["page-"        :page-number] :posts
+          [:post-number]  :post}
+      "new/"              {"" :new
+                          [:post-type] :new}
+      "tags/"             {"" :tags
+          ["page-"        :page-number] :tags
+          [:tag-id]       :tag}
+      "users/"            {"" :users
+          ["page-"        :page-number] :users
+          [:user-id]      :user}
+      "sign-in/"          :sign-in
+      "info/"             {"" :info}
+      "admin/"            :admin}])
 
 ;; Import routing events
 (rfr/register-events {:routes routes})
@@ -53,13 +55,13 @@
 
 ;; Choose which component function to use depending on route
 (defmulti get-page-content identity)
-(defmethod get-page-content :forum [] forum/forum)
+(defmethod get-page-content :posts [] forum/forum)
 (defmethod get-page-content :post [] post/post)
 (defmethod get-page-content :new [] create/create-new)
 (defmethod get-page-content :tags [] tags)
 (defmethod get-page-content :tag [] tag)
-(defmethod get-page-content :members [] members)
-(defmethod get-page-content :user [] user)
+(defmethod get-page-content :users [] users)
+(defmethod get-page-content :user [] user/user)
 (defmethod get-page-content :sign-in [] sign-in/sign-in)
 (defmethod get-page-content :info [] info)
 (defmethod get-page-content :admin [] admin)
@@ -90,16 +92,10 @@
   [:div (str "Tag: " (:tag-id path-params))])
 
 ;; @TODO: Expand on this
-(defn- members
-  "Show members who belong to this forum"
+(defn- users
+  "Show users who belong to this forum"
   [{:keys [route-key path-params query-params]}]
-  [:div "Members"])
-
-;; @TODO: Expand on this
-(defn- user
-  "Show a specific user's page"
-  [{:keys [route-key path-params query-params]}]
-  [:div (str "User: " (:user-id path-params))])
+  [:div "Users"])
 
 ;; @TODO: Expand on this
 (defn- info
