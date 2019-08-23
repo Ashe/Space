@@ -154,7 +154,8 @@
               { :username (:users/username usr-query)
                 :usernick (:users/usernick usr-query)
                 :user-bio (:users/userbio usr-query)
-                :user-image (:users/userimage usr-query)}
+                :user-image (:users/userimage usr-query)
+                :is-admin (:users/isadmin usr-query)}
               :posts
                 (filter #(not (nil? (:user-id %)))
                   (map (partial 

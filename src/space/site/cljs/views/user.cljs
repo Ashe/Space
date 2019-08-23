@@ -48,6 +48,7 @@
           [:div.message-body
             [:div.columns.is-vcentered
               [:div.column
+                (println user)
                 [usr/show-user-name 
                     user
                     :h1.title
