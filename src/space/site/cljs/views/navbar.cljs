@@ -72,7 +72,7 @@
         usernick (:usernick user)]
     [:a.button.is-primary.is-inverted
         {:href (if username 
-            (str "/user/" username) 
+            (str "/users/" username) 
             "/sign-in/")}
       [:span.icon
         [:i.fas.fa-user-astronaut]]

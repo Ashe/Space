@@ -21,7 +21,6 @@
 (defn- show-user
   "Show information on a user"
   [user]
-  (println user)
   [:div.container.is-widescreen 
 
     ;; Breadcrumb

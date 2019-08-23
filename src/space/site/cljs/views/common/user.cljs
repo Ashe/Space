@@ -29,6 +29,9 @@
                 "fa-user-secret")})
         [show-icon "fa-user-secret"]
         [:strong "Anonymous"]
+        (when (and (not same?) (:username u))
+          [(if (:seperate-names f) :p :span)
+              (str " (@"(:username u) ") ")])
         you-tag]
 
     ;; Show user if provided
