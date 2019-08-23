@@ -2,6 +2,7 @@
   (:require [re-frame.core :as rf]
             [space.site.cljs.views.common.tags :as tags]
             [space.site.cljs.views.common.posts :as post]
+            [space.site.cljs.views.common.user :as usr]
             [space.site.cljs.events.post :as p]))
 
 (defn user
@@ -36,8 +37,12 @@
           [:div.message-body
             [:div.columns.is-vcentered
               [:div.column
-                [:h1.title "Usernick"]
-                [:h2.subtitle "@username"]]
+                [usr/show-user-name 
+                    { :username "space" 
+                      :usernick "Space Team"
+                      :is-admin true}
+                    :h1.title
+                    :h2.subtitle]]
               [:div.column
                 [:div.tags
                   (map tags/make-tag (range 3))]]]
@@ -46,7 +51,7 @@
     ;; Bio
     [:div.level
       [:div.level-item
-        [:h3.title.is-5 "About me"]]]
+        [:h3.title.is-5 "About"]]]
     [:article.message.is-info
       [:div.message-body
         [:p (repeat 20 "Lorum ipsim ")]]]

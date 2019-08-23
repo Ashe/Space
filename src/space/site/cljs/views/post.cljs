@@ -41,7 +41,7 @@
                         [:img {:src user-img-src}]]]])
 
                 ;; Link to user
-                [:p (usr/create-user-link p {:seperate-names true})]
+                [:div (usr/create-user-link p {:seperate-names true})]
 
                 ;; Post date
                 [:p.is-size-7 (:post-date p)]]
