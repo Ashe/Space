@@ -16,13 +16,15 @@
     ;; Show anonymous if it's an anonymous post
     (:is-anonymous p)
       [:a 
+        (if-let [username (:username p)]
+          {:href (str "/users/" username)}
           {:on-click 
             (n/dispatch-notification
                 "Cannot open profile"
                 "This user has chosen to remain anonymous for this post 
                     but will still earn points."
                 "is-info"
-                "fa-user-secret")}
+                "fa-user-secret")})
         [:span.icon
           [:i.fas.fa-user-secret]]
         [:strong "Anonymous"]
