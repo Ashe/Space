@@ -1,7 +1,6 @@
 (ns space.site.cljs.views.common.tags)
 
 ;; @TODO: Make this customisable
-;; @TODO: Merge with views/post.cljs
 (defn make-tag
   "Make a tag from a tag's ID"
   [id]

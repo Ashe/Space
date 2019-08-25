@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]))
 
 ;; Forward declare
-(declare valid-url? md-editor)
+(declare valid-url? md-editor tag-input check-for-tags)
 
 (defn make-text-input
   "Makes a text input with a given atom, tag and set of messages"
@@ -51,6 +51,24 @@
               (str " (" (- max-length length) " characters to go)")
             (and has-maximum? too-many?) 
               (str " (" (- length max-length) " characters too many)"))])]))
+
+
+(defn- make-tag-input 
+  "Creates a text editor with Simple MDE integration"
+  [label allowed-tags placeholder icon help]
+  (let [text-atom (r/atom "")]
+    [:div.field
+      [:label.label label]
+      [check-for-tags text-atom allowed-tags]
+      [:div.control.has-icons-right
+        [:input.input
+          { :type "text"
+            :placeholder placeholder
+            :on-change 
+              #(reset! text-atom (.-value (.-target %)))}]
+        [:span.icon.is-small.is-right
+          [:i.fas {:class icon}]]]
+      [:p.help help]]))
 
 (defn make-md-input
   "Makes a text input that supports markdown"
@@ -107,6 +125,22 @@
               :style {:margin-right "8px"}}]
         label]]])
 
+(defn- check-for-tags
+  "Given a string, check for any supplied tags"
+  [text-atom allowed-tags]
+  (println @text-atom)
+  (let [make-tag 
+          (fn [label lvl col]
+            [:div.control
+              [:div.tags.has-addons
+                [:div.tag {:class col} label]
+                [:div.tag.is-dark (str lvl)]
+                [:div.tag.is-delete]]])]
+    [:div#tag-display.field.is-grouped.is-grouped-multiline
+        {:style {:float "left"}}
+      [make-tag "Clojure" 0 "is-primary"]
+      [make-tag "Reagent" 32 "is-warning"]
+      [make-tag "Re-frame" 99 "is-danger"]]))
 
 (defn- md-editor 
   "Creates a text editor with Simple MDE integration"

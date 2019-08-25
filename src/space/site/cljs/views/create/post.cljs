@@ -87,27 +87,33 @@
   [:div
 
     ;; Title
-    (f/make-text-input title 
+    [f/make-text-input title 
         :input.input "text"
         "Title*" "What is your post about?" "fa-pencil"
         "Thanks!" "Please enter a descriptive title" 
-        title-min title-max)
+        title-min title-max]
+
+    ;; Tags
+    [f/make-tag-input "Tags*" []
+        "Help other users find your post using tags" "fa-tags"
+        '("Select " [:a {:href "/tags/"} "tags"] " that your post
+          belongs to and earn points")]
 
     ;; Summary
-    (f/make-text-input summary 
+    [f/make-text-input summary 
         :textarea.textarea "text"
         "Summary" "What makes your post interesting?" "fa-pencil"
         "Thanks!" "Please describe why someone should visit your post"
-        0 summary-max)
+        0 summary-max]
 
     ;; Post image
     [:div.columns.is-vcentered
       [:div.column
-        (f/make-url-input post-image 
+        [f/make-url-input post-image 
             :input.input
             "Post Image" "URL to your picture"
             "Optional - your profile picture will be used otherwise" 
-            "Thanks!" "Please enter a valid URL")]
+            "Thanks!" "Please enter a valid URL"]]
 
     ;; Post's picture
     (when (and (pos? (count @post-image)) (f/valid-url? @post-image))
@@ -119,7 +125,6 @@
                 :max-height "128px"}}
           [:img {:src @post-image}]]]])]
 
-    ;; Tags
     ;; @TODO: Implement the ability to grab tags
     [:div.field.is-hidden
       [:label.label "Tags"]
