@@ -24,7 +24,7 @@
 (defn- show-post-types
   "Show all enabled post types"
   []
-  [:div
+  [:div.container.is-widescreen
    
     ;; Breadcrumb
     [:nav.breadcrumb
