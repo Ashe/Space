@@ -1,8 +1,9 @@
 (ns space.site.cljs.views.common.forms
-  (:require [reagent.core :as r]))
+  (:require [clojure.string :as str]
+            [reagent.core :as r]))
 
 ;; Forward declare
-(declare valid-url? md-editor tag-input check-for-tags)
+(declare valid-url? md-editor tag-input check-for-tags make-tag)
 
 (defn make-text-input
   "Makes a text input with a given atom, tag and set of messages"
@@ -55,20 +56,27 @@
 
 (defn- make-tag-input 
   "Creates a text editor with Simple MDE integration"
-  [label allowed-tags placeholder icon help]
-  (let [text-atom (r/atom "")]
-    [:div.field
-      [:label.label label]
-      [check-for-tags text-atom allowed-tags]
-      [:div.control.has-icons-right
-        [:input.input
-          { :type "text"
-            :placeholder placeholder
-            :on-change 
-              #(reset! text-atom (.-value (.-target %)))}]
-        [:span.icon.is-small.is-right
-          [:i.fas {:class icon}]]]
-      [:p.help help]]))
+  [tags-atom label allowed-tags placeholder icon help]
+  [:div.field
+    [:label.label label]
+    [:div#tag-display.field.is-grouped.is-grouped-multiline
+        {:style {:float "left"}}
+      (map #(make-tag tags-atom % 0 (first (shuffle 
+          [ "is-primary" "is-link" "is-info" 
+            "is-warning" "is-danger"])))
+        (vec @tags-atom))]
+    [:div.control.has-icons-right
+      [:input.input
+        { :type "text"
+          :placeholder placeholder
+          :on-change 
+            #(check-for-tags 
+                tags-atom
+                %
+                allowed-tags)}]
+      [:span.icon.is-small.is-right
+        [:i.fas {:class icon}]]]
+    [:p.help help]])
 
 (defn make-md-input
   "Makes a text input that supports markdown"
@@ -125,22 +133,27 @@
               :style {:margin-right "8px"}}]
         label]]])
 
+(defn- format-tag
+  "Takes a tag and formats it properly"
+  [tag]
+  (-> tag
+    (str/trim)
+    (str/lower-case)))
+
 (defn- check-for-tags
   "Given a string, check for any supplied tags"
-  [text-atom allowed-tags]
-  (println @text-atom)
-  (let [make-tag 
-          (fn [label lvl col]
-            [:div.control
-              [:div.tags.has-addons
-                [:div.tag {:class col} label]
-                [:div.tag.is-dark (str lvl)]
-                [:div.tag.is-delete]]])]
-    [:div#tag-display.field.is-grouped.is-grouped-multiline
-        {:style {:float "left"}}
-      [make-tag "Clojure" 0 "is-primary"]
-      [make-tag "Reagent" 32 "is-warning"]
-      [make-tag "Re-frame" 99 "is-danger"]]))
+  [tags-atom text-el allowed-tags]
+  (let [text (.-value (.-target text-el))
+        entered-tags (str/split text #"(,|\s)+")
+        filtered-tags (set (map format-tag entered-tags))
+        check-fn #(some (partial = (format-tag %)) allowed-tags)
+        valid-tags (filter check-fn filtered-tags)]
+    (swap! tags-atom #(distinct (concat % valid-tags)))
+    (aset (.-target text-el) "value" 
+        (as-> entered-tags $
+          (remove #(some (partial = %) @tags-atom) $)
+          (reduce str $)))
+    ))
 
 (defn- md-editor 
   "Creates a text editor with Simple MDE integration"
@@ -155,6 +168,21 @@
       :reagent-render
         (fn []
           [:textarea.textarea attrs])}))
+
+;; @TODO: Merge with views/common/tags.cljs
+(defn- make-tag 
+  "Makes a tag with a level"
+  [tags-atom label lvl col]
+  ;(println @tags-atom)
+  [:div.control
+    [:div.tags.has-addons
+      [:div.tag {:class col} 
+        (str/capitalize label)]
+      [:div.tag.is-dark (str lvl)]
+      [:a.tag.is-delete 
+        { :class col
+          :on-click (fn [] (swap! tags-atom
+              #(remove (partial = label) %)))}]]])
 
 (defn- valid-url?
   "Checks to see if a URL is valid or not"

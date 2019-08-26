@@ -14,6 +14,7 @@
 
 ;; Atoms for form validation
 (def title (r/atom ""))
+(def tags (r/atom []))
 (def summary (r/atom ""))
 (def content (r/atom ""))
 (def post-image (r/atom ""))
@@ -32,6 +33,7 @@
 
   ;; Clear values
   (reset! title "")
+  (reset! tags [])
   (reset! summary "")
   (reset! content "")
   (reset! post-image "")
@@ -94,7 +96,8 @@
         title-min title-max]
 
     ;; Tags
-    [f/make-tag-input "Tags*" []
+    [f/make-tag-input tags
+        "Tags*" ["clojure" "re-frame"]
         "Help other users find your post using tags" "fa-tags"
         '("Select " [:a {:href "/tags/"} "tags"] " that your post
           belongs to and earn points")]
