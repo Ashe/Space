@@ -1,4 +1,4 @@
-(ns space.site.cljs.views.create.post
+(ns space.site.cljs.views.create.discussion
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [space.site.cljs.views.common.forms :as f]
@@ -27,8 +27,8 @@
     (<= (count @title) title-max)
     (<= (count @summary) summary-max)))
 
-(defn create-post
-  "Shows an overview of post expectations and the form"
+(defn create-discussion
+  "Shows an overview of discussion expectations and the form"
   []
 
   ;; Clear values
@@ -42,6 +42,14 @@
 
   ;; Return the page
   [:div.container
+
+    ;; Breadcrumb
+    [:nav.breadcrumb
+      [:ul
+        [:li>a {:href "/"} "Space"]
+        [:li>a {:href "/new/"} "Create"]
+        [:li.is-active>a "Discussion"]]]
+
     [:div.columns
       [:article.column.is-hidden-tablet
         [info-panel]]
@@ -51,37 +59,49 @@
         [info-panel]]]])
 
 (defn- info-panel
-  "Information about posts"
+  "Information about discussions"
   []
-  [:div.box
+  [:div.container.is-fluid
     [:div.columns.is-vcentered.is-centered
       [:div.column.is-narrow
         [:div.level-item
             {:style {:padding "5px"}}
           [:span.icon.is-large
-            [:i.fa-3x.fas.fa-pencil]]]]
+            [:i.fa-3x.fas.fa-comments-alt]]]]
       [:div.column
-        [:h1.title.is-hidden-tablet.has-text-centered "Make a new post"]
-        [:h1.title.is-hidden-mobile "Make a new post"]]]
-    [:h2.subtitle 
-      "Post something for others to read 
-      and earn points positive or interesting posts.
-      Use this opportunity to demonstrate passion,
-      skill or knowledge to gain points in your chosen
-      tags while exchanging ideas."]
-    [:div
-      [:div.content.has-text-success
-        [:h3.is-size-5.has-text-weight-bold.has-text-success "Do:"]
-        [:ol
-          [:li "Include insightful or positive ideas in your post"]
-          [:li "Ensure that you have done research where you can"]
-          [:li "Be clear and take care with grammar and spelling"]]]
-      [:div.content.has-text-danger
-        [:h3.is-size-5.has-text-weight-bold.has-text-danger "Don't:"]
-        [:ol
-          [:li "Post anything illegal or against forum rules"]
-          [:li "Single out or rant at other users (ignore or report them)"]
-          [:li "Knowingly lie or mislead other users unless it's clearly in jest"]]]]])
+        [:h1.title.is-hidden-tablet.has-text-centered "Start Discussion"]
+        [:h1.title.is-hidden-mobile "Start Discussion"]]]
+    [:h2.subtitle
+      "Post something for people to discuss 
+      where anyone can earn points towards your chosen
+      tags for positive or interesting contributions."]
+    [:div.message.is-info
+      [:div.message-header
+        [:p "Points:"]]
+      [:div.message-body
+        [:li "You earn from users visiting the post"]
+        [:li "Anyone earns from praises by other users"]
+        [:li "If the space features your post, points
+             awarded from this post will be multiplied"]
+        [:li "You can feature someone else's contribution
+             and reward them with points based on the posts'
+             accumilated total"]]]
+    [:div.message.is-success
+      [:div.message-header
+        [:p "Do:"]]
+      [:div.message-body
+        [:li "Discuss insightful, or positive ideas"]
+        [:li "Criticise and debate constructively"]
+        [:li "Ensure you have done your research"]
+        [:li "Check clarity, grammar and spelling"]]]
+    [:div.message.is-danger
+      [:div.message-header
+        [:p "Don't:"]]
+      [:div.message-body
+        [:li "Beg for praises or features"]
+        [:li "Share illegal or rule-breaking content"]
+        [:li "Attack others (ignore or report them)"]
+        [:li "Knowingly lie or mislead other users"]]]])
 
 (defn form
   "Form for creating a new post"
@@ -91,7 +111,7 @@
     ;; Title
     [f/make-text-input title 
         :input.input "text"
-        "Title*" "What is your post about?" "fa-pencil"
+        "Title*" "What is this discussion about?" "fa-pencil"
         "Thanks!" "Please enter a descriptive title" 
         title-min title-max]
 
@@ -105,7 +125,7 @@
     ;; Summary
     [f/make-text-input summary 
         :textarea.textarea "text"
-        "Summary" "What makes your post interesting?" "fa-pencil"
+        "Summary" "What makes this discussion interesting?" "fa-pencil"
         "Thanks!" "Please describe why someone should visit your post"
         0 summary-max]
 
@@ -114,7 +134,7 @@
       [:div.column
         [f/make-url-input post-image 
             :input.input
-            "Post Image" "URL to your picture"
+            "Image" "URL to your picture"
             "Optional - your profile picture will be used otherwise" 
             "Thanks!" "Please enter a valid URL"]]
 
@@ -128,21 +148,9 @@
                 :max-height "128px"}}
           [:img {:src @post-image}]]]])]
 
-    ;; @TODO: Implement the ability to grab tags
-    [:div.field.is-hidden
-      [:label.label "Tags"]
-      [:div.control.has-icons-right
-        [:textarea.textarea.is-danger
-            {:type "text"
-             :placeholder "List related tags here"}]
-        [:span.icon.is-small.is-right
-          [:i.fas.fa-exclamation-triangle]]]
-      [:p.help.is-danger
-        "Please provide at least one tag to give context to your post"]]
-
     ;; Content
     [f/make-md-input content
-        "Post Content" "fa-pencil" 
+        "Content" "fa-pencil" 
         "Write your post here"]
 
     ;; Ask the user if they want their post to remain anonymous

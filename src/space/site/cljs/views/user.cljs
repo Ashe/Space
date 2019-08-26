@@ -61,13 +61,12 @@
     ;; Bio
     (let [bio (:user-bio user)]
       (when (pos? (count bio))
-        [:div
-          [:div.level
+        `([:div.level
             [:div.level-item
               [:h3.title.is-5 "About"]]]
           [:article.message.is-info
             [:div.message-body
-              [:p bio]]]]))
+              [:p ~bio]]])))
 
     ;; Tags
     [:div.level

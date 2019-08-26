@@ -22,8 +22,8 @@
     [:div.has-text-centered
       (when (pos? (count stack))
         [:a.button.is-hidden-tablet.is-link
-            {:href "#notifications"
-             :style {:width "100%"}}
+            { :href "#notifications"
+              :style {:width "100%"}}
           "Scroll down to see new notifications"])]))
 
 (defn- tray
