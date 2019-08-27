@@ -69,7 +69,7 @@
   []
   (let [user @(rf/subscribe [:user])
         username (:username user)
-        usernick (:usernick user)]
+        usernick (:user-nick user)]
     [:a.button.is-primary.is-inverted
         {:href (if username 
             (str "/users/" username) 

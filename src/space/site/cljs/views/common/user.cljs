@@ -65,7 +65,7 @@
     [:span
       [nick-type
         [get-icon u]
-        (:usernick u)]
+        (:user-nick u)]
       [username-type (str " @" (:username u))
         you-tag]]))
 

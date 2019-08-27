@@ -37,9 +37,9 @@
       (swap! db-spec #(assoc % :port db-port))))
   (println "Checking database..")
   (println "- Number of posts: " (map :count
-      (sql/query @db-spec ["SELECT COUNT(*) FROM Posts"])))
+      (sql/query @db-spec ["SELECT COUNT(post_id) FROM posts"])))
   (println "- Number of users: " (map :count
-      (sql/query @db-spec ["SELECT COUNT(*) FROM Users"]))))
+      (sql/query @db-spec ["SELECT COUNT(user_id) FROM users"]))))
 
 ;; How many posts from the database to send per page
 (def posts-per-page 10)
@@ -47,7 +47,7 @@
 (defn get-forum-page-count
   "Get how many pages there are in the database"
   [_]
-  (if-let [[q] (sql/query @db-spec ["SELECT COUNT(*) FROM Posts"])]
+  (if-let [[q] (sql/query @db-spec ["SELECT COUNT(post_id) FROM posts"])]
     (r/ok {:pages (math/ceil (/ (:count q) posts-per-page))})
     (r/bad-request {:message "API Error: (get-forum-page-count)"})))
 
@@ -58,8 +58,8 @@
         id (check-privilages (:identity request))]
     (if-let [query
         (sql/query @db-spec
-          [ "SELECT * FROM Posts 
-            LEFT OUTER JOIN Users ON Posts.PosterID=Users.UserID
+          [ "SELECT * FROM posts 
+            LEFT OUTER JOIN users ON posts.poster_id=users.user_id
             LIMIT ? OFFSET ?"
             posts-per-page
             (max 0 (* page posts-per-page))])]
@@ -73,9 +73,9 @@
         id (check-privilages (:identity request))]
     (if (pos? post-id)
       (let [[query] (sql/query @db-spec
-            [ "SELECT * FROM Posts
-              LEFT OUTER JOIN Users On Posts.PosterID=Users.UserID
-              WHERE Posts.PostID=?
+            [ "SELECT * FROM posts
+              LEFT OUTER JOIN users On posts.poster_id=users.user_id
+              WHERE posts.post_id=?
               LIMIT 1"
               post-id])]
         (if query
@@ -94,17 +94,17 @@
         id (:identity request)]
     (if body
       (if-let [result
-          (sql/insert! @db-spec :Posts
-              { :PostTitle (:post-title body)
-                :PosterID (:usr id)
-                :PostSummary (:post-summary body)
-                :PostContent (:post-content body)
-                :PostImage 
+          (sql/insert! @db-spec :posts
+              { :post_title (:post-title body)
+                :poster_id (:usr id)
+                :post_summary (:post-summary body)
+                :post_content (:post-content body)
+                :post_image 
                     (if (valid-url? (:post-image body)) 
                         (:post-image body) 
                         nil)
-                :IsAnonymous (when auth? (:is-anonymous body))})]
-        (let [postid (:posts/postid result)] 
+                :is_anonymous (when auth? (:is-anonymous body))})]
+        (let [postid (:posts/post_id result)] 
           (println "Submitted new post: " postid)
           (r/ok {:new-post-id postid}))
         (r/bad-request {:message "API Error: (submit-forum-post)"}))
@@ -118,19 +118,19 @@
         username (:username body)
         password (:password body)
         [query] (sql/query @db-spec
-            [ "SELECT * FROM Users
-              WHERE Username=? AND Password=?
+            [ "SELECT * FROM users
+              WHERE username=? AND password=?
               LIMIT 1"
               username password])
-        id (:users/userid query)
+        id (:users/user_id query)
         vname (:users/username query)
-        vnick (:users/usernick query)]
+        vnick (:users/user_nick query)]
       (if (and id vname vnick)
         (r/ok { :user
                 { :token (s/make-token id)
-                  :userid id
+                  :user-id id
                   :username vname
-                  :usernick vnick}})
+                  :user-nick vnick}})
         (r/bad-request {:message "Unrecognised credentials."}))))
 
 (defn get-user-data
@@ -139,23 +139,23 @@
   (let [id (check-privilages (:identity request))
         username (get-in request [:params :username])
         [usr-query] (sql/query @db-spec
-            [ "SELECT * FROM Users
-              WHERE Username=?
+            [ "SELECT * FROM users
+              WHERE username=?
               LIMIT 1"
               username])
         posts-query (sql/query @db-spec
-            [ "SELECT * FROM Posts
-              INNER JOIN Users On Posts.PosterID=Users.UserID
-              WHERE Users.Username=?
+            [ "SELECT * FROM posts
+              INNER JOIN users On posts.poster_id=users.user_id
+              WHERE users.username=?
               LIMIT 5"
               username])]
     (if (and usr-query posts-query)
       (r/ok { :viewed-user
               { :username (:users/username usr-query)
-                :usernick (:users/usernick usr-query)
-                :user-bio (:users/userbio usr-query)
-                :user-image (:users/userimage usr-query)
-                :is-admin (:users/isadmin usr-query)}
+                :user-nick (:users/user_nick usr-query)
+                :user-bio (:users/user_bio usr-query)
+                :user-image (:users/user_image usr-query)
+                :is-admin (:users/is_admin usr-query)}
               :posts
                 (filter #(not (nil? (:user-id %)))
                   (map (partial 
@@ -167,12 +167,12 @@
   "Checks if the userID is an admin"
   [id]
   (let [[query] (sql/query @db-spec
-      [ "SELECT IsAdmin From Users
-        WHERE UserID=?
+      [ "SELECT is_admin From users
+        WHERE user_id=?
         LIMIT 1"
         (:usr id)])]
     (assoc id :is-admin 
-      (true? (:users/isadmin query)))))
+      (true? (:users/is_admin query)))))
 
 (defn- prepare-forum-post
   "Passes only important information t the client"
@@ -182,13 +182,13 @@
     ;; Share post details by default
     ;; - Anonymous posts are anonymous regardless 
     ;;   of if you're signed in
-    { :post-number (:posts/postid p)
-      :post-title (:posts/posttitle p)
-      :post-date (:posts/postdate p)
-      :post-summary (:posts/postsummary p)
-      :post-content (when show-content? (:posts/postcontent p))
-      :post-image (:posts/postimage p)
-      :is-anonymous (:posts/isanonymous p)
+    { :post-number (:posts/post_id p)
+      :post-title (:posts/post_title p)
+      :post-date (:posts/post_date p)
+      :post-summary (:posts/post_summary p)
+      :post-content (when show-content? (:posts/post_content p))
+      :post-image (:posts/post_image p)
+      :is-anonymous (:posts/is_anonymous p)
       :tag-ids [0 1 2 3]}
 
     ;; Reveal user information IF
@@ -197,14 +197,14 @@
     ;; - post IS anonymous but owned by current user
     (or 
         (:is-admin id)
-        (not (:posts/isanonymous p)) 
-        (= (:users/userid p) (:usr id)))
+        (not (:posts/is_anonymous p)) 
+        (= (:users/user_id p) (:usr id)))
       (assoc 
-        :user-id (:users/userid p)
+        :user-id (:users/user_id p)
         :username (:users/username p)
-        :usernick (:users/usernick p)
-        :user-image (:users/userimage p)
-        :is-admin (:users/isadmin p))))
+        :user-nick (:users/user_nick p)
+        :user-image (:users/user_image p)
+        :is-admin (:users/is_admin p))))
 
 ;; @TODO: This should probably go somewhere else?
 (import 'org.apache.commons.validator.UrlValidator)

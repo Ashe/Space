@@ -10,7 +10,7 @@
         :nav-to "/"
         :dispatch
         [ :new-notification
-          [ (str "Hello, " (:usernick user) "!")
+          [ (str "Hello, " (:user-nick user) "!")
             "Welcome to Space."
             "is-success"
             "fa-user-astronaut"]]}

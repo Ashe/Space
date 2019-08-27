@@ -28,7 +28,7 @@
       [:ul
         [:li>a {:href "/"} "Space"]
         [:li>a {:href "/users/"} "Users"]
-        [:li.is-active>a (:usernick user)]]]
+        [:li.is-active>a (:user-nick user)]]]
 
     [:div.columns.is-vcentered
 
@@ -48,7 +48,6 @@
           [:div.message-body
             [:div.columns.is-vcentered
               [:div.column
-                (println user)
                 [usr/show-user-name 
                     user
                     :h1.title
