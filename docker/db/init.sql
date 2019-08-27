@@ -1,8 +1,6 @@
-CREATE TABLE tags (
-  tag_id bigserial NOT NULL,
-  taglabel varchar(18)
-);
-
+-- Users of the forum
+-- @TODO: Encrypt password
+-- @TODO: Factor out admin privilages to create multiple layers of authority
 CREATE TABLE users (
   user_id BIGSERIAL NOT NULL,
   user_nick VARCHAR(18) NOT NULL,
@@ -16,6 +14,8 @@ CREATE TABLE users (
   PRIMARY KEY (user_id)
 );
 
+-- Forum content
+-- Discussions, questions etc are all examples of posts
 CREATE TABLE posts (
   post_id BIGSERIAL NOT NULL,
   poster_id BIGINT,
@@ -27,6 +27,35 @@ CREATE TABLE posts (
   is_anonymous BOOL,
   PRIMARY KEY (post_id),
   FOREIGN KEY (poster_id) REFERENCES users(user_id)
+);
+
+-- Tags add value to content when paired with points
+-- This value will be used to sort, rank and incentivise content
+-- @TODO: Store tag background and font colours
+CREATE TABLE tags (
+  tag_id bigserial NOT NULL,
+  tag_label varchar(18)
+);
+
+-- Posts have many tags and tags can belong to many posts
+-- These are base values and is up to the API to calculate the total
+-- The base point value comes from the poster's level at that point in time
+--   (this also needs to be calculated)
+CREATE TABLE post_tags (
+  post_id BIGINT NOT NULL,
+  tag_id BIGINT NOT NULL,
+  base_value INT UNSIGNED NOT NULL,
+  PRIMARY KEY (post_id, tag_id)
+);
+
+-- Users can praise contributions for points
+-- Users can only praise once per tag per contribution
+-- Praises are counted to give a user's point totals for future posts
+CREATE TABLE praises (
+  user_id BIGINT NOT NULL,
+  post_id BIGINT NOT NULL,
+  tag_id BIGINT NOT NULL,
+  PRIMARY KEY (user_id, post_id, tag_id)
 );
 
 -- Create an initial admin user
