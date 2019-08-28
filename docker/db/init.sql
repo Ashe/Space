@@ -38,7 +38,7 @@ CREATE TABLE tags (
 );
 
 -- Posts have many tags and tags can belong to many posts
--- These are base values and is up to the API to calculate the total
+-- These are base values and its up to the API to calculate the total
 -- The base point value comes from the poster's level at that point in time
 --   (this also needs to be calculated)
 CREATE TABLE post_tags (

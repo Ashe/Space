@@ -1,36 +1,36 @@
 (ns space.api.db.users.core
   (:require [next.jdbc.sql :as sql]
-            [space.api.response :as r]
-            [space.api.db.connection :as db]
-            [space.api.db.forum.post :as p]
-            [space.api.db.users.privilages :as up]))
+            [space.api.db.connection :as db]))
 
-(defn get-user-data
-  "Retrieve information about a given user from database"
-  [request]
-  (let [id (up/check-privilages (:identity request))
-        username (get-in request [:params :username])
-        [usr-query] (sql/query @db/spec
-            [ "SELECT * FROM users
-              WHERE username=?
+(defn username->id
+  "Get a user's ID from their username"
+  [username]
+  (let [[result] (sql/query @db/spec
+          [ "SELECT user_id FROM users
+            WHERE username=?
+            LIMIT 1"
+            username])]
+    (if result
+      (:users/user_id result)
+      (println "Error (username->id): Could
+               not find user with name: " username))))
+
+(defn get-user
+  "Retrieves all non-sensitive user data for a given ID"
+  [id]
+  (let [[result] (sql/query @db/spec
+            [ "SELECT 
+                username, user_nick, user_bio, 
+                user_image, is_admin
+              FROM users
+              WHERE user_id=?
               LIMIT 1"
-              username])
-        posts-query (sql/query @db/spec
-            [ "SELECT * FROM posts
-              INNER JOIN users On posts.poster_id=users.user_id
-              WHERE users.username=?
-              LIMIT 5"
-              username])]
-    (if (and usr-query posts-query)
-      (r/ok { :viewed-user
-              { :username (:users/username usr-query)
-                :user-nick (:users/user_nick usr-query)
-                :user-bio (:users/user_bio usr-query)
-                :user-image (:users/user_image usr-query)
-                :is-admin (:users/is_admin usr-query)}
-              :posts
-                (filter #(not (nil? (:user-id %)))
-                  (map (partial 
-                       p/prepare-forum-post id false) 
-                    posts-query))})
-      (r/bad-request {:message "Couldn't find user"}))))
+              id])]
+    (if result
+      { :username (:users/username result)
+        :user-nick (:users/user_nick result)
+        :user-bio (:users/user_bio result)
+        :user-image (:users/user_image result)
+        :is-admin (:users/is_admin result)}
+      (println "Error (get-user): Could
+               not find user with id: " id))))

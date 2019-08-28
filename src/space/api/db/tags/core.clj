@@ -1,5 +1,6 @@
 (ns space.api.db.tags.core
-  (:require [next.jdbc.sql :as sql]
+  (:require [clojure.string :as str]
+            [next.jdbc.sql :as sql]
             [space.api.db.connection :as db]))
 
 (defn retrieve-tags
@@ -10,5 +11,5 @@
         collect 
           (fn [m l]
             (assoc m (:tags/tag_id l) 
-                {:label (:tags/tag_label l)}))]
+                {:label (str/lower-case (:tags/tag_label l))}))]
     (reduce collect {} result)))

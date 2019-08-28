@@ -9,8 +9,8 @@
             [space.api.response :as r]
             [space.api.security.core :as s]
             [space.api.db.core :as db]
+            [space.api.users.core :as users]
             [space.api.db.forum.core :as forum]
-            [space.api.db.users.core :as users]
             [space.api.db.users.sign-in :as sign-in]))
 
 ;; Forward declarations

@@ -13,7 +13,6 @@
                   1 "is-success"
                   2 "is-danger"
                   nil)]
-    (println tag)
     (when tag
       [:div.control 
           {:key (str "tag-" id)}

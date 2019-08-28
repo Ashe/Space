@@ -78,3 +78,35 @@
         (r/bad-request {:message "API Error: (submit-forum-post)"}))
       (r/bad-request {:message "API User Error: (submit-forum-post) - 
                                no body provided."}))))
+
+(defn get-posts-from-user
+  "Retrieve posts by a user given a user_id"
+  [id user-id & [amount]]
+  (let [result (sql/query @db/spec
+          [ "SELECT
+              post_id,
+              post_title,
+              post_date,
+              post_summary,
+              post_content,
+              post_image,
+              is_anonymous,
+              user_id,
+              username,
+              user_nick,
+              user_image,
+              is_admin
+            FROM posts
+            INNER JOIN users On 
+              posts.poster_id=users.user_id
+            WHERE users.user_id=?
+            LIMIT ?"
+           user-id
+           (or amount 50)])]
+    (if result
+      (map 
+          (partial p/prepare-forum-post id false)
+          result)
+      (println "Error (get-posts-from-user): Could
+               not find posts by user: " user-id))))
+
