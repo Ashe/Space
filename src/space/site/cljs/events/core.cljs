@@ -14,7 +14,8 @@
 (rf/reg-event-fx
   :initialize
   (fn [{:keys [db]} _]
-    {:db {:connection-status true
+    {:db {:space-info nil
+          :connection-status true
           :user nil
           :viewed-user nil
           :notifications []
@@ -40,11 +41,13 @@
     { :dispatch [:attempt-ping false]
       :http-xhrio (make-http-post-request uri (clj->js data) success fail)}))
 
-;; Good http calls set server status to true
+;; On ping/reconnect, synchronise data to server
 (rf/reg-event-fx
-  :good-http-result
+  :receive-server-info
   (fn [cofx [_ result]]
-    { :db (assoc (:db cofx) :success-http-result result)
+    { :db (assoc (:db cofx) 
+          :success-http-result result
+          :space-info (:space-info result))
       :dispatch [:set-connection-status true]}))
 
 ;; Bad http calls set server status to false
@@ -84,7 +87,7 @@
         (println "Attempting to connect to server..")
         { :http-xhrio 
             (make-http-get-request "" 
-                :good-http-result 
+                :receive-server-info 
                 :bad-http-result)}))))
 
 (defn dispatch-ping-event []
@@ -122,6 +125,12 @@
       :on-failure       [on-fail]}))
 
 ;; Common Events / Subscriptions -----------------------------------
+
+;; Access server info
+(rf/reg-sub
+  :space-info
+  (fn [db _]
+    (:space-info db)))
 
 ;; Query the user's info (including their token)
 (rf/reg-sub

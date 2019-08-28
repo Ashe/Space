@@ -1,18 +1,9 @@
 (ns space.api.db.core
   (:require [clojure.data.json :as json]
-            [clojure.math.numeric-tower :as math]
             [next.jdbc.sql :as sql]
-            [buddy.auth :as auth]
-            [space.common.core :as cmn]
             [space.api.response :as r]
-            [space.api.security.core :as s]
             [space.api.db.connection :as db]
-            [space.api.db.forum.post :as p]
-            [space.api.db.users.privilages :as up]
-            [space.api.db.forum.core :as forum]))
-
-;; Forward declarations
-(declare valid-url?)
+            [space.api.db.tags.core :as tags]))
 
 ;; Clojure.java.json JSON cannot translate java.sql.Timestamp
 (extend-type java.sql.Timestamp
@@ -32,3 +23,10 @@
   (println "- Number of users: " (map :count
       (sql/query @db/spec ["SELECT COUNT(user_id) FROM users"]))))
 
+;; @TODO: Send tags from database
+(defn send-space-info
+  "Sends information about this Space"
+  [_]
+  (r/ok { :space-info
+    { :name "Space"
+      :tags (tags/retrieve-tags)}}))

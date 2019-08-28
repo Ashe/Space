@@ -53,7 +53,8 @@
                     :h1.title
                     :h2.subtitle]]
               [:div.column
-                [:div.tags
+                [:div.field.is-grouped.is-grouped-multiline
+                  ;; @TODO: Get user tags here
                   (map tags/make-tag (range 3))]]]
             [:p "Social media links?"]]]]]
       
@@ -73,8 +74,9 @@
         [:h3.title.is-5 "Tags"]]]
     [:article.message.is-warning
       [:div.message-body
-        [:div.tags
+        [:div.field.is-grouped.is-grouped-multiline
           (map tags/make-tag 
+            ;; @TODO: Get user tags here
             (shuffle (range 3)))]]]
 
     ;; Posts

@@ -30,7 +30,7 @@
 
 ;; Describes how to respond to different URLs with Compojure
 (c/defroutes router
-  (c/GET  "/" [] (r/ok {:message "This is the Space API server."}))
+  (c/GET  "/" [] db/send-space-info)
   (c/GET  "/forum/get-page-count" [] forum/get-forum-page-count)
   (c/GET  "/forum/page-:page{[0-9]+}" [page] forum/get-forum-page)
   (c/POST "/forum/submit" [] forum/submit-forum-post)
