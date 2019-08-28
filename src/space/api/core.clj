@@ -6,10 +6,12 @@
             [buddy.auth.middleware :as auth]
             [compojure.core :as c]
             [compojure.route :as route]
-            [space.api.db.core :as db]
-            [space.common.core :as cmn]
             [space.api.response :as r]
-            [space.api.security.core :as s]))
+            [space.api.security.core :as s]
+            [space.api.db.core :as db]
+            [space.api.db.forum.core :as forum]
+            [space.api.db.users.core :as users]
+            [space.api.db.users.sign-in :as sign-in]))
 
 ;; Forward declarations
 (declare start-server api-handler)
@@ -29,12 +31,12 @@
 ;; Describes how to respond to different URLs with Compojure
 (c/defroutes router
   (c/GET  "/" [] (r/ok {:message "This is the Space API server."}))
-  (c/GET  "/forum/get-page-count" [] db/get-forum-page-count)
-  (c/GET  "/forum/page-:page{[0-9]+}" [page] db/get-forum-page)
-  (c/POST "/forum/submit" [] db/submit-forum-post)
-  (c/GET  "/post/:post{[0-9]+}" [post] db/get-forum-post)
-  (c/GET  "/user/:username" [username] db/get-user-data)
-  (c/POST "/sign-in" [] db/attempt-sign-in)
+  (c/GET  "/forum/get-page-count" [] forum/get-forum-page-count)
+  (c/GET  "/forum/page-:page{[0-9]+}" [page] forum/get-forum-page)
+  (c/POST "/forum/submit" [] forum/submit-forum-post)
+  (c/GET  "/post/:post{[0-9]+}" [post] forum/get-forum-post)
+  (c/GET  "/user/:username" [username] users/get-user-data)
+  (c/POST "/sign-in" [] sign-in/attempt-sign-in)
   (route/not-found 
       (r/bad-request {:message "API User Error: Invalid route."})))
 

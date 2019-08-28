@@ -4,6 +4,7 @@
             [markdown.core :as md]
             [markdown.transformers :as mdt]
             [space.common.core :as cmn]
+            [space.site.cljs.views.loading :as l]
             [space.site.cljs.views.common.user :as usr]
             [space.site.cljs.views.common.tags :as tags]
             [space.site.cljs.events.post :as p]))
@@ -12,14 +13,17 @@
 
 (defn post
   "Display the page for a specific forum post"
-  []
-  (fn [{:keys [route-key path-params query-params]}]
-    (let [post-id (cmn/str->num (:post-number path-params))]
-      (p/dispatch-fetch-post post-id)
-      [:div.container.is-widescreen
-        (if-let [p @(rf/subscribe [:post])]
+  [{:keys [route-key path-params query-params]}]
+  (let [post-id (cmn/str->num (:post-number path-params))]
+    (p/dispatch-fetch-post post-id)
+    [:div.container.is-widescreen
+      (if-let [p @(rf/subscribe [:post])]
+        (if (and p (= (:post-number p) post-id))
           [show-post p]
-          [show-post-not-found])])))
+          [l/loading-screen
+              (str "Loading post: " post-id)
+              (str "Post " post-id)])
+        [show-post-not-found])]))
 
 (defn- show-post
   "Show the requested post"

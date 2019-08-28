@@ -44,7 +44,7 @@ CREATE TABLE tags (
 CREATE TABLE post_tags (
   post_id BIGINT NOT NULL,
   tag_id BIGINT NOT NULL,
-  base_value INT UNSIGNED NOT NULL,
+  base_value INT NOT NULL CHECK (base_value > 0) DEFAULT 1,
   PRIMARY KEY (post_id, tag_id)
 );
 
@@ -72,3 +72,26 @@ VALUES (
   'Hello there and welcome to Space! If you''re seeing this, Space has been set up correctly and is ready for use!'
 );
 
+-- Create some tags
+INSERT INTO tags (tag_label)
+VALUES 
+  ('clojure'),
+  ('reagent'),
+  ('re-frame');
+
+-- Associate the above post with these tags
+-- @TODO: Neaten this up a bit
+INSERT INTO post_tags (post_id, tag_id)
+VALUES
+  (
+    (SELECT post_id FROM posts LIMIT 1), 
+    (SELECT tag_id FROM tags WHERE tag_label = 'clojure')
+  ),
+  (
+    (SELECT post_id FROM posts LIMIT 1), 
+    (SELECT tag_id FROM tags WHERE tag_label = 'reagent')
+  ),
+  (
+    (SELECT post_id FROM posts LIMIT 1), 
+    (SELECT tag_id FROM tags WHERE tag_label = 're-frame')
+  );

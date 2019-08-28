@@ -8,10 +8,10 @@
     (let [post (:post response)]
       (assoc db :post post))))
 
-;; Fetch a post for the current page
+;; Clear the current post
 (rf/reg-event-db
-  :failed-fetch-post
-  (fn [db [_ response]]
+  :clear-post
+  (fn [db _]
     (assoc db :post nil)))
 
 ;; Read response from server
@@ -53,7 +53,7 @@
   [post-id]
   (rf/dispatch [:http-get
       [ (str "post/" post-id)
-        :fetch-post :failed-fetch-post]]))
+        :fetch-post :clear-post]]))
 
 (defn dispatch-submit-post
   "Submit a post to the Space API"

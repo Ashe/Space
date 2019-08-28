@@ -52,7 +52,6 @@
       [notifications/notification-panel]
       [footer/footer]]))
 
-
 ;; Choose which component function to use depending on route
 (defmulti get-page-content identity)
 (defmethod get-page-content :posts [] forum/forum)
