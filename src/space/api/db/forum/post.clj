@@ -1,7 +1,26 @@
 (ns space.api.db.forum.post)
 
+(defn get-post-query
+  "Get a tailored query string to reduce load on db"
+  [show-content?]
+  (apply str 
+    (interpose ", "
+      (filter some?
+        [ "post_id"
+          "post_title"
+          "post_date"
+          "post_summary"
+          (when show-content?  "post_content")
+          "post_image"
+          "is_anonymous" 
+          "user_id"
+          "username"
+          "user_nick"
+          "user_image"
+          "is_admin "]))))
+
 (defn prepare-forum-post
-  "Passes only important information t the client"
+  "Passes only important information to the client"
   [id show-content? p]
   (cond-> 
 

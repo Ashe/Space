@@ -26,9 +26,11 @@
         id (up/check-privilages (:identity request))]
     (if-let [query
         (sql/query @db/spec
-          [ "SELECT * FROM posts 
+          [ (str
+            "SELECT " (p/get-post-query false) 
+            "FROM posts 
             LEFT OUTER JOIN users ON posts.poster_id=users.user_id
-            LIMIT ? OFFSET ?"
+            LIMIT ? OFFSET ?")
             posts-per-page
             (max 0 (* page posts-per-page))])]
       (r/ok {:posts (map (partial p/prepare-forum-post id false) query)})
@@ -41,10 +43,12 @@
         id (up/check-privilages (:identity request))]
     (if (pos? post-id)
       (let [[query] (sql/query @db/spec
-            [ "SELECT * FROM posts
+            [ (str 
+              "SELECT " (p/get-post-query true) 
+              "FROM posts
               LEFT OUTER JOIN users On posts.poster_id=users.user_id
               WHERE posts.post_id=?
-              LIMIT 1"
+              LIMIT 1")
               post-id])]
         (if query
           (r/ok {:post (p/prepare-forum-post id true query)})
@@ -83,24 +87,14 @@
   "Retrieve posts by a user given a user_id"
   [id user-id & [amount]]
   (let [result (sql/query @db/spec
-          [ "SELECT
-              post_id,
-              post_title,
-              post_date,
-              post_summary,
-              post_content,
-              post_image,
-              is_anonymous,
-              user_id,
-              username,
-              user_nick,
-              user_image,
-              is_admin
-            FROM posts
-            INNER JOIN users On 
-              posts.poster_id=users.user_id
-            WHERE users.user_id=?
-            LIMIT ?"
+          [ (str 
+              "SELECT "
+                (p/get-post-query false)
+              "FROM posts
+              INNER JOIN users On 
+                posts.poster_id=users.user_id
+              WHERE users.user_id=?
+              LIMIT ?")
            user-id
            (or amount 50)])]
     (if result

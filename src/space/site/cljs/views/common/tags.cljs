@@ -17,7 +17,7 @@
       [:div.control 
           {:key (str "tag-" id)}
         [:a 
-            { :href (str "/tags/" "foo")
+            { :href (str "/tags/" (:label tag))
               :style {:text-decoration "none"}}
           [:div.tags.has-addons
             [:span.tag.is-primary
