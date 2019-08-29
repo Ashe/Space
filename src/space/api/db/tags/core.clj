@@ -7,7 +7,7 @@
   "Return all tags and tag-ids in database"
   []
   (let [result (sql/query @db/spec
-          ["SELECT * FROM tags"])
+          ["SELECT tag_id, tag_label FROM tags"])
         collect 
           (fn [m l]
             (assoc m (:tags/tag_id l) 

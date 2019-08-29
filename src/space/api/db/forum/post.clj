@@ -6,18 +6,18 @@
   (apply str 
     (interpose ", "
       (filter some?
-        [ "post_id"
-          "post_title"
-          "post_date"
-          "post_summary"
-          (when show-content?  "post_content")
-          "post_image"
-          "is_anonymous" 
-          "user_id"
-          "username"
-          "user_nick"
-          "user_image"
-          "is_admin "]))))
+        [ "posts.post_id"
+          "posts.post_title"
+          "posts.post_date"
+          "posts.post_summary"
+          (when show-content?  "posts.post_content")
+          "posts.post_image"
+          "posts.is_anonymous" 
+          "users.user_id"
+          "users.username"
+          "users.user_nick"
+          "users.user_image"
+          "users.is_admin "]))))
 
 (defn prepare-forum-post
   "Passes only important information to the client"
