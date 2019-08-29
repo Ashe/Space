@@ -13,3 +13,20 @@
             (assoc m (:tags/tag_id l) 
                 {:label (str/lower-case (:tags/tag_label l))}))]
     (reduce collect {} result)))
+
+(defn get-post-tags
+  "Return tags and levels for a specific post"
+  [post-id]
+  (let [result (sql/query @db/spec
+          [ "SELECT 
+              tags.tag_id, 
+              post_tags.base_value
+            FROM post_tags
+            INNER JOIN tags ON post_tags.tag_id=tags.tag_id
+            WHERE post_tags.post_id=?"
+            post-id])]
+    (map 
+      (fn [l]
+        { :id (:tags/tag_id l)
+          :points (:post_tags/base_value l)})
+      result)))

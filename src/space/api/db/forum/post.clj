@@ -33,8 +33,7 @@
       :post-summary (:posts/post_summary p)
       :post-content (when show-content? (:posts/post_content p))
       :post-image (:posts/post_image p)
-      :is-anonymous (:posts/is_anonymous p)
-      :tag-ids [0 1 2 3]}
+      :is-anonymous (:posts/is_anonymous p)}
 
     ;; Reveal user information IF
     ;; - current user is admin

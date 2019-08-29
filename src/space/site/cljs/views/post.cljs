@@ -71,7 +71,7 @@
 
           ;; Post tags
           [:div.field.is-grouped.is-grouped-multiline
-            (map tags/make-tag (:tag-ids p))]
+            (map tags/make-tag (:tags p))]
 
           ;; Body
           [md-renderer (:post-content p)]]]]])
@@ -82,7 +82,7 @@
   [:div "Post not found :("])
 
 (defn- md-renderer 
-  "Creates a text editor with Simple MDE integration"
+  "Shows markdown content"
   [text]
   (r/create-class
     { :component-did-mount

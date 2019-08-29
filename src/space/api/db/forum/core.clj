@@ -36,27 +36,20 @@
       (r/ok {:posts (map (partial p/prepare-forum-post id false) query)})
       (r/bad-request {:message "API Error: (get-forum-page)"}))))
 
-(defn get-forum-post
-  "Get an individual forum post from the database"
-  [request]
-  (let [post-id (cmn/str->num (get-in request [:params :post]))
-        id (up/check-privilages (:identity request))]
-    (if (pos? post-id)
-      (let [[query] (sql/query @db/spec
-            [ (str 
-              "SELECT " (p/get-post-query true) 
-              "FROM posts
-              LEFT OUTER JOIN users On posts.poster_id=users.user_id
-              WHERE posts.post_id=?
-              LIMIT 1")
-              post-id])]
-        (if query
-          (r/ok {:post (p/prepare-forum-post id true query)})
-          (r/bad-request {:message "API Error: (get-forum-post) 
-                                   - post not found"})))
-      (r/bad-request {
-          :message (str "API User Error: (get-forum-post) - 
-                        invalid post id (" post-id ")")}))))
+(defn id->post
+  "Get a post from an ID"
+  [id post-id]
+  (let [[result] (sql/query @db/spec
+        [ (str 
+          "SELECT " (p/get-post-query true) 
+          "FROM posts
+          LEFT OUTER JOIN users On posts.poster_id=users.user_id
+          WHERE posts.post_id=?
+          LIMIT 1")
+          post-id])]
+    (if result
+      (p/prepare-forum-post id true result)
+      (println "Error (id->post): Could not find post: " post-id))))
 
 (defn submit-forum-post
   "Validate and upload a post to the database, return the post ID on success"

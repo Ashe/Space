@@ -5,17 +5,16 @@
 ;; @TODO: Make this customisable
 (defn make-tag
   "Make a tag from a tag's ID"
-  [id & [level]]
+  [tag-data]
   (let [info @(rf/subscribe [:space-info])
-        tag ((keyword (str id)) (:tags info)) 
-        colour (case id
-                  0 "is-info"
-                  1 "is-success"
-                  2 "is-danger"
-                  nil)]
+        tag 
+            (merge 
+              tag-data 
+              ((keyword (str (:id tag-data))) (:tags info)))]
+    (println "TAG: " tag)
     (when tag
       [:div.control 
-          {:key (str "tag-" id)}
+          {:key (str "tag-" (:id tag))}
         [:a 
             { :href (str "/tags/" (:label tag))
               :style {:text-decoration "none"}}
@@ -25,5 +24,6 @@
                   { :color "#ffffff"
                     :background-color "#00d1b2"}}
               (str/capitalize (:label tag))]
-            [:span.tag.is-dark 
-              (str (or level 0))]]]])))
+            (when (contains? tag :points)
+              [:span.tag.is-dark 
+                (str (:points tag))])]]])))

@@ -61,5 +61,5 @@
 
             ;; Post tags
             [:div.field.is-grouped.is-grouped-multiline
-              (map tags/make-tag (:tag-ids p))]
+              (map tags/make-tag (:tags p))]
             ]]]]]))

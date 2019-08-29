@@ -10,7 +10,8 @@
             [space.api.security.core :as s]
             [space.api.db.core :as db]
             [space.api.users.core :as users]
-            [space.api.db.forum.core :as forum]
+            [space.api.forum.core :as forum]
+            [space.api.db.forum.core :as temp]
             [space.api.db.users.sign-in :as sign-in]))
 
 ;; Forward declarations
@@ -31,9 +32,9 @@
 ;; Describes how to respond to different URLs with Compojure
 (c/defroutes router
   (c/GET  "/" [] db/send-space-info)
-  (c/GET  "/forum/get-page-count" [] forum/get-forum-page-count)
-  (c/GET  "/forum/page-:page{[0-9]+}" [page] forum/get-forum-page)
-  (c/POST "/forum/submit" [] forum/submit-forum-post)
+  (c/GET  "/forum/get-page-count" [] temp/get-forum-page-count)
+  (c/GET  "/forum/page-:page{[0-9]+}" [page] temp/get-forum-page)
+  (c/POST "/forum/submit" [] temp/submit-forum-post)
   (c/GET  "/post/:post{[0-9]+}" [post] forum/get-forum-post)
   (c/GET  "/user/:username" [username] users/get-user-data)
   (c/POST "/sign-in" [] sign-in/attempt-sign-in)
