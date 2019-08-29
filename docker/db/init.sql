@@ -33,8 +33,9 @@ CREATE TABLE posts (
 -- This value will be used to sort, rank and incentivise content
 -- @TODO: Store tag background and font colours
 CREATE TABLE tags (
-  tag_id bigserial NOT NULL,
-  tag_label varchar(18)
+  tag_id BIGSERIAL NOT NULL,
+  tag_label VARCHAR(18) NOT NULL,
+  PRIMARY KEY (tag_id)
 );
 
 -- Posts have many tags and tags can belong to many posts
@@ -45,7 +46,9 @@ CREATE TABLE post_tags (
   post_id BIGINT NOT NULL,
   tag_id BIGINT NOT NULL,
   base_value INT NOT NULL CHECK (base_value > 0) DEFAULT 1,
-  PRIMARY KEY (post_id, tag_id)
+  PRIMARY KEY (post_id, tag_id),
+  FOREIGN KEY (post_id) REFERENCES posts(post_id),
+  FOREIGN KEY (tag_id) REFERENCES tags(tag_id)
 );
 
 -- Users can praise contributions for points
@@ -55,12 +58,21 @@ CREATE TABLE praises (
   user_id BIGINT NOT NULL,
   post_id BIGINT NOT NULL,
   tag_id BIGINT NOT NULL,
-  PRIMARY KEY (user_id, post_id, tag_id)
+  PRIMARY KEY (user_id, post_id, tag_id),
+  FOREIGN KEY (post_id, tag_id) REFERENCES post_tags(post_id, tag_id),
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  FOREIGN KEY (post_id) REFERENCES posts(post_id),
+  FOREIGN KEY (tag_id) REFERENCES tags(tag_id)
 );
 
 -- Create an initial admin user
 INSERT INTO users (user_nick, username, password, user_bio, is_admin)
-VALUES ('Space Team', 'space', 'nebula', '(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ Your friendly neighbourhood Space Team!', true);
+VALUES (
+  'Space Team', 
+  'space', 
+  'nebula', 
+  '(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ Your friendly neighbourhood Space Team!', 
+  true);
 
 -- Create an initial post for the database
 INSERT INTO posts (poster_id, post_date, post_title, post_image, post_content)
@@ -69,12 +81,14 @@ VALUES (
   current_timestamp,
   'Welcome to Space!',
   'https://cdn.pixabay.com/photo/2011/12/14/12/17/galaxy-11098_960_720.jpg',
-  'Hello there and welcome to Space! If you''re seeing this, Space has been set up correctly and is ready for use!'
+  'Hello there and welcome to Space! If you''re seeing this, 
+    Space has been set up correctly and is ready for use!'
 );
 
 -- Create some tags
 INSERT INTO tags (tag_label)
 VALUES 
+  ('space'),
   ('clojure'),
   ('reagent'),
   ('re-frame');
@@ -83,6 +97,10 @@ VALUES
 -- @TODO: Neaten this up a bit
 INSERT INTO post_tags (post_id, tag_id)
 VALUES
+  (
+    (SELECT post_id FROM posts LIMIT 1), 
+    (SELECT tag_id FROM tags WHERE tag_label = 'space')
+  ),
   (
     (SELECT post_id FROM posts LIMIT 1), 
     (SELECT tag_id FROM tags WHERE tag_label = 'clojure')
