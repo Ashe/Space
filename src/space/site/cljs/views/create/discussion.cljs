@@ -116,11 +116,12 @@
         title-min title-max]
 
     ;; Tags
-    [f/make-tag-input tags
-        "Tags*" ["clojure" "re-frame"]
-        "Help other users find your post using tags" "fa-tags"
-        '("Select " [:a {:href "/tags/"} "tags"] " that your post
-          belongs to and earn points")]
+    (let [space-tags (:tags @(rf/subscribe [:space-info]))]
+      [f/make-tag-input tags 
+          "Tags*" (map :label (vals space-tags))
+          "Help other users find your post using tags" "fa-tags"
+          '("Select " [:a {:href "/tags/"} "tags"] " that your post
+            belongs to and earn points")])
 
     ;; Summary
     [f/make-text-input summary 
