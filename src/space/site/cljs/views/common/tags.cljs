@@ -2,7 +2,6 @@
   (:require [clojure.string :as str]
             [re-frame.core :as rf]))
 
-;; @TODO: Make this customisable
 (defn make-tag
   "Make a tag from a tag's ID"
   [tag-data]
@@ -11,7 +10,6 @@
             (merge 
               tag-data 
               ((keyword (str (:id tag-data))) (:tags info)))]
-    (println "TAG: " tag)
     (when tag
       [:div.control 
           {:key (str "tag-" (:id tag))}

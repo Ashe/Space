@@ -1,55 +1,10 @@
 (ns space.api.db.forum.core
-  (:require [clojure.math.numeric-tower :as math]
-            [next.jdbc.sql :as sql]
+  (:require [next.jdbc.sql :as sql]
             [buddy.auth :as auth]
-            [space.common.core :as cmn]
             [space.api.response :as r]
             [space.api.security.url :as url]
             [space.api.db.connection :as db]
-            [space.api.db.users.privilages :as up]
             [space.api.db.forum.post :as p]))
-
-;; How many posts from the database to send per page
-(def posts-per-page 10)
-
-(defn get-forum-page-count
-  "Get how many pages there are in the database"
-  [_]
-  (if-let [[q] (sql/query @db/spec ["SELECT COUNT(post_id) FROM posts"])]
-    (r/ok {:pages (math/ceil (/ (:count q) posts-per-page))})
-    (r/bad-request {:message "API Error: (get-forum-page-count)"})))
-
-(defn get-forum-page
-  "Get a forum page from the database"
-  [request]
-  (let [page (cmn/str->num (get-in request [:params :page]))
-        id (up/check-privilages (:identity request))]
-    (if-let [query
-        (sql/query @db/spec
-          [ (str
-            "SELECT " (p/get-post-query false) 
-            "FROM posts 
-            LEFT OUTER JOIN users ON posts.poster_id=users.user_id
-            LIMIT ? OFFSET ?")
-            posts-per-page
-            (max 0 (* page posts-per-page))])]
-      (r/ok {:posts (map (partial p/prepare-forum-post id false) query)})
-      (r/bad-request {:message "API Error: (get-forum-page)"}))))
-
-(defn id->post
-  "Get a post from an ID"
-  [id post-id]
-  (let [[result] (sql/query @db/spec
-        [ (str 
-          "SELECT " (p/get-post-query true) 
-          "FROM posts
-          LEFT OUTER JOIN users On posts.poster_id=users.user_id
-          WHERE posts.post_id=?
-          LIMIT 1")
-          post-id])]
-    (if result
-      (p/prepare-forum-post id true result)
-      (println "Error (id->post): Could not find post: " post-id))))
 
 (defn submit-forum-post
   "Validate and upload a post to the database, return the post ID on success"

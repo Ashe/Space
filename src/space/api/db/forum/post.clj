@@ -1,4 +1,25 @@
-(ns space.api.db.forum.post)
+(ns space.api.db.forum.post
+  (:require [next.jdbc.sql :as sql]
+            [space.api.db.connection :as db]
+            [space.api.db.forum.post :as p]))
+
+;; Forward declarations
+(declare get-post-query prepare-forum-post)
+
+(defn id->post
+  "Get a post from an ID"
+  [id post-id]
+  (let [[result] (sql/query @db/spec
+          [ (str 
+            "SELECT " (get-post-query true) 
+            "FROM posts
+            LEFT OUTER JOIN users On posts.poster_id=users.user_id
+            WHERE posts.post_id=?
+            LIMIT 1")
+            post-id])]
+    (if result
+      (prepare-forum-post id true result)
+      (println "Error (id->post): Could not find post: " post-id))))
 
 (defn get-post-query
   "Get a tailored query string to reduce load on db"

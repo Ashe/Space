@@ -55,7 +55,10 @@
               [:div.column
                 [:div.field.is-grouped.is-grouped-multiline
                   ;; @TODO: Get user tags here
-                  (map tags/make-tag (range 3))]]]
+                  (doall (map tags/make-tag 
+                    (map 
+                        (fn [i] {:id i :points (* i 3)}) 
+                        (range 1 4))))]]]
             [:p "Social media links?"]]]]]
       
     ;; Bio
@@ -75,9 +78,11 @@
     [:article.message.is-warning
       [:div.message-body
         [:div.field.is-grouped.is-grouped-multiline
-          (map tags/make-tag 
-            ;; @TODO: Get user tags here
-            (shuffle (range 3)))]]]
+          ;; @TODO: Get user tags here
+          (doall (map tags/make-tag 
+            (shuffle (map 
+                (fn [i] {:id i :points (* i 3)}) 
+                (range 1 5)))))]]]
 
     ;; Posts
     (let [posts @(rf/subscribe [:posts])]
@@ -88,7 +93,9 @@
               [:h3.title.is-5 "Posts"]]]
            [:article.message.is-link
              [:div.message-body
-                (doall (map #(post/make-post % {:hide-names true}) posts))]]]))])
+                (doall (map 
+                  #(post/make-post % {:hide-names true}) 
+                  posts))]]]))])
 
 (defn- user-not-found
   "Show a 'user not found' screen"

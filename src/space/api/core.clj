@@ -32,8 +32,8 @@
 ;; Describes how to respond to different URLs with Compojure
 (c/defroutes router
   (c/GET  "/" [] db/send-space-info)
-  (c/GET  "/forum/get-page-count" [] temp/get-forum-page-count)
-  (c/GET  "/forum/page-:page{[0-9]+}" [page] temp/get-forum-page)
+  (c/GET  "/forum/get-page-count" [] forum/get-forum-page-count)
+  (c/GET  "/forum/page-:page{[0-9]+}" [page] forum/get-forum-page)
   (c/POST "/forum/submit" [] temp/submit-forum-post)
   (c/GET  "/post/:post{[0-9]+}" [post] forum/get-forum-post)
   (c/GET  "/user/:username" [username] users/get-user-data)

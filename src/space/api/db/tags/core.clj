@@ -16,17 +16,19 @@
 
 (defn get-post-tags
   "Return tags and levels for a specific post"
-  [post-id]
+  [post-ids]
   (let [result (sql/query @db/spec
           [ "SELECT 
               tags.tag_id, 
+              post_tags.post_id,
               post_tags.base_value
             FROM post_tags
             INNER JOIN tags ON post_tags.tag_id=tags.tag_id
-            WHERE post_tags.post_id=?"
-            post-id])]
-    (map 
+            WHERE post_tags.post_id = ANY(?)"
+            (long-array post-ids)])]
+    (group-by :post-number (map 
       (fn [l]
         { :id (:tags/tag_id l)
+          :post-number (:post_tags/post_id l)
           :points (:post_tags/base_value l)})
-      result)))
+      result))))
