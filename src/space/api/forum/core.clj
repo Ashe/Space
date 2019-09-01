@@ -20,7 +20,7 @@
         post-id (cmn/str->num (get-in request [:params :post]))
         post (p/id->post id post-id)
         tags (get (t/get-post-tags [post-id]) post-id)]
-    (if (and post tags)
+    (if post
       (r/ok { :post (assoc post :tags tags)})
       (r/bad-request {:message (str "API Error: (get-forum-post) 
                                 - could not find post: " post-id)}))))
