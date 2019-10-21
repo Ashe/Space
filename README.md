@@ -1,11 +1,3 @@
----
-layout: post
-title: Space
-excerpt: A forum I made while learning Clojure, React and PostgreSQL. 
-thumbnail: "content/2019-08/forum.png"
-tags: Portfolio, Website, Clojure, React, PostgreSQL
----
-
 ## What is Space?
 Space is an open-source forum that I was making in order to learn Clojure. I've
 never done any sort of web development other than this Blog with Hakyll and some
