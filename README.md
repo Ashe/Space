@@ -9,7 +9,7 @@ subject to ask the right questions, or maybe the bug you're experiencing isn't
 the code but your approach, something which is harder to learn in tutorials
 that show solutions rather than workflow.
 
-![Walkthrough](https://blog.aas.sh/content/2019-08/walkthrough.gif)
+![Forum](/img/forum.png)
 
 When newcomers go to [Stack Overflow](https://stackoverflow.com/), their first
 impressions can be hit or miss. If they fail to supply a project that allows for
@@ -32,7 +32,7 @@ it did kill off most forums by having everything in one place. Because of this,
 a lot of communities suffer from having to do things the Reddit way, as well as
 their identities being shared between each community they're a part of.
 
-![Forum](https://blog.aas.sh/content/2019-08/forum.png)
+![Create a post](/img/create.png)
 
 ## Gamification for Space
 I have this idea of tags being like skill levels that you can work on while
@@ -46,7 +46,7 @@ its tags that come from your own levels - meaning that in a programming Space, a
 user's `Clojure` level will dictate the `Clojure` level of their post, assuming
 they tagged it correctly.
 
-![User](https://blog.aas.sh/content/2019-08/user-screenshot.png)
+![User](/img/user.png)
 
 Posts accumilate experience points through a variety of factors, but ultimately
 the longer the post stays up and the attention it receives increases its levels
@@ -64,7 +64,7 @@ that users will have a higher reward for participating in low-difficulty threads
 Tags could eventually evolve elsewhere too. They could be used as currency, used
 in forum games or give aways or used as roles to organise site users further.
 
-![Create](https://blog.aas.sh/content/2019-08/create-screenshot.png)
+![Create](/img/discussion.png)
 
 ## Current State
 Space is currently in its early stages. You can create posts (as a guest,
@@ -72,7 +72,7 @@ anonymous or as a plain old user), log in admins can see through anonymous
 posts. Posts are written in Markdown and tags can entered using a custom widget
 I created.
 
-![Markdown](https://blog.aas.sh/content/2019-08/markdown.png)
+![Sign in](/img/signin.png)
 
 ## Contribution
 I haven't written much documentation and so contribution may be difficult right
