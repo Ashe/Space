@@ -1,0 +1,44 @@
+version: '3.7'
+services:
+
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/db/Dockerfile
+    restart: always
+    environment:
+      POSTGRES_USER: space
+      POSTGRES_PASSWORD: nebula
+    ports:
+      - "5432:5432"
+
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DESIGN: pepa-linha
+    ports:
+      - "1234:8080"
+    depends_on:
+      - db
+
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    links:
+      - db
+    depends_on:
+      - db
+
+  site:
+    build:
+      context: .
+      dockerfile: ./docker/site/Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"

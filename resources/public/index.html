@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Space</title>
+
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="/css/bulma.min.css"/>
+
+    <!-- Font awesome link -->
+    <script src="https://kit.fontawesome.com/c1726ec537.js"></script>
+
+    <!-- SimpleMDE markdown editor -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
+    <!-- HighlightJS, syntax highlighting in posts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.10/build/styles/solarized-light.min.css">
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.10/build/highlight.min.js"></script>
+    <script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.9/languages/cmake.min.js"></script>
+    <script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.9/languages/fsharp.min.js"></script>
+    <script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.9/languages/rust.min.js"></script>
+    <script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.9/languages/lua.min.js"></script>
+    <script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.9/languages/haskell.min.js"></script>
+    <script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.9/languages/clojure.min.js"></script>
+    <script charset="UTF-8" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.9/languages/go.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+  </head>
+  <body>
+
+    <div id="app" >
+      <section class="hero is-fullheight is-primary is-bold">
+        <div class="hero-body">
+          <div class="box" style="margin:auto">
+            <div class="level is-mobile">
+              <div class="level-item">
+                <span class="icon is-large"><i class="fas fa-3x fa-rocket"></i></span>
+              </div>
+              <div class="level-right">
+                <div class="container">
+                  <h1 class="title is-1 has-text-dark">
+                    Loading Space..
+                  </h1>
+                  <h2 class="subtitle has-text-dark">
+                    Please be patient! 
+                  </h2>
+                </div>
+              </div>
+            </div>
+            <progress class="progress is-small is-primary" max="100">15%</progress>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="/js/space.js"></script>
+    <script>
+      window.onload = function () {
+        space.site.cljs.core.run();
+      }
+    </script>
+
+  </body>
+</html>

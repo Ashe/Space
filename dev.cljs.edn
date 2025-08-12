@@ -1,0 +1,7 @@
+^{:watch-dirs ["src"]
+  :css-dirs ["resources/public"]
+  :auto-testing true
+  :ring-handler space.site.clj.core/site-handler
+  :ring-server-options {:port 8080}}
+{ :main space.site.cljs.core
+  :output-to "target/public/js/space.js"}
